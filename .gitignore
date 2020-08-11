@@ -1,3 +1,7 @@
+# fuse
+.fuse_hidden*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
