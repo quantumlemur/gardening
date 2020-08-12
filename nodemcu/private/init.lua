@@ -1,73 +1,59 @@
--- load credentials, 'SSID' and 'PASSWORD' declared and initialize in there
-dofile("credentials.lua")
+sec, usec, rate = rtctime.get()
+print(tostring(sec))
+wifi_in_use = false
+gpio.write(0, 0)
 
-function startup()
-    if file.open("init.lua") == nil then
-        print("init.lua deleted or renamed")
-    else
-        print("Running")
-        file.close("init.lua")
-        -- the actual application is stored in 'application.lua'
-        -- dofile("application.lua")
-        dofile("update_files.lua")
-        dofile("flash.lua")
-    end
+
+-- ensure DAC is set to read external voltage
+if adc.force_init_mode(adc.INIT_ADC)
+then
+  node.restart()
+  return -- don't bother continuing, the restart is scheduled
 end
 
--- Define WiFi station event callbacks
-wifi_connect_event = function(T)
-  print("Connection to AP("..T.SSID..") established!")
-  print("Waiting for IP address...")
-  if disconnect_ct ~= nil then disconnect_ct = nil end
+
+-- create timer files if they don't exist
+if not file.exists("last_boot_time") then
+  file.putcontents("last_boot_time", 0)
 end
 
-wifi_got_ip_event = function(T)
-  -- Note: Having an IP address does not mean there is internet access!
-  -- Internet connectivity can be determined with net.dns.resolve().
-  print("Wifi connection is ready! IP address is: "..T.IP)
-  print("Startup will resume momentarily, you have 3 seconds to abort.")
-  print("Waiting...")
-  tmr.create():alarm(3000, tmr.ALARM_SINGLE, startup)
+if not file.exists("next_wifi_time") then
+  file.putcontents("next_wifi_time", 0)
 end
 
-wifi_disconnect_event = function(T)
-  if T.reason == wifi.eventmon.reason.ASSOC_LEAVE then
-    --the station has disassociated from a previously connected AP
-    return
-  end
-  -- total_tries: how many times the station will attempt to connect to the AP. Should consider AP reboot duration.
-  local total_tries = 75
-  print("\nWiFi connection to AP("..T.SSID..") has failed!")
-
-  --There are many possible disconnect reasons, the following iterates through
-  --the list and returns the string corresponding to the disconnect reason.
-  for key,val in pairs(wifi.eventmon.reason) do
-    if val == T.reason then
-      print("Disconnect reason: "..val.."("..key..")")
-      break
-    end
-  end
-
-  if disconnect_ct == nil then
-    disconnect_ct = 1
-  else
-    disconnect_ct = disconnect_ct + 1
-  end
-  if disconnect_ct < total_tries then
-    print("Retrying connection...(attempt "..(disconnect_ct+1).." of "..total_tries..")")
-  else
-    wifi.sta.disconnect()
-    print("Aborting connection to AP!")
-    disconnect_ct = nil
-  end
+if not file.exists("wifi_interval") then
+  file.putcontents("wifi_interval", 60) -- seconds
 end
 
--- Register WiFi Station event callbacks
-wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, wifi_connect_event)
-wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, wifi_got_ip_event)
-wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, wifi_disconnect_event)
+if not file.exists("sleep_interval") then
+  file.putcontents("sleep_interval", 10) -- seconds
+end
 
-print("Connecting to WiFi access point...")
-wifi.setmode(wifi.STATION)
-wifi.sta.config({ssid=SSID, pwd=PASSWORD})
--- wifi.sta.connect() not necessary because config() uses auto-connect=true by default
+-- read timer files
+last_boot_time = tonumber(file.getcontents("last_boot_time"))
+next_wifi_time = tonumber(file.getcontents("next_wifi_time"))
+wifi_interval = tonumber(file.getcontents("wifi_interval"))
+sleep_interval = tonumber(file.getcontents("sleep_interval"))
+
+
+-- store the current boot time
+file.putcontents("last_boot_time", tostring(sec))
+
+-- if it's past time to connect to wifi, 
+-- or I've restarted twice within the past 5 seconds, 
+-- then connect to wifi
+if (sec > next_wifi_time) or (sec - last_boot_time < 5) then
+  wifi_in_use = true
+  dofile("connect_wifi.lua")
+end
+
+-- read from the sensors
+dofile("no_wifi.lua")
+
+
+if wifi_in_use then
+  tmr.create():alarm(60000, tmr.ALARM_SINGLE, function() rtctime.dsleep(sleep_interval*1000000) end)
+else
+  rtctime.dsleep(sleep_interval*1000000)
+end
+

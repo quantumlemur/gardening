@@ -1,9 +1,14 @@
 
+
+http.get("http://nuc:5000/status/updating_files", "", "")
+
+
 create_write_callback = function(filename)
 	return function(status_code, body, headers)
 		if status_code == 200 then
 			file.putcontents(filename, body)
-			node.restart()
+			http.get("http://nuc:5000/status/restarting", "", "")
+			tmr.create():alarm(5000, tmr.ALARM_SINGLE, function() node.restart() end)
 		end
 	end
 end
@@ -16,10 +21,10 @@ check_for_file_change = function(filename, hash)
 		if encoder.toHex(device_hash) == hash then
 			print("same")
 		else
-			http.get("http://nuc:5000/files/"..filename, "", create_write_callback(filename))
+			http.get("http://nuc:5000/api/getfile/"..filename, "", create_write_callback(filename))
 		end
 	else
-		http.get("http://nuc:5000/files/"..filename, "", create_write_callback(filename))
+		http.get("http://nuc:5000/api/getfile/"..filename, "", create_write_callback(filename))
 	end
 end
 
@@ -37,4 +42,4 @@ check_for_updates = function(status_code, body, headers)
 end
 
 
-http.get("http://nuc:5000/listfiles", "", check_for_updates)
+http.get("http://nuc:5000/api/listfiles", "", check_for_updates)
