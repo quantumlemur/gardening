@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS readings;
 
 
 CREATE TABLE devices (
@@ -8,4 +9,13 @@ CREATE TABLE devices (
   password TEXT NOT NULL,
   name TEXT,
   last_seen TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE readings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp INTEGER NOT NULL,
+  value INTEGER NOT NULL,
+  offset INTEGER NOT NULL,
+  name TEXT
 );

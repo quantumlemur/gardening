@@ -11,7 +11,16 @@ def get_db():
             current_app.config['DATABASE'],
             detect_types=sqlite3.PARSE_DECLTYPES
         )
-        g.db.row_factory = sqlite3.Row
+
+        def make_dicts(cursor, row):
+            return dict((cursor.description[idx][0], value)
+                        for idx, value in enumerate(row))
+        def make_lists(cursor, row):
+            return list(row)
+
+        g.db.row_factory = make_lists
+
+        # g.db.row_factory = sqlite3.Row
 
     return g.db
 

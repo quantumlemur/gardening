@@ -1,19 +1,28 @@
-history_file = "sensor_history_file"
+print("entering read_sensors.lua")
 
 
 sec, usec, rate = rtctime.get()
-val = adc.read(0)
 
-
-
-if file.exists(history_file) then
-	decoder = sjson.decoder()
-	decoder:write(file.getcontents(history_file))
-	history = decoder:result()
+if sec > 0 then
+	local value = adc.read(0)
+	print("read value "..value)
+	rtcfifo.put(sec, value, 0, "soil")
 else
-	history = {}
+	print("didn't read because t=0")
 end
 
-history[sec] = val
+go_to_sleep = function()
+	sec, usec, rate = rtctime.get()
+	print("going to sleep at "..tostring(sec))
+	gpio.write(4, 1)
+	tmr.create():alarm(1000, tmr.ALARM_SINGLE, function() rtctime.dsleep(sleep_interval*1000000, 4) end )
+	-- tmr.create():alarm(5000, tmr.ALARM_SINGLE, function() dofile("init.lua") end )
+	print("...............at end of sleep function...")
+end
 
-file.putcontents(history_file, sjson.encode(history))
+
+print(tostring(wifi.getmode()).." "..wifi.NULLMODE)
+if wifi.getmode() == wifi.NULLMODE then
+	print("done with sensors and wifi is off.  going to sleep")
+	go_to_sleep()
+end

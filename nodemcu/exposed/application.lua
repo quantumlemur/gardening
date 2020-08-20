@@ -1,10 +1,17 @@
-http.get("http://nuc:5000/status/application", "", "")
+print("entering application.lua")
 
-dofile("auth.lua")
 
--- dofile("flash.lua")
+-- http.get("http://nuc:5000/status/application", "", "")
 
-dofile("send_readings.lua")
+-- if file.exists("auth.lua") then
+-- 	require("auth")
+-- end
+
+-- require("flash")
+
+if file.exists("send_readings.lua") then
+	require("send_readings")
+end
 
 
 

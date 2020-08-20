@@ -1,8 +1,8 @@
 import functools
 import hashlib
 
+from datetime import datetime
 from os import scandir
-
 
 
 from flask import (
@@ -37,3 +37,17 @@ def listfiles():
 @bp.route('/getfile/<path:filename>', methods=('GET', 'POST'))
 def getfile(filename):
     return send_from_directory(current_app.config['NODEMCU_FILE_PATH'], filename)
+
+
+@bp.route('/readings', methods=('GET', 'POST'))
+def readings():
+    db = get_db()
+    error = None
+    for reading in request.json:
+        db.execute(
+            'INSERT INTO readings (timestamp, value, offset, name) VALUES (?, ?, ?, ?)',
+            (reading[0], reading[1], reading[2], reading[3])
+            )
+        print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
+    db.commit()
+    return "hello"

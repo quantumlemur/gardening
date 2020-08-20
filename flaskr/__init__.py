@@ -38,21 +38,6 @@ def create_app(test_config=None):
         print(data)
         return 'Hello, World!'
 
-
-    @app.route('/files/<path:path>')
-    def send_file(path):
-        return send_from_directory('nodemcu/exposed', path)
-
-
-    # @app.route('/listfiles')
-    # def list_files():
-    #     file_list = []
-    #     with os.scandir('nodemcu/exposed') as files:
-    #         for f in files:
-    #             if f.is_file():
-    #                 file_list.append([f.name, md5('nodemcu/exposed/' + f.name)])
-    #     return json.dumps(file_list)
-
     from . import db
     db.init_app(app)
 
@@ -61,5 +46,8 @@ def create_app(test_config=None):
 
     from . import api
     app.register_blueprint(api.bp)
+
+    from . import graph
+    app.register_blueprint(graph.bp)
 
     return app

@@ -1,6 +1,6 @@
 
 -- use D4
-ledPin = 0
+ledPin = 4
 -- set mode to output
 gpio.mode(ledPin, gpio.OUTPUT)
 
