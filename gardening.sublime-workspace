@@ -1,0 +1,716 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"config",
+				"config_file_contents"
+			],
+			[
+				"last",
+				"last_boot_time"
+			],
+			[
+				"next",
+				"next_voltage_check"
+			],
+			[
+				"las",
+				"last_boot_time"
+			],
+			[
+				"status",
+				"status_code"
+			],
+			[
+				"his",
+				"history_file"
+			],
+			[
+				"wifi",
+				"wifi_in_use"
+			],
+			[
+				"identity",
+				"identity_file"
+			],
+			[
+				"check_for",
+				"check_for_file_change"
+			],
+			[
+				"ALARM",
+				"ALARM_AUTO"
+			],
+			[
+				"tc_fun",
+				"tc_funding_BYTCID"
+			],
+			[
+				"tc_f",
+				"tc_funding_BYTCID"
+			],
+			[
+				"tc_",
+				"tc_funding_BYTCID"
+			],
+			[
+				"fund",
+				"fundingList"
+			],
+			[
+				"templ",
+				"templateDoc"
+			],
+			[
+				"out",
+				"outstandingRequests"
+			],
+			[
+				"sortFun",
+				"sortFunctionBackwards"
+			],
+			[
+				"va",
+				"valueHasMutated"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "nodemcu/exposed/init.lua",
+			"settings":
+			{
+				"buffer_size": 3532,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "nodemcu/exposed/connect_wifi.lua",
+			"settings":
+			{
+				"buffer_size": 5436,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Anaconda Python Builder",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				],
+				[
+					"Packages/User/python3.sublime-build",
+					""
+				],
+				[
+					"Packages/User/Builds/Python_Run_File.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 125.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"floo",
+				"Floobits - Join Workspace"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 588.0
+	},
+	"console":
+	{
+		"height": 337.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/mike/gardening",
+		"/home/mike/gardening/nodemcu",
+		"/home/mike/gardening/nodemcu/exposed",
+		"/home/mike/gardening/nodemcu/private"
+	],
+	"file_history":
+	[
+		"/external/gardening/nodemcu/exposed/send_readings.lua",
+		"/external/gardening/nodemcu/exposed/init.lua",
+		"/external/gardening/nodemcu/exposed/startup.lua",
+		"/external/gardening/flaskr/graph.py",
+		"/external/gardening/flaskr/api.py",
+		"/external/gardening/nodemcu/exposed/update_files.lua",
+		"/external/gardening/nodemcu/exposed/connect_wifi.lua",
+		"/external/gardening/nodemcu/exposed/bootstrapper.lua",
+		"/external/gardening/flaskr/schema.sql",
+		"/external/gardening/flaskr/__init__.py",
+		"/external/gardening/flaskr/templates/graph/graph.html",
+		"/external/gardening/flaskr/db.py",
+		"/external/gardening/nodemcu/exposed/config",
+		"/external/gardening/nodemcu/exposed/voltage_check_interval",
+		"/external/gardening/nodemcu/exposed/wifi_interval",
+		"/external/gardening/nodemcu/exposed/sleep_interval",
+		"/external/gardening/nodemcu/exposed/read_sensors.lua",
+		"/external/gardening/nodemcu/exposed/application.lua",
+		"/external/gardening/nodemcu/exposed/no_wifi.lua",
+		"/external/gardening/nodemcu/exposed/init.lua.proper",
+		"/external/gardening/nodemcu/exposed/flash.lua",
+		"/external/gardening/flaskr/static/style.css",
+		"/external/gardening/flaskr/templates/base.html",
+		"/external/gardening/nodemcu/exposed/auth.lua",
+		"/external/gardening/nodemcu/private/update_files.lua",
+		"/external/gardening/nodemcu/private/init.lua",
+		"/external/gardening/flaskr/auth.py",
+		"/external/gardening/nodemcu/private/connect_wifi.lua",
+		"/external/gardening/instance/config.cfg",
+		"/external/gardening/README.md",
+		"/external/gardening/flaskr/listfiles.py",
+		"/external/gardening/flaskr/manage.py",
+		"/external/gardening/flaskr/config.py",
+		"/external/gardening/flaskr/tests/test_db.py",
+		"/external/gardening/flaskr/tests/data.sql",
+		"/external/gardening/flaskr/tests/test_factory.py",
+		"/external/gardening/flaskr/tests/conftest.py",
+		"/external/gardening/flaskr/setup.cfg",
+		"/external/gardening/flaskr/tests/test_auth.py",
+		"/external/gardening/flaskr/setup.py",
+		"/external/gardening/flaskr/templates/register.html",
+		"/external/gardening/flaskr/templates/login.html",
+		"/external/gardening/testserver.py",
+		"/external/nodemcu/update_files.lua",
+		"/external/nodemcu/flash.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/lua/init.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/nodemcu-uploader/init.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/nodemcu-uploader/update_files.lua",
+		"/external/flash.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/nodemcu-uploader/blink.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/lua/credentials.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/lua/blink.lua",
+		"/home/mike/Dropbox/Documents/Projects/nodemcu/lua/http.lua",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/dataprovider.js",
+		"/tmp/junk.php",
+		"/home/mike/Desktop/And so this is farewell",
+		"/home/mike/Dropbox/Documents/Classes/MGT6500 - Analytical Tools/Project/results.txt",
+		"/home/mike/Dropbox/Documents/Classes/MGT6500 - Analytical Tools/Project/gamesimulator.py",
+		"/tmp/message.txt",
+		"/home/mike/Dropbox/Documents/Work stuff/GSGC/2016/contacts",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/spmr-page/spmr-page.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/startup.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-template/edit-template.html",
+		"/home/mike/Dropbox/temp/com.ceco.marshmallow.gravitybox_preferences.xml",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/engrid-simple/engrid-simple.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/filter-control-page/filter-control-page.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/spmr-page/spmr-page.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/startup.js",
+		"/home/mike/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/tmp/untitled",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/pie-chart/pie-chart.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/bar-chart/bar-chart.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/dataLoader.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/stacked-bar-chart/stacked-bar-chart.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/engrid-simple-nopadding/engrid-simple.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/calculator.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/boot-strap-controls/boot-strap-controls.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/boot-strap-controls/boot-strap-controls.html",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/dataLoader.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/spmr-basic-page/spmr-basic-page.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.html",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/couch.js",
+		"/C/Users/mr234/AppData/Local/Temp/BYR-420110F395003440_92IDA-RWOMN-3P651-8SNIZ-6BVCV_0000_1.LICZ",
+		"/C/Users/mr234/Desktop/plink-asdl.bat",
+		"/C/Users/mr234/Documents/ssh/id_rsa.pub",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/filter-control-page/filter-control-page.html",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.html",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/task-lego/task-lego.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/risk-plot-circles/risk-plot-circles.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/excel-table/excel-table.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/router.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/grouped-bar-chart/grouped-bar-chart.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-template/edit-template.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-template/edit-template.html",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/filter-control-page/filter-control-page.js",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/bower_modules/jqueryui/themes/base/jquery-ui.css",
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/risk-plot/selectionFunctions.js",
+		"/C/Users/mr234/Dropbox/apps/Cerberus/Device990004544262128_Date18082015_112645/SMS/backup_sms_18082015_112646.txt",
+		"/C/Users/mr234/Dropbox/apps/Cerberus/Device990004544262128_Date18082015_112645/Calls/backup_calls_18082015_113428.xml",
+		"/home/mike/Desktop/apple chat",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/calculator.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/index.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/themeManager.js",
+		"/home/mike/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/yann-page/yann-page.js",
+		"/home/mike/.config/sublime-text-3/Packages/User/JavaScript.sublime-settings",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/controls/controls.js",
+		"/home/mike/.config/sublime-text-3/Packages/Default/Default (Linux).sublime-keymap",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.js",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.html",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.css",
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.css",
+		"/tmp/admitall.sql",
+		"/home/mike/bin/pastee",
+		"/tmp/junk.py",
+		"/home/mike/.config/sublime-text-3/Packages/User/HTML.sublime-settings"
+	],
+	"find":
+	{
+		"height": 37.0
+	},
+	"find_in_files":
+	{
+		"height": 95.0,
+		"where_history":
+		[
+			"<current file>,/external/gardening/nodemcu",
+			"<current file>",
+			"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/",
+			"C:\\Users\\mr234\\Dropbox\\Documents\\Projects\\NASA ARMD SPMR\\nasaProjectPortfolio\\",
+			"C:\\Users\\mr234\\Dropbox\\Documents\\Projects\\NASA ARMD SPMR\\nasaProjectPortfolio\\src",
+			"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/",
+			"<current file>",
+			"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"filename",
+			"putcont",
+			"heart",
+			"putconte",
+			"putcontents",
+			"putcont",
+			"putcon",
+			"put",
+			":",
+			"next_voltage_check",
+			"sleep_interval",
+			"axis",
+			"gpio",
+			"wifi_in_use",
+			"lua",
+			"dofile",
+			"disconnect_ct",
+			"disconnec",
+			"disconnect_ct",
+			"wifi_connect_timer",
+			"sync",
+			"%sync",
+			",",
+			"reason",
+			"rawcode, ",
+			",",
+			"putcontents",
+			"update_files",
+			"nuc",
+			"nextwifi",
+			"lastboot",
+			"identity.lua\"",
+			"confi",
+			"device",
+			"mac",
+			"MAC",
+			"mac",
+			"username",
+			"run",
+			"blinkOg",
+			"blinkOn",
+			"blinkOf",
+			"blinkOff",
+			"write_output",
+			"blinkOfa",
+			"blinkOff",
+			"blinkOn",
+			"\n\n",
+			"\t",
+			"ornithopter",
+			"\t",
+			"ornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphles",
+			" ",
+			"delete",
+			"mysql",
+			" Fuzzypants | ",
+			"JuliaCochran",
+			", vhost",
+			" reject",
+			", vhost",
+			" Nick:",
+			"\t",
+			",",
+			"\t",
+			"Edgar\tDillard\tprerequisites@mac.com\nHope\tDickson\thdickson@familysupportcircle.org\nPerry\tBrown\tpbrown@familysupportcircle.org\nTamika\tJackson\ttjackson@familysupportcircle.org\nMonica\tWalker\tmwalker@familysupportcircle.org\nTungelia\tNixon\ttcms21st@gmail.com\nChastidy\tWeldon\tcweldon649@gmail.com\nAbby\tCarter\ttcrced@rose.net\nAlex\tCoble\tcoblewil@gmail.com\nKaren\tNguyen\tkaren.nguyen@emory.edu\nKevin\tPark\tkevin.park@emory.edu\nKeiyitho\tOmonuwa\tkeiyitho.iris.omonuwa@emory.edu\nBarbara\tCoble\tbarbara.smith.coble@emory.edu\nDiodato\tGooding\tdgooding@uga.edu\nNaayab\tLadak\tnaayab.n.ladak@emory.edu\nAmber\tJones\tajone37@emory.edu\nHenry\tChappell\thpchapp@emory.edu\nMark\tDunaway\tdunaway.mark@gmail.com\nJohn\tChilds\tjc@mentalfitnessatl.org",
+			"\t",
+			"====",
+			"ornithopter",
+			"sts",
+			"spelm",
+			"savanna",
+			"agnes ",
+			"albany",
+			"alband",
+			"columbus",
+			"mercer",
+			"[A-Za-z ]+",
+			"[A-Za-z]",
+			"\\w",
+			"[a-z]*",
+			"[A-Z]*",
+			"[A-Za-z]*",
+			"[A-Za-z]+",
+			"[A-Za-z ]+",
+			"\\w+",
+			",",
+			"\\$",
+			"$",
+			"exponweib",
+			"[teamB]",
+			"[teamA]",
+			"teamA",
+			", floc=0",
+			"exponweib",
+			"])",
+			"len(data)",
+			")), ",
+			"len(data)),",
+			"len(data)",
+			"numpy",
+			"[]",
+			"y",
+			"v[",
+			"Off",
+			":0",
+			"Off",
+			"alldata",
+			"row",
+			"0",
+			",",
+			":0",
+			"0",
+			"',:0",
+			":0",
+			"0",
+			"',:0",
+			":0",
+			"\t",
+			"[0-9] \\w+",
+			"0 ",
+			"serlio",
+			"24000000 serlio",
+			"0 ",
+			"with the message.*$",
+			" cr to",
+			"subtract",
+			" - ",
+			"lockscreen"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"\n",
+			"",
+			"tc_list",
+			"// console.log"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "nodemcu/exposed/init.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3532,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								115,
+								115
+							]
+						],
+						"settings":
+						{
+							"origPos":
+							[
+								0.0,
+								0.0
+							],
+							"syncScroll": false,
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "nodemcu/exposed/connect_wifi.lua",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 5436,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								436,
+								436
+							]
+						],
+						"settings":
+						{
+							"origPos":
+							[
+								0.0,
+								0.0
+							],
+							"syncScroll": false,
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.439653678793,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 255.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.stino_build_panel":
+	{
+		"height": 0.0
+	},
+	"output.stino_panel":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/User/python3.sublime-build",
+	"project": "gardening.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"calcu",
+				"src\\app\\calculator.js"
+			],
+			[
+				"filter",
+				"src\\components\\filter-control-page\\filter-control-page.html"
+			],
+			[
+				"router",
+				"src\\app\\router.js"
+			],
+			[
+				"risk-pl",
+				"src\\components\\risk-plot-circles\\risk-plot-circles.js"
+			],
+			[
+				"grouped",
+				"src\\standard-components\\grouped-bar-chart\\grouped-bar-chart.js"
+			],
+			[
+				"couch.",
+				"src\\app\\couch.js"
+			],
+			[
+				"filter-",
+				"src\\components\\filter-control-page\\filter-control-page.js"
+			],
+			[
+				"test-page.ht",
+				"src\\components\\test-page\\test-page.html"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Dropbox/Documents/Projects/NASA ARMD SPMR/NASA ARMD SPRM.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 375.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 382.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 226.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
