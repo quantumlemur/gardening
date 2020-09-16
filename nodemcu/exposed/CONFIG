@@ -1,4 +1,4 @@
-CONFIG = {
+{
 	wifi_interval = 60,
 	sleep_interval = 10,
 	voltage_check_interval = 300

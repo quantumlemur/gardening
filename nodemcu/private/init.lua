@@ -123,7 +123,7 @@ create_write_callback = function(filename)
 			
 		end
 		-- process the next file in the queue
-		update_fifo.dequeue(get_file)
+		update_fifo:dequeue(get_file)
 	end
 end
 
@@ -148,7 +148,7 @@ check_for_updates = function(status_code, body, headers)
 		for key, file in pairs(server_files) do
 			if file_is_changed(file[1], file[2]) then
 				print("file is changed... "..file[1].." "..file[2])
-				update_fifo.queue(file[1], get_file)
+				update_fifo:queue(file[1], get_file)
 				print("file queued.. "..file[1])
 				need_restart = true
 			end
@@ -156,7 +156,7 @@ check_for_updates = function(status_code, body, headers)
 
 		print("end of queueing files")
 
-		update_fifo.dequeue(get_file)
+		update_fifo:dequeue(get_file)
 		-- I think we'll end up here after the queue is done processing
 		if need_restart then
 			file.flush()
