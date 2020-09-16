@@ -23,7 +23,7 @@ sec, usec, rate = rtctime.get()
 -- compile all .lua files to save on ram
 local l = file.list(".\.lua");
 for k,v in pairs(l) do
-	if not file.exists(string.gsub(k, "\.lua", "\.lc")) then
+	if k ~= "init.lua" and not file.exists(string.gsub(k, "\.lua", "\.lc")) then
 		node.compile(k)
 	end
 end
@@ -107,6 +107,7 @@ local update_fifo = (require "fifo").new()
 get_file = function(filename)
 	print("getting file "..filename)
 	http.get("http://192.168.86.33:5000/api/getfile/"..filename, "", create_write_callback(filename))
+end
 
 create_write_callback = function(filename)
 	print("creating callback for "..filename)
@@ -146,10 +147,15 @@ check_for_updates = function(status_code, body, headers)
 
 		for key, file in pairs(server_files) do
 			if file_is_changed(file[1], file[2]) then
-				update_fifo.queue(file[1])
+				print("file is changed... "..file[1].." "..file[2])
+				update_fifo.queue(file[1], get_file)
+				print("file queued.. "..file[1])
 				need_restart = true
 			end
 		end
+
+		print("end of queueing files")
+
 		update_fifo.dequeue(get_file)
 		-- I think we'll end up here after the queue is done processing
 		if need_restart then
@@ -168,9 +174,18 @@ check_for_updates = function(status_code, body, headers)
 end
 
 
------------------------  UPDATES  -----------------------
+-----------------------  AND GO  -----------------------
 
 
+-- Register WiFi Station event callbacks
+wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, wifi_connect_event)
+wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, wifi_got_ip_event)
+wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, wifi_disconnect_event)
+
+print("Connecting to WiFi access point...")
+wifi.setmode(wifi.STATION)
+wifi.sta.config({ssid=SSID, pwd=PASSWORD})
+-- wifi.sta.connect() not necessary because config() uses auto-connect=true by default
 
 
 -- Files available to compile?
