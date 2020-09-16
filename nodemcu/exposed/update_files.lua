@@ -32,8 +32,8 @@ create_write_callback = function(filename, files_to_update)
 		end
 		if files_to_update == nil then
 			file.flush()
-			print("file update complete.  Restarting...")
-			tmr.create():alarm(1000, tmr.ALARM_SINGLE, function() node.restart() end )
+			-- print("file update complete.  Restarting...")
+			-- tmr.create():alarm(1000, tmr.ALARM_SINGLE, function() node.restart() end )
 		else
 			local next_filename, next_files_to_update = table.remove(files_to_update)
 			http.get("http://192.168.86.33:5000/api/getfile/"..next_filename, "", create_write_callback(next_filename, next_files_to_update))

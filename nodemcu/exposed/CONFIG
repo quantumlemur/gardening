@@ -1,0 +1,14 @@
+{
+	"config": {
+		"wifi_interval": 60,
+		"sleep_interval": 10,
+		"voltage_check_interval": 300
+	},
+	"state": {
+		"last_boot_time": 0,
+		"last_wifi_time": 0,
+		"next_wifi_time": 0,
+		"next_voltage_check_time": 0,
+		"voltage": 0
+	}
+}
