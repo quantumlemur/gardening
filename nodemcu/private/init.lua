@@ -1,4 +1,3 @@
-print("***** Booting init.  Setting startupcommand to INIT.")
 node.startupcommand("@init.lua")
 
 node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector settings
@@ -6,7 +5,7 @@ node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector setti
 gpio.mode(4, gpio.OUTPUT)
 gpio.write(4, 0) -- turn on LED
 
-sec, usec, rate = rtctime.get()
+local sec, usec, rate = rtctime.get()
 
 local need_restart = false
 
@@ -18,9 +17,11 @@ if rtcfifo.ready() == 0 then -- prepare FIFO
 end
 
 
-if file.exists("COMMON_DEFS.lua") then
-	pcall(require, "COMMON_DEFS")
-	pcall(rtcmem.write32, MEMSLOT_BOOTS_SINCE_INIT, 0)
+pcall(require, "COMMON_DEFS")
+if package.loaded["COMMON_DEFS"] ~= nil then
+	rtcmem.write32(MEMSLOT_ENTRYS_SINCE_INIT, 0)
+	rtcmem.write32(MEMSLOT_LAST_INIT_TIME, sec)
+	rtcmem.write32(MEMSLOT_NEXT_INIT_TIME, sec + rtcmem.read32(MEMSLOT_INIT_INTERVAL))
 end
 
 
@@ -42,18 +43,38 @@ for k,v in pairs(l) do
 end
 
 
+-----------------------  VOLTAGE  -----------------------
+
+
+-- local sec, usec, rate = rtctime.get()
+
+-- if sec > 0 then
+-- 	local voltage = adc.readvdd33()
+
+-- 	if voltage ~= 65535 then
+-- 		-- we're in voltage mode
+-- 		rtcfifo.put(sec, voltage, 0, "volt")
+-- 		adc.force_init_mode(adc.INIT_ADC)
+-- 		need_restart = true
+-- 		print("INIT: read voltage of "..voltage)
+-- 	end
+-- else
+-- 	print("INIT: didn't read voltage because t=0")
+-- end
+
+
 -----------------------  WIFI  -----------------------
 
 
 require("CREDENTIALS")
 
 startup = function()
-	if file.open("init.lua") == nil then
-		print("INIT: init.lua deleted or renamed")
-	else
-		print("INIT: Running")
+	-- if file.open("init.lua") == nil then
+	-- 	print("INIT: init.lua deleted or renamed")
+	-- else
+	-- 	print("INIT: Running")
 		http.get("http://192.168.86.33:5000/api/listfiles", "", check_for_updates)
-	end
+	-- end
 end
 
 wifi_connect_event = function(T)
@@ -66,9 +87,7 @@ wifi_got_ip_event = function(T)
 	-- Note: Having an IP address does not mean there is internet access!
 	-- Internet connectivity can be determined with net.dns.resolve().
 	print("INIT: Wifi connection is ready! IP address is: "..T.IP)
-	print("INIT: Startup will resume momentarily, you have 3 seconds to abort.")
-	print("INIT: Waiting...")
-	tmr.create():alarm(3000, tmr.ALARM_SINGLE, startup)
+	tmr.create():alarm(1000, tmr.ALARM_SINGLE, startup)
 end
 
 wifi_disconnect_event = function(T)
@@ -83,7 +102,6 @@ end
 local update_fifo = (require "fifo").new()
 
 get_file = function(filename)
-	print("INIT: getting file "..filename)
 	http.get("http://192.168.86.33:5000/api/getfile/"..filename, "", create_write_callback(filename))
 end
 
@@ -95,7 +113,13 @@ create_write_callback = function(filename)
 
 			file.remove(filename_base..".lc") -- delete the old .lc file, so it can be recreated on the next boot
 
-			file.putcontents(filename, body)
+			fd = file.open(filename, "w")
+			if fd then
+				fd:write(body)
+				fd:close()
+			else
+				print("INIT:  WRITE FAILED FOR "..filename)
+			end
 		else
 			print("INIT: FETCH FAILED FOR: "..filename)
 		end
@@ -143,9 +167,8 @@ closeout = function()
 
 	-- restart if updates downloaded, else move on to normal processing
 	if need_restart then
-		file.flush()
-		print("INIT: restarting in 10 seconds...")
-		tmr.create():alarm(10000, tmr.ALARM_SINGLE, function() node.restart() end)
+		print("INIT: restarting in 20 seconds...")
+		tmr.create():alarm(20000, tmr.ALARM_SINGLE, function() node.restart() end)
 	else
 		if file.exists("entry.lua") then
 			require("entry")

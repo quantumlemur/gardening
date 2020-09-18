@@ -50,4 +50,7 @@ def create_app(test_config=None):
     from . import graph
     app.register_blueprint(graph.bp)
 
+    from . import manage
+    app.register_blueprint(manage.bp)
+
     return app
