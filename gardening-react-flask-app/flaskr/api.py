@@ -98,4 +98,4 @@ def readings():
 
 @bp.route('/time')
 def return_time():
-    return datetime.datetime.utcnow().timestamp()
+    return { "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f") }
