@@ -5,17 +5,18 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db
+from flaskr.db import get_db_dicts
 
 bp = Blueprint('manage', __name__, url_prefix='/manage')
 
 
 @bp.route('/manage', methods=('GET',))
 def manage_devices():
-    db = get_db()
+    db = get_db_dicts()
     error = None
     devices = db.execute(
             """SELECT
+                id,
                 mac,
                 name,
                 checkin_time,

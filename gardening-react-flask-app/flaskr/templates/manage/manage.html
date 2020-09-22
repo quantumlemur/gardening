@@ -4,59 +4,90 @@
   <h1>{% block title %}Log{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}
-<form>
-  <div class="row">
-    <div class="col">
-      Name
-    </div>
-    <div class="col">
-      checkin_time
-    </div>
-    <div class="col">
-      INIT_INTERVAL
-    </div>
-    <div class="col">
-      SLEEP_DURATION
-    </div>
-    <div class="col">
-      SLEEP_DELAY
-    </div>
-    <div class="col">
-      LIGHT
-    </div>
-    <div class="col">
 
-    </div>
+
+<p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Link with href
+  </a>
+  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Button with data-target
+  </button>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
   </div>
-</form>
+</div>
+
+
+
+{% block content %}
+
 {% for device in devices %}
-<form action="/api/submit_config" method="POST" id={{ device[0] }}>
-  <div class="row">
-    <input type="hidden" class="form-control" name="mac" value={{ device[0] }}>
-    <div class="col">
-      <input type="text" class="form-control" name="name" value={{ device[1] }} placeholder="name">
-    </div>
-    <div class="col">
-      {{ device[2] }}
-    </div>
-    <div class="col">
-      <input type="text" class="form-control" name="INIT_INTERVAL" value={{ device[3] }} placeholder="INIT_INTERVAL">
-    </div>
-    <div class="col">
-      <input type="text" class="form-control" name="SLEEP_DURATION" value={{ device[4] }} placeholder="SLEEP_DURATION">
-    </div>
-    <div class="col">
-      <input type="text" class="form-control" name="SLEEP_DELAY" value={{ device[5] }} placeholder="SLEEP_DELAY">
-    </div>
-    <div class="col">
-      <input type="text" class="form-control" name="LIGHT" value={{ device[6] }} placeholder="LIGHT">
-    </div>
-    <div class="col">
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
+<div class="card-header" id={{ "header{}".format(device["id"]) }}>
+  <h2 class="mb-0">
+    <button class="btn btn-link" data-toggle="collapse" href={{ "#collapse{}".format(device["id"]) }} role="button" aria-expanded="false" aria-controls={{ "#collapse{}".format(device["id"]) }}>
+      {{ device["name"] }}
+    </button>
+  </h2>
+</div>
+<div class="collapse" id={{ "collapse{}".format(device["id"]) }} >
+  <div class="card card-body">
+    <form>
+      <div class="row">
+        <div class="col">
+          Name
+        </div>
+        <div class="col">
+          checkin_time
+        </div>
+        <div class="col">
+          INIT_INTERVAL
+        </div>
+        <div class="col">
+          SLEEP_DURATION
+        </div>
+        <div class="col">
+          SLEEP_DELAY
+        </div>
+        <div class="col">
+          LIGHT
+        </div>
+        <div class="col">
+
+        </div>
+      </div>
+    </form>
+    <form action="/api/submit_config" method="POST" id={{ device["id"] }}>
+      <div class="row">
+        <input type="hidden" class="form-control" name="mac" value={{ device["mac"] }}>
+        <div class="col">
+          <input type="text" class="form-control" name="name" value={{ device["name"] }} placeholder="name">
+        </div>
+        <div class="col">
+          {{ device["checkin_time"] }}
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="INIT_INTERVAL" value={{ device["INIT_INTERVAL"] }} placeholder="INIT_INTERVAL">
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="SLEEP_DURATION" value={{ device["SLEEP_DURATION"] }} placeholder="SLEEP_DURATION">
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="SLEEP_DELAY" value={{ device["SLEEP_DELAY"] }} placeholder="SLEEP_DELAY">
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="LIGHT" value={{ device["LIGHT"] }} placeholder="LIGHT">
+        </div>
+        <div class="col">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
   </div>
-</form>
+</div>
+
 {% endfor %}
 
 {% endblock %}
