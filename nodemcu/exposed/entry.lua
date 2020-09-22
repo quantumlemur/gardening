@@ -30,10 +30,6 @@ print("ENTRY: sleep duration: "..rtcmem.read32(MEMSLOT_SLEEP_DURATION))
 
 
 
-uart.write(0,"*****************************************\r\n")
-
-
-
 -- -- write out all user memory
 -- for i=21,32 do
 -- 	print("ENTRY: memslot "..i.." val: "..rtcmem.read32(i))

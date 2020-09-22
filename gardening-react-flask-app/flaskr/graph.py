@@ -6,7 +6,7 @@ from flask import (
 )
 # from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db
+from flaskr.db import get_db, get_db_dicts
 
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -15,7 +15,4 @@ bp = Blueprint('graph', __name__, url_prefix='/graph')
 
 @bp.route('/')
 def graph():
-    db = get_db()
-    error = None
-    data = db.execute('SELECT timestamp, value FROM readings').fetchall()
-    return render_template('graph/graph.html', data=data)
+    return render_template('graph/graph.html')

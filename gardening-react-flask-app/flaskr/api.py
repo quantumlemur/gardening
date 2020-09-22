@@ -10,7 +10,7 @@ from flask import (
 )
 # from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db
+from flaskr.db import get_db, get_db_dicts
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -20,10 +20,46 @@ def registration_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         db = get_db()
-        if db.execute('SELECT mac FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone() is None:
+        device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+        if device_id is None:
             db.execute(
-                'INSERT INTO devices (mac, username, password, name) VALUES (?, ?, ?, ?)',
-                (request.headers['mac'], '0', '0', '')
+                'INSERT INTO devices (mac) VALUES (?)',
+                (request.headers['mac'],)
+                )
+            device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+            db.execute(
+                """INSERT INTO device_config
+                    (device_id,
+                    name)
+                    VALUES (?, ?)""",
+                (device_id[0], request.headers['mac'])
+                )
+            db.execute(
+                """INSERT INTO device_status
+                    (device_id
+                    )
+                    VALUES (?)""",
+                (device_id[0],)
+                )
+            db.commit()
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+def update_checkin(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        db = get_db()
+        device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+        print(device_id[0], datetime.now())
+        if device_id is not None:
+            db.execute(
+                """UPDATE device_status
+                SET checkin_time = ?
+                WHERE
+                device_id = ?""",
+                (datetime.now(), device_id[0],)
                 )
             db.commit()
         return view(**kwargs)
@@ -69,10 +105,10 @@ def status():
 
 @bp.route('/log', methods=('GET', 'POST'))
 @registration_required
+@update_checkin
 def store_log():
     db = get_db()
     error = None
-
     db.execute(
         'INSERT INTO device_status (mac, log) VALUES (?, ?)',
         (request.headers.get("mac"), request.data)
@@ -83,17 +119,92 @@ def store_log():
 
 @bp.route('/readings', methods=('GET', 'POST'))
 @registration_required
+@update_checkin
 def readings():
     db = get_db()
     error = None
-    for reading in request.json:
-        db.execute(
-            'INSERT INTO readings (mac, timestamp, value, offset, name) VALUES (?, ?, ?, ?, ?)',
-            (request.headers.get("mac"), reading[0], reading[1], reading[2], reading[3])
-            )
-        print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
-    db.commit()
+    device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+    if device_id is not None:
+        for reading in request.json:
+            db.execute(
+                'INSERT INTO readings (device_id, timestamp, value, offset, name) VALUES (?, ?, ?, ?, ?)',
+                (device_id[0], reading[0], reading[1], reading[2], reading[3])
+                )
+            print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
+        db.commit()
     return "{\"status\": \"ok\"}"
+
+
+@bp.route('/config', methods=('GET',))
+@registration_required
+@update_checkin
+def config():
+    db = get_db()
+    error = None
+    config = db.execute(
+        """SELECT
+            mac,
+            INIT_INTERVAL,
+            SLEEP_DURATION,
+            SLEEP_DELAY,
+            LIGHT
+            from device_config
+            JOIN devices ON devices.id = device_config.device_id
+            WHERE mac = ?""",
+        (request.headers.get("mac"),)
+        ).fetchone()
+    json = {
+        'mac': config[0],
+        'INIT_INTERVAL': config[1],
+        'SLEEP_DURATION': config[2],
+        'SLEEP_DELAY': config[3],
+        'LIGHT': config[4]
+        }
+    return json
+
+
+@bp.route('/submit_config', methods=('POST',))
+def submit_config():
+    db = get_db()
+    error = None
+
+    device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.form['mac'],)).fetchone()
+    if device_id is not None:
+        db.execute(
+            """UPDATE device_config
+                SET
+                name = ?,
+                INIT_INTERVAL = ?,
+                SLEEP_DURATION = ?,
+                SLEEP_DELAY = ?,
+                LIGHT = ?
+                WHERE device_id = ?""",
+            (
+                request.form['name'],
+                request.form['INIT_INTERVAL'],
+                request.form['SLEEP_DURATION'],
+                request.form['SLEEP_DELAY'],
+                request.form['LIGHT'],
+                device_id[0]
+            ))
+        db.commit()
+    return request.form
+
+
+@bp.route('/get_graph_data')
+def get_graph_data():
+    db = get_db_dicts()
+    error = None
+    data = db.execute("""
+        SELECT
+        timestamp,
+        value,
+        readings.device_id,
+        device_config.name
+        FROM readings
+        LEFT JOIN device_config
+        ON readings.device_id = device_config.device_id""").fetchall()
+    return jsonify(data)
 
 
 @bp.route('/time')

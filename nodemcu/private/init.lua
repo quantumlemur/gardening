@@ -3,7 +3,7 @@ node.startupcommand("@init.lua")
 node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector settings
 
 gpio.mode(4, gpio.OUTPUT)
-gpio.write(4, 0) -- turn on LED
+-- gpio.write(4, 0) -- turn on LED
 
 local sec, usec, rate = rtctime.get()
 
@@ -16,13 +16,21 @@ if rtcfifo.ready() == 0 then -- prepare FIFO
 	rtcfifo.prepare()
 end
 
+initialize_memory = function()
+	rtcmem.write32(MEMSLOT_INITIALIZED, 0)
+end
 
-pcall(require, "COMMON_DEFS")
-if package.loaded["COMMON_DEFS"] ~= nil then
+load_common_defs = function()
+	require("COMMON_DEFS")
 	rtcmem.write32(MEMSLOT_ENTRYS_SINCE_INIT, 0)
 	rtcmem.write32(MEMSLOT_LAST_INIT_TIME, sec)
 	rtcmem.write32(MEMSLOT_NEXT_INIT_TIME, sec + rtcmem.read32(MEMSLOT_INIT_INTERVAL))
+	local light = rtcmem.read32(MEMSLOT_LIGHT)
+	if light == 0 or light == 1 then
+		gpio.write(4, 1 - rtcmem.read32(MEMSLOT_LIGHT))
+	end
 end
+pcall(load_common_defs) -- protected call wrapper to catch errors
 
 
 -----------------------  COMPILATION  -----------------------
@@ -33,10 +41,13 @@ local l = file.list(".\.lua");
 for k,v in pairs(l) do
 	if k ~= "init.lua" and not file.exists(string.gsub(k, "\.lua", "\.lc")) then
 		if pcall(node.compile, k) then
-		  -- no errors while running `foo'
+			-- no errors while running `foo'
+			if k == "COMMON_DEFS.lua" then
+				pcall(initialize_memory)
+			end
 		else
 			print("INIT: COMPILATION FAILED.  FILE: "..k)
-		  -- `foo' raised an error: take appropriate actions
+			-- `foo' raised an error: take appropriate actions
 		end
 		
 	end
@@ -117,6 +128,9 @@ create_write_callback = function(filename)
 			if fd then
 				fd:write(body)
 				fd:close()
+				if filename_base == "COMMON_DEFS" then
+					pcall(initialize_memory)
+				end
 			else
 				print("INIT:  WRITE FAILED FOR "..filename)
 			end

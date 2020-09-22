@@ -25,6 +25,26 @@ def get_db():
     return g.db
 
 
+def get_db_dicts():
+    if 'db' not in g:
+        g.db = sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+        )
+
+        def make_dicts(cursor, row):
+            return dict((cursor.description[idx][0], value)
+                        for idx, value in enumerate(row))
+        def make_lists(cursor, row):
+            return list(row)
+
+        g.db.row_factory = make_dicts
+
+        # g.db.row_factory = sqlite3.Row
+
+    return g.db
+
+
 def close_db(e=None):
     db = g.pop('db', None)
 

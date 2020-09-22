@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Log{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form>
+  <div class="row">
+    <div class="col">
+      Name
+    </div>
+    <div class="col">
+      checkin_time
+    </div>
+    <div class="col">
+      INIT_INTERVAL
+    </div>
+    <div class="col">
+      SLEEP_DURATION
+    </div>
+    <div class="col">
+      SLEEP_DELAY
+    </div>
+    <div class="col">
+      LIGHT
+    </div>
+    <div class="col">
+
+    </div>
+  </div>
+</form>
+{% for device in devices %}
+<form action="/api/submit_config" method="POST" id={{ device[0] }}>
+  <div class="row">
+    <input type="hidden" class="form-control" name="mac" value={{ device[0] }}>
+    <div class="col">
+      <input type="text" class="form-control" name="name" value={{ device[1] }} placeholder="name">
+    </div>
+    <div class="col">
+      {{ device[2] }}
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="INIT_INTERVAL" value={{ device[3] }} placeholder="INIT_INTERVAL">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="SLEEP_DURATION" value={{ device[4] }} placeholder="SLEEP_DURATION">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="SLEEP_DELAY" value={{ device[5] }} placeholder="SLEEP_DELAY">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="LIGHT" value={{ device[6] }} placeholder="LIGHT">
+    </div>
+    <div class="col">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+{% endfor %}
+
+{% endblock %}

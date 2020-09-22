@@ -1,7 +1,6 @@
 -- RTC memory slots
 -- Slots 21 - 31 are available
 
-
 MEMSLOT_INITIALIZED = 21 -- Has the memory been initialized?
 MEMSLOT_LAST_ENTRY_TIME = 22
 MEMSLOT_LAST_INIT_TIME = 23
@@ -11,23 +10,26 @@ MEMSLOT_ENTRYS_SINCE_INIT = 26
 MEMSLOT_INIT_INTERVAL = 27 -- Max time between INITs
 MEMSLOT_SLEEP_DURATION = 28
 MEMSLOT_SLEEP_DELAY = 29 -- number of seconds to pause before sleeping
+MEMSLOT_LIGHT = 30
 
 
-rtcmem.write32(MEMSLOT_INITIALIZED, 0)
+-- rtcmem.write32(MEMSLOT_INITIALIZED, 0)  -- reset memory next boot?
+
 
 -- initialize the memory slots
 if rtcmem.read32(MEMSLOT_INITIALIZED) ~= 1 then
+	print("COMMON_DEFS: REINITIALIZING MEMORY")
 	rtcmem.write32(MEMSLOT_INITIALIZED, 1)
 	rtcmem.write32(MEMSLOT_LAST_ENTRY_TIME, 0)
 	rtcmem.write32(MEMSLOT_LAST_INIT_TIME, 0)
 	rtcmem.write32(MEMSLOT_NEXT_INIT_TIME, 0)
-	rtcmem.write32(MEMSLOT_MAX_ENTRYS_WITHOUT_INIT, 4)
+	rtcmem.write32(MEMSLOT_MAX_ENTRYS_WITHOUT_INIT, 10)
 	rtcmem.write32(MEMSLOT_ENTRYS_SINCE_INIT, 0)
-	rtcmem.write32(MEMSLOT_INIT_INTERVAL, 60)
-	rtcmem.write32(MEMSLOT_SLEEP_DURATION, 10)
-	rtcmem.write32(MEMSLOT_SLEEP_DELAY, 10)
+	rtcmem.write32(MEMSLOT_INIT_INTERVAL, 1)
+	rtcmem.write32(MEMSLOT_SLEEP_DURATION, 3)
+	rtcmem.write32(MEMSLOT_SLEEP_DELAY, 3)
+	rtcmem.write32(MEMSLOT_LIGHT, 1)
 end
-
 
 
 -- Format a UNIX timestamp into a local string
@@ -43,11 +45,13 @@ format_time = function(timestamp)
 end
 
 
-logfile = file.open("logfile", "a")
-print = function(string)
-	if logfile then
-		string = format_time(rtctime.get()).." "..string.."<br>"
-		logfile:write(string)
-	end
-	uart.write(0,string.."\r\n")
-end
+-- Uncomment to enable file/network logging
+-- logfile = file.open("logfile", "a")
+-- print = function(string)
+-- 	if logfile then
+-- 		string = format_time(rtctime.get()).." "..string.."<br>"
+-- 		logfile:write(string)
+-- 	end
+-- 	uart.write(0,string.."\r\n")
+-- end
+
