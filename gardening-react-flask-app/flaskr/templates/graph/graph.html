@@ -56,7 +56,7 @@ d3.json("/api/get_graph_data", function(error, data) {
 
    // Add Y axis
    var y = d3.scaleLinear()
-     .domain([0, 1000])
+     .domain([0, 1])
      .range([ height, 0]);
    svg.append("g")
      .call(d3.axisLeft(y));
@@ -65,7 +65,12 @@ d3.json("/api/get_graph_data", function(error, data) {
    var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
 
+
    var formatTime = d3.timeFormat("%e %b");
+   var parseTime = d3.timeParse("%a, %d %b %Y %H:%M:%S GMT");
+
+console.log(data[0])
+console.log(parseTime(data[0]['timestamp']))
 
    // Define the div for the tooltip
    var div = d3.select("body").append("div")
@@ -79,15 +84,15 @@ d3.json("/api/get_graph_data", function(error, data) {
      .data(data)
      .enter()
      .append("circle")
-       .attr("cx", function (d) { return x(d['timestamp']*1000); } )
-       .attr("cy", function (d) { return y(d['value']); } )
+       .attr("cx", function (d) { return x(parseTime(d['timestamp'])); } )
+       .attr("cy", function (d) { return y(d['calibrated_value']); } )
        .attr("r", 3)
        .style("fill", function(d, i) { return colorScale(d['device_id']); } )
        .on("mouseover", function(d) {
            div.transition()
                .duration(200)
                .style("opacity", .9);
-           div.html(d.name + "<br/>" + formatTime(d.timestamp*1000) + "<br/>" + d.value)
+           div.html(d.name + "<br/>" + d.timestamp + "<br/>" + d.value)
                .style("left", (d3.event.pageX) + "px")
                .style("top", (d3.event.pageY - 28) + "px");
            })

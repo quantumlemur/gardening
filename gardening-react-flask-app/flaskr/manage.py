@@ -10,24 +10,40 @@ from flaskr.db import get_db_dicts
 bp = Blueprint('manage', __name__, url_prefix='/manage')
 
 
-@bp.route('/manage', methods=('GET',))
+@bp.route('/', methods=('GET',))
 def manage_devices():
     db = get_db_dicts()
     error = None
     devices = db.execute(
             """SELECT
-                id,
+                devices.id,
                 mac,
-                name,
+                device_config.name,
                 checkin_time,
                 INIT_INTERVAL,
                 SLEEP_DURATION,
                 SLEEP_DELAY,
-                LIGHT
-                FROM device_config
+                LIGHT,
+                calibration_min,
+                calibration_max,
+                trigger_min,
+                timestamp,
+                value
+                FROM (
+                    SELECT
+                    MAX(timestamp) AS latest_timestamp,
+                    device_id
+                    FROM readings
+                    WHERE name = "soil"
+                    GROUP BY device_id
+                ) AS latest_reading_timestamps
+                JOIN device_config ON device_config.device_id = latest_reading_timestamps.device_id
                 JOIN devices ON devices.id = device_config.device_id
-                LEFT JOIN device_status ON devices.id = device_status.device_id"""
-            ).fetchall()
+                LEFT JOIN device_status ON devices.id = device_status.device_id
+                LEFT JOIN readings ON
+                    readings.device_id = latest_reading_timestamps.device_id AND
+                    readings.timestamp = latest_reading_timestamps.latest_timestamp
+            """).fetchall()
     return render_template('manage/manage.html', devices=devices)
 
 

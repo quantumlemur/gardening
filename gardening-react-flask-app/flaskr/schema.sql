@@ -14,6 +14,9 @@ CREATE TABLE devices (
 CREATE TABLE device_config (
   device_id INTEGER NOT NULL,
   name TEXT,
+  calibration_min INTEGER NOT NULL DEFAULT 0,
+  calibration_max INTEGER NOT NULL DEFAULT 1000,
+  trigger_min INTEGER NOT NULL DEFAULT 0,
   INIT_INTERVAL INTEGER NOT NULL DEFAULT 1,
   SLEEP_DURATION INTEGER NOT NULL DEFAULT 1,
   SLEEP_DELAY INTEGER NOT NULL DEFAULT 10,
@@ -33,12 +36,12 @@ CREATE TABLE device_status (
 );
 
 
-CREATE TABLE readings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  device_id INTEGER NOT NULL,
-  timestamp INTEGER NOT NULL,
-  value INTEGER NOT NULL,
-  offset INTEGER NOT NULL,
-  name TEXT,
-  FOREIGN KEY(device_id) REFERENCES devices(mac)
-);
+-- CREATE TABLE readings (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   device_id INTEGER NOT NULL,
+--   timestamp TIMESTAMP NOT NULL,
+--   value INTEGER NOT NULL,
+--   offset INTEGER NOT NULL,
+--   name TEXT,
+--   FOREIGN KEY(device_id) REFERENCES devices(mac)
+-- );

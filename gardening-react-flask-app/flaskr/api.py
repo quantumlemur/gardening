@@ -127,9 +127,23 @@ def readings():
     if device_id is not None:
         for reading in request.json:
             db.execute(
-                'INSERT INTO readings (device_id, timestamp, value, offset, name) VALUES (?, ?, ?, ?, ?)',
-                (device_id[0], reading[0], reading[1], reading[2], reading[3])
+                """INSERT INTO readings
+                (
+                    device_id,
+                    timestamp,
+                    value,
+                    offset,
+                    name
                 )
+                VALUES (?, ?, ?, ?, ?)""",
+                (
+                    device_id[0],
+                    datetime.fromtimestamp(reading[0]),
+                    reading[1],
+                    reading[2],
+                    reading[3]
+                )
+            )
             print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
         db.commit()
     return "{\"status\": \"ok\"}"
@@ -168,26 +182,30 @@ def submit_config():
     db = get_db()
     error = None
 
-    device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.form['mac'],)).fetchone()
-    if device_id is not None:
-        db.execute(
-            """UPDATE device_config
-                SET
-                name = ?,
-                INIT_INTERVAL = ?,
-                SLEEP_DURATION = ?,
-                SLEEP_DELAY = ?,
-                LIGHT = ?
-                WHERE device_id = ?""",
-            (
-                request.form['name'],
-                request.form['INIT_INTERVAL'],
-                request.form['SLEEP_DURATION'],
-                request.form['SLEEP_DELAY'],
-                request.form['LIGHT'],
-                device_id[0]
-            ))
-        db.commit()
+    db.execute(
+        """UPDATE device_config
+            SET
+            name = ?,
+            INIT_INTERVAL = ?,
+            SLEEP_DURATION = ?,
+            SLEEP_DELAY = ?,
+            LIGHT = ?,
+            calibration_min = ?,
+            calibration_max = ?,
+            trigger_min = ?
+            WHERE device_id = ?""",
+        (
+            request.form['name'],
+            request.form['INIT_INTERVAL'],
+            request.form['SLEEP_DURATION'],
+            request.form['SLEEP_DELAY'],
+            request.form['LIGHT'],
+            request.form['calibration_min'],
+            request.form['calibration_max'],
+            request.form['trigger_min'],
+            request.form['id']
+        ))
+    db.commit()
     return request.form
 
 
@@ -199,11 +217,14 @@ def get_graph_data():
         SELECT
         timestamp,
         value,
+        CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
         readings.device_id,
         device_config.name
         FROM readings
         LEFT JOIN device_config
-        ON readings.device_id = device_config.device_id""").fetchall()
+        ON readings.device_id = device_config.device_id
+        WHERE readings.name = "soil"
+        """).fetchall()
     return jsonify(data)
 
 
