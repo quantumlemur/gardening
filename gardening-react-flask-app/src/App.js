@@ -10,7 +10,7 @@ function App() {
       setCurrentTime(data.time);
     });
   }, []);
-  
+
   return (
     <div className="App">
       <header className="App-header">
@@ -24,7 +24,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn React meow
         </a>
         <p>The current time is {currentTime}.</p>
       </header>

@@ -3,7 +3,7 @@
 
 
 {% block header %}
-  <h1>{% block title %}Device Management{% endblock %}</h1>
+  <h1>{% block title %}Map{% endblock %}</h1>
 {% endblock %}
 
 
@@ -27,6 +27,18 @@
 </style>
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
+
+
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Move sensor
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    {% for device in devices %}
+    <a class="dropdown-item" href="#">{{ device.name }}</a>
+    {% endfor %}
+  </div>
+</div>
 
 <!-- Create a div where the graph will take place -->
 <div id="sensor_graph"></div>

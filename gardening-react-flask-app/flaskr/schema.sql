@@ -14,6 +14,9 @@ CREATE TABLE devices (
 CREATE TABLE device_config (
   device_id INTEGER NOT NULL,
   name TEXT,
+  location_zone INTEGER NOT NULL DEFAULT 0,
+  location_x INTEGER NOT NULL DEFAULT 0,
+  location_y INTEGER NOT NULL DEFAULT 0,
   calibration_min INTEGER NOT NULL DEFAULT 0,
   calibration_max INTEGER NOT NULL DEFAULT 1000,
   trigger_min INTEGER NOT NULL DEFAULT 0,
