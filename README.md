@@ -20,13 +20,17 @@ Setup was done by following the react+flask tutorial from
 https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
 
 
+# React app
+` yarn start-api
+` yarn start
 
-# Web server
+
+# Old flask web server
 ` source venv/bin/activate
 ` source environment
 ` flask run -h 192.168.86.33
 
-# Initialize the db
+# Initialize the db (only do this if needed)
 ` flask init-db
 
 # nodemcu files
