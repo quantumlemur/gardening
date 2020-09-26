@@ -1,7 +1,7 @@
 import functools
 import hashlib
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from os import scandir
 
 
@@ -146,6 +146,59 @@ def readings():
             )
             print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
         db.commit()
+
+
+
+        # recalibrate sensors
+        calibration_time_window = 7 # days
+        db.execute("""
+            UPDATE
+                device_config
+            SET
+                calibration_max = (
+                    SELECT
+                        MAX(value)
+                    FROM
+                        readings
+                    WHERE
+                        name = "soil" AND
+                        device_id = ? AND
+                        timestamp > ?
+                    )
+            WHERE
+                device_id = ?
+            """,
+            (
+                device_id[0],
+                datetime.now(timezone.utc) - timedelta(days=calibration_time_window),
+                device_id[0]
+            ))
+        db.execute("""
+            UPDATE
+                device_config
+            SET
+                calibration_min = (
+                    SELECT
+                        MIN(value)
+                    FROM
+                        readings
+                    WHERE
+                        name = "soil" AND
+                        device_id = ? AND
+                        timestamp > ?
+                    )
+            WHERE
+                device_id = ?
+            """,
+            (
+                device_id[0],
+                datetime.now(timezone.utc) - timedelta(days=calibration_time_window),
+                device_id[0]
+            ))
+        db.commit()
+
+
+
     return "{\"status\": \"ok\"}"
 
 
@@ -209,8 +262,8 @@ def submit_config():
     return request.form
 
 
-@bp.route('/get_graph_data')
-def get_graph_data():
+@bp.route('/get_sensor_data')
+def get_sensor_data():
     db = get_db_dicts()
     error = None
     data = db.execute("""

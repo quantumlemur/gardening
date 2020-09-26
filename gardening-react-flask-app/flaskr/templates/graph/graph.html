@@ -20,7 +20,7 @@
 <script src="https://d3js.org/d3.v4.js"></script>
 
 <!-- Create a div where the graph will take place -->
-<div id="my_dataviz"></div>
+<div id="sensor_graph"></div>
 
 
 
@@ -29,7 +29,7 @@
 
 
 
-d3.json("/api/get_graph_data", function(error, data) {
+d3.json("/api/get_sensor_data", function(error, data) {
   if (error) throw error;
   // set the dimensions and margins of the graph
   var margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -37,7 +37,7 @@ d3.json("/api/get_graph_data", function(error, data) {
      height = 400 - margin.top - margin.bottom;
 
   // append the svg object to the body of the page
-  var svg = d3.select("#my_dataviz")
+  var svg = d3.select("#sensor_graph")
    .append("svg")
      .attr("width", width + margin.left + margin.right)
      .attr("height", height + margin.top + margin.bottom)
@@ -47,7 +47,7 @@ d3.json("/api/get_graph_data", function(error, data) {
 
    // Add X axis
    var x = d3.scaleTime()
-     .domain([Date.now() - 1000*60*60*24*3, Date.now()])
+     .domain([Date.now() - 1000*60*60*24*7, Date.now()])
      .range([ 0, width ])
      .nice()
    svg.append("g")
@@ -64,13 +64,9 @@ d3.json("/api/get_graph_data", function(error, data) {
    // colrscale
    var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
-
-
    var formatTime = d3.timeFormat("%e %b");
    var parseTime = d3.timeParse("%a, %d %b %Y %H:%M:%S GMT");
 
-console.log(data[0])
-console.log(parseTime(data[0]['timestamp']))
 
    // Define the div for the tooltip
    var div = d3.select("body").append("div")
