@@ -1,31 +1,28 @@
 import React from "react";
-import { Box, Text } from "gestalt";
+import { Box, Text, Heading, Link } from "gestalt";
 
-import { NavLink } from "react-router-dom";
-
+// import { NavLink } from "react-router-dom";
+// <NavLink to={props.path}>
 function NavItem(props) {
   return (
-    <Box paddingX={2}>
-      <NavLink to={props.path}>
-        <Text color="white" size="lg">
+    <Link href={props.path}>
+      <Box paddingX={2}>
+        <Heading color="white" size="sm">
           {props.label}
-        </Text>
-      </NavLink>
-    </Box>
+        </Heading>
+      </Box>
+    </Link>
   );
 }
 
 const Navigation = () => {
   return (
-    <Box
-      display="flex"
-      direction="row"
-      width="100vw"
-      color="pine"
-      justifyContent="start"
-    >
-      <NavItem path="/" label="Home" />
-      <NavItem path="/manage" label="Manage" />
+    <Box display="flex" direction="row" height="60px" color="pine">
+      <Box display="flex" direction="row" alignItems="center">
+        <NavItem path="/" label="Home" />
+        <NavItem path="/manage/fred" label="Manage" />
+        <NavItem path="/test/123" label="Test URL Params" />
+      </Box>
     </Box>
   );
 };
