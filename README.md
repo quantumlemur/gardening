@@ -19,6 +19,8 @@ Then for yarn:
 Setup was done by following the react+flask tutorial from
 https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
 
+# Reach setup
+` yarn install
 
 # React app
 ` yarn start-api
@@ -49,3 +51,9 @@ This includes a CREDENTIALS.lua file which should be created to store the wifi c
 
 # Serial console
 ` sudo chmod -R 777 /dev/ttyUSB0 ; stty -F /dev/ttyUSB0 115200 ; tail -f /dev/ttyUSB0
+
+
+# Deployment
+
+uwsgi on nginx
+https://flask.palletsprojects.com/en/master/deploying/uwsgi/
