@@ -21,7 +21,6 @@ Then for yarn:
 
 ### Init db (if needed; otherwise copy old db to instances/)
 With venv still activated:
-`source environment
 `flask init-db
 
 ### React setup
