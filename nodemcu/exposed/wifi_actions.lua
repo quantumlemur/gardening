@@ -26,7 +26,7 @@ end
 
 fetch_config = function()
 	print("WIFI_ACTIONS: in fetch_config")
-	http.get(SERVER_URL.."/api/config",
+	http.get(SERVER_URL.."/config",
 		"mac: "..wifi.sta.getmac().."\r\n",
 		parse_config
 		)
@@ -41,7 +41,7 @@ send_log = function()
 		local contents = logfile_to_send:read()
 		if contents ~= nil then
 			uart.write(0,"WIFI_ACTIONS: Sending a bit of the log\r\n")
-			http.post(SERVER_URL.."/api/log",
+			http.post(SERVER_URL.."/log",
 				"mac: "..wifi.sta.getmac().."\r\n",
 				contents,
 				send_log
@@ -91,7 +91,7 @@ send_readings = function()
 	if table.getn(history) > 0 then
 		print("WIFI_ACTIONS: sending history")
 		local history_json = sjson.encode(history)
-		http.post(SERVER_URL.."/api/readings",
+		http.post(SERVER_URL.."/readings",
 			"mac: "..wifi.sta.getmac().."\r\nContent-Type: application/json\r\n",
 			history_json,
 			handle_submission)

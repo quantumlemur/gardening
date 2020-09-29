@@ -1,7 +1,7 @@
 node.startupcommand("@init.lua")
 
 -- Set server path here.  Be careful.
-SERVER_URL = "http://nuc/"
+SERVER_URL = "http://nuc/device/"
 
 node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector settings
 
@@ -86,7 +86,7 @@ startup = function()
 	-- 	print("INIT: init.lua deleted or renamed")
 	-- else
 	-- 	print("INIT: Running")
-		http.get(SERVER_URL.."/api/listfiles", "", check_for_updates)
+		http.get(SERVER_URL.."/listfiles", "", check_for_updates)
 	-- end
 end
 
@@ -115,7 +115,7 @@ end
 local update_fifo = (require "fifo").new()
 
 get_file = function(filename)
-	http.get(SERVER_URL.."/api/getfile/"..filename, "", create_write_callback(filename))
+	http.get(SERVER_URL.."/getfile/"..filename, "", create_write_callback(filename))
 end
 
 create_write_callback = function(filename)

@@ -168,6 +168,11 @@ server {
     try_files $uri @proxy_to_gunicorn;
   } 
 
+  location /device { 
+    # checks for static file, if not found proxy to app
+    try_files $uri @proxy_to_gunicorn;
+  } 
+
   location @proxy_to_gunicorn { 
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
