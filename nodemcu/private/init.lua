@@ -1,5 +1,8 @@
 node.startupcommand("@init.lua")
 
+-- Set server path here.  Be careful.
+SERVER_URL = "http://nuc/"
+
 node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector settings
 
 gpio.mode(4, gpio.OUTPUT)
@@ -10,7 +13,6 @@ local sec, usec, rate = rtctime.get()
 local need_restart = false
 
 tmr.softwd(50) -- 50 second restart if something hangs
-
 
 if rtcfifo.ready() == 0 then -- prepare FIFO
 	rtcfifo.prepare()
@@ -84,7 +86,7 @@ startup = function()
 	-- 	print("INIT: init.lua deleted or renamed")
 	-- else
 	-- 	print("INIT: Running")
-		http.get("http://192.168.86.33:5000/api/listfiles", "", check_for_updates)
+		http.get(SERVER_URL.."/api/listfiles", "", check_for_updates)
 	-- end
 end
 
@@ -113,7 +115,7 @@ end
 local update_fifo = (require "fifo").new()
 
 get_file = function(filename)
-	http.get("http://192.168.86.33:5000/api/getfile/"..filename, "", create_write_callback(filename))
+	http.get(SERVER_URL.."/api/getfile/"..filename, "", create_write_callback(filename))
 end
 
 create_write_callback = function(filename)
@@ -157,6 +159,7 @@ end
 
 check_for_updates = function(status_code, body, headers)
 	if status_code == 200 then
+		print("INIT: Update check got file list...")
 		local decoder = sjson.decoder()
 		decoder:write(body)
 		local server_files = decoder:result()
@@ -172,6 +175,8 @@ check_for_updates = function(status_code, body, headers)
 		if not update_fifo:dequeue(get_file) then
 			closeout()
 		end
+	else
+		print("INIT: Update check failed.  http status code: "..status_code)
 
 	end
 end
