@@ -27,6 +27,7 @@ With venv still activated:
 ### React setup
 `yarn install
 
+
 ## Device side
 # nodemcu files
 - nodemcu/private contains files that aren't exposed to the autoupdater and must be manually copied.
@@ -54,6 +55,8 @@ This includes a CREDENTIALS.lua file which should be created to store the wifi c
 ` yarn start-api
 ` yarn start
 
+API is accessible on localhost:5000
+Frontend is accessible on localhost:3000
 
 ### Old flask web server
 ` source venv/bin/activate
