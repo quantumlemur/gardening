@@ -71,6 +71,13 @@ Frontend is accessible on localhost:3000
 
 nginx reverse proxy on top, proxying to gunicorn for the api and nodejs for the frontend
 
+`python3 -m venv venv
+`source venv/bin/activate
+`pip install -r requirements.txt
+`deactivate
+`yarn install
+`yarn build
+
 ## Example systemd scripts
 /etc/systemd/system/gunicorn.service:
 ```
@@ -88,8 +95,8 @@ Group=gunicorn
 # DynamicUser=yes
 # see http://0pointer.net/blog/dynamic-users-with-systemd.html
 RuntimeDirectory=gunicorn
-WorkingDirectory=/var/lib/gardening/gardening-react-flask-app
-ExecStart=/var/lib/gardening/gardening-react-flask-app/venv/bin/gunicorn --bind unix:/run/gunicorn.sock "flaskr:create_app()"
+WorkingDirectory=/var/lib/gardening
+ExecStart=/var/lib/gardening/venv/bin/gunicorn --bind unix:/run/gunicorn.sock "api:create_app()"
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
@@ -118,81 +125,77 @@ WantedBy=sockets.target
 ```
 
 ## Example nginx config
-/etc/nginx/sites-enabled/gunicorn
+/etc/nginx/sites-enabled/gardening
 ```
-  server {
-    # if no Host match, close the connection to prevent host spoofing
-    listen 80 default_server;
-    return 444;
-  }
+server { 
+  # if no Host match, close the connection to prevent host spoofing
+  listen 80 default_server;
+  return 444;
+}
 
-  server {
-    # use 'listen 80 deferred;' for Linux
-    # use 'listen 80 accept_filter=httpready;' for FreeBSD
-    listen 80;
-    client_max_body_size 4G;
+server { 
+  # use 'listen 80 deferred;' for Linux
+  # use 'listen 80 accept_filter=httpready;' for FreeBSD
+  listen 80;
+  client_max_body_size 4G;
 
-    # set the correct host(s) for your site
-    server_name nuc;
+  # set the correct host(s) for your site
+  server_name nuc;
 
-    keepalive_timeout 5;
+  keepalive_timeout 5;
 
-    # path for static files
-    root /var/lib/gardening/gardening-react-flask-app/public;
+  # path for static files
+  root /var/lib/gardening/build;
 
-    location / {
-      # checks for static file, if not found proxy to app
-      try_files $uri @proxy_to_node;
-    }
+  location / { 
+    # checks for static file, if not found proxy to app
+    try_files $uri /index.html;
+  } 
 
-    location @proxy_to_node {
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header Host $http_host;
-      # we don't want nginx trying to do something clever with
-      # redirects, we set the Host: header above already.
-      proxy_redirect off;
-      proxy_pass http://127.0.0.1:5000;
-    }
 
-    location /api {
-      # checks for static file, if not found proxy to app
-      try_files $uri @proxy_to_gunicorn;
-    }
+  location /manage { 
+    # checks for static file, if not found proxy to app
+    try_files $uri @proxy_to_gunicorn;
+  } 
 
-    location @proxy_to_gunicorn {
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header Host $http_host;
-      # we don't want nginx trying to do something clever with
-      # redirects, we set the Host: header above already.
-      proxy_redirect off;
-      proxy_pass http://unix:/run/gunicorn.sock;
-    }
+  location /graph { 
+    # checks for static file, if not found proxy to app
+    try_files $uri @proxy_to_gunicorn;
+  } 
 
-    error_page 500 502 503 504 /500.html;
-    location = /500.html {
-      root /path/to/app/current/public;
-    }
-  }
+  location /api { 
+    # checks for static file, if not found proxy to app
+    try_files $uri @proxy_to_gunicorn;
+  } 
+
+  location @proxy_to_gunicorn { 
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    # we don't want nginx trying to do something clever with
+    # redirects, we set the Host: header above already.
+    proxy_redirect off;
+    proxy_pass http://unix:/run/gunicorn.sock;
+  } 
+
+  error_page 500 502 503 504 /500.html;
+  location = /500.html { 
+    root /path/to/app/current/public;
+  } 
+}
+
 ```
 
 ## Enable services
 `systemctl enable --now gunicorn.socket
 `systemctl enable nginx.service
 
-## Build and serve with node
-`yarn build
-
-## API setup
-
 ### Database init (if needed)
 ` flask init-db
 
 ### Api config
-Create file gardening-react-flask-app/instance/config.cfg, contents:
+Create file instance/config.cfg, contents:
 NODEMCU_FILE_PATH = "../nodemcu/exposed/"
-
 
 # Tutorial sources
 Setup was done by following the react+flask tutorial from
