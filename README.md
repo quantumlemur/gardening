@@ -1,6 +1,8 @@
-# Initial setup
+# Development initial setup
 
-## Dependencies
+## Computer side (frontend + backend)
+
+### Dependencies
 ` sudo apt-get install python3
 
 For LTS version of nodejs:
@@ -12,29 +14,20 @@ Then for yarn:
 `sudo apt-get update && sudo apt-get install yarn
 
 
+### Create python venv
+`python3 -m venv venv
+`source venv/bin/activate
+`pip install -r requirements.txt
 
+### Init db (if needed; otherwise copy old db to instances/)
+With venv still activated:
+`source environment
+`flask init-db
 
+### React setup
+`yarn install
 
-## Notes
-Setup was done by following the react+flask tutorial from
-https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
-
-# Reach setup
-` yarn install
-
-# React app
-` yarn start-api
-` yarn start
-
-
-# Old flask web server
-` source venv/bin/activate
-` source environment
-` flask run -h 192.168.86.33
-
-# Initialize the db (only do this if needed)
-` flask init-db
-
+## Device side
 # nodemcu files
 - nodemcu/private contains files that aren't exposed to the autoupdater and must be manually copied.
 This includes a CREDENTIALS.lua file which should be created to store the wifi credentials
@@ -53,10 +46,28 @@ This includes a CREDENTIALS.lua file which should be created to store the wifi c
 ` sudo chmod -R 777 /dev/ttyUSB0 ; stty -F /dev/ttyUSB0 115200 ; tail -f /dev/ttyUSB0
 
 
+
+# Development
+
+## Computer development 
+### Start development servers
+` yarn start-api
+` yarn start
+
+
+### Old flask web server
+` source venv/bin/activate
+` source environment
+` flask run -h 192.168.86.33
+
+### Initialize the db (only do this if needed)
+` flask init-db
+
+
+
 # Deployment
 
 nginx reverse proxy on top, proxying to gunicorn for the api and nodejs for the frontend
-https://docs.gunicorn.org/en/stable/deploy.html?highlight=unix%20socket#monitoring
 
 ## Example systemd scripts
 /etc/systemd/system/gunicorn.service:
@@ -168,10 +179,8 @@ WantedBy=sockets.target
 `systemctl enable --now gunicorn.socket
 `systemctl enable nginx.service
 
-
 ## Build and serve with node
 `yarn build
-`serve -l tcp://127.0.0.1:5000 -s build
 
 ## API setup
 
@@ -181,3 +190,11 @@ WantedBy=sockets.target
 ### Api config
 Create file gardening-react-flask-app/instance/config.cfg, contents:
 NODEMCU_FILE_PATH = "../nodemcu/exposed/"
+
+
+# Tutorial sources
+Setup was done by following the react+flask tutorial from
+https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
+
+nginx reverse proxy on top, proxying to gunicorn for the api and nodejs for the frontend
+https://docs.gunicorn.org/en/stable/deploy.html?highlight=unix%20socket#monitoring

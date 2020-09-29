@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"calibration_",
+				"calibration_time_window"
+			],
+			[
+				"device",
+				"device_id"
+			],
+			[
+				"init",
+				"initialize_memory"
+			],
+			[
+				"lo",
+				"load_common_defs"
+			],
+			[
+				"wifi",
+				"wifi_connect_interval"
+			],
+			[
+				"INIT_",
+				"INIT_VDD33"
+			],
+			[
+				"NEXT",
+				"NEXT_VOLTAGE_CHECK_TIME"
+			],
+			[
+				"voltage",
+				"voltage_check_interval"
+			],
+			[
 				"config",
 				"config_file_contents"
 			],
@@ -26,10 +58,6 @@
 			[
 				"his",
 				"history_file"
-			],
-			[
-				"wifi",
-				"wifi_in_use"
 			],
 			[
 				"identity",
@@ -80,19 +108,11 @@
 	"buffers":
 	[
 		{
-			"file": "nodemcu/exposed/init.lua",
+			"file": "README.md",
 			"settings":
 			{
-				"buffer_size": 3532,
+				"buffer_size": 5182,
 				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "nodemcu/exposed/connect_wifi.lua",
-			"settings":
-			{
-				"buffer_size": 5436,
 				"line_ending": "Unix"
 			}
 		}
@@ -186,45 +206,75 @@
 	},
 	"expanded_folders":
 	[
-		"/home/mike/gardening",
-		"/home/mike/gardening/nodemcu",
-		"/home/mike/gardening/nodemcu/exposed",
-		"/home/mike/gardening/nodemcu/private"
+		"/home/mike/gardening"
 	],
 	"file_history":
 	[
+		"/home/mike/gardening/gardening.sublime-project",
+		"/external/gardening/nodemcu/exposed/wifi_actions.lua",
+		"/external/gardening/nodemcu/private/CREDENTIALS.lua",
+		"/external/gardening/nodemcu/exposed/COMMON_DEFS.lua",
+		"/external/gardening/gardening-react-flask-app/flaskr/templates/map/map.html",
+		"/external/gardening/gardening-react-flask-app/flaskr/templates/graph/graph.html",
+		"/external/gardening/gardening-react-flask-app/src/App.js",
+		"/external/gardening/gardening-react-flask-app/flaskr/schema.sql",
+		"/external/gardening/gardening-react-flask-app/flaskr/templates/manage/manage.html",
+		"/external/gardening/nodemcu/exposed/exit.lua",
+		"/external/gardening/nodemcu/private/init.lua",
+		"/external/gardening/nodemcu/exposed/entry.lua",
+		"/external/gardening/gardening-react-flask-app/flaskr/map.py",
+		"/external/gardening/gardening-react-flask-app/flaskr/templates/base.html",
+		"/external/gardening/gardening-react-flask-app/flaskr/manage.py",
+		"/external/gardening/gardening-react-flask-app/src/index.js",
+		"/external/gardening/nodemcu/private/send_readings.lua",
+		"/external/gardening/README.md",
+		"/external/gardening/gardening-react-flask-app/flaskr/__init__.py",
+		"/external/gardening/gardening-react-flask-app/flaskr/device_api.py",
+		"/external/gardening/gardening-react-flask-app/src/components/Device.js",
+		"/external/gardening/nodemcu/exposed/CREDENTIALS.lua",
+		"/external/gardening/gardening-react-flask-app/flaskr/db.py",
+		"/external/gardening/gardening-react-flask-app/flaskr/auth.py",
+		"/external/gardening/flaskr/schema.sql",
+		"/external/gardening/flaskr/api.py",
+		"/external/gardening/flaskr/templates/manage/log.html",
+		"/external/gardening/flaskr/manage.py",
+		"/external/gardening/flaskr/templates/base.html",
+		"/external/gardening/flaskr/__init__.py",
+		"/external/gardening/gardening-react-flask-app/flaskr/api.py",
+		"/external/gardening/nodemcu/exposed/read_sensors.lua",
+		"/home/mike/gardening/README.md",
+		"/home/mike/gardening/nodemcu/private/init.lua",
+		"/home/mike/gardening/nodemcu/exposed/entry.lua",
+		"/home/mike/gardening/nodemcu/exposed/CONFIG",
+		"/home/mike/gardening/nodemcu/exposed/main.lua",
+		"/home/mike/gardening/nodemcu/exposed/init.lua",
+		"/home/mike/gardening/nodemcu/exposed/fifo.lua",
+		"/home/mike/gardening/nodemcu/exposed/connect_wifi.lua",
+		"/home/mike/gardening/nodemcu/exposed/bootstrapper.lua",
 		"/external/gardening/nodemcu/exposed/send_readings.lua",
 		"/external/gardening/nodemcu/exposed/init.lua",
 		"/external/gardening/nodemcu/exposed/startup.lua",
 		"/external/gardening/flaskr/graph.py",
-		"/external/gardening/flaskr/api.py",
 		"/external/gardening/nodemcu/exposed/update_files.lua",
 		"/external/gardening/nodemcu/exposed/connect_wifi.lua",
 		"/external/gardening/nodemcu/exposed/bootstrapper.lua",
-		"/external/gardening/flaskr/schema.sql",
-		"/external/gardening/flaskr/__init__.py",
 		"/external/gardening/flaskr/templates/graph/graph.html",
 		"/external/gardening/flaskr/db.py",
 		"/external/gardening/nodemcu/exposed/config",
 		"/external/gardening/nodemcu/exposed/voltage_check_interval",
 		"/external/gardening/nodemcu/exposed/wifi_interval",
 		"/external/gardening/nodemcu/exposed/sleep_interval",
-		"/external/gardening/nodemcu/exposed/read_sensors.lua",
 		"/external/gardening/nodemcu/exposed/application.lua",
 		"/external/gardening/nodemcu/exposed/no_wifi.lua",
 		"/external/gardening/nodemcu/exposed/init.lua.proper",
 		"/external/gardening/nodemcu/exposed/flash.lua",
 		"/external/gardening/flaskr/static/style.css",
-		"/external/gardening/flaskr/templates/base.html",
 		"/external/gardening/nodemcu/exposed/auth.lua",
 		"/external/gardening/nodemcu/private/update_files.lua",
-		"/external/gardening/nodemcu/private/init.lua",
 		"/external/gardening/flaskr/auth.py",
 		"/external/gardening/nodemcu/private/connect_wifi.lua",
 		"/external/gardening/instance/config.cfg",
-		"/external/gardening/README.md",
 		"/external/gardening/flaskr/listfiles.py",
-		"/external/gardening/flaskr/manage.py",
 		"/external/gardening/flaskr/config.py",
 		"/external/gardening/flaskr/tests/test_db.py",
 		"/external/gardening/flaskr/tests/data.sql",
@@ -287,40 +337,7 @@
 		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.html",
 		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.js",
 		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/task-lego/task-lego.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/risk-plot-circles/risk-plot-circles.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/excel-table/excel-table.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/router.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/grouped-bar-chart/grouped-bar-chart.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-template/edit-template.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-template/edit-template.html",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/filter-control-page/filter-control-page.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/bower_modules/jqueryui/themes/base/jquery-ui.css",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/risk-plot/selectionFunctions.js",
-		"/C/Users/mr234/Dropbox/apps/Cerberus/Device990004544262128_Date18082015_112645/SMS/backup_sms_18082015_112646.txt",
-		"/C/Users/mr234/Dropbox/apps/Cerberus/Device990004544262128_Date18082015_112645/Calls/backup_calls_18082015_113428.xml",
-		"/home/mike/Desktop/apple chat",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/calculator.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/index.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/themeManager.js",
-		"/home/mike/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/yann-page/yann-page.js",
-		"/home/mike/.config/sublime-text-3/Packages/User/JavaScript.sublime-settings",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/controls/controls.js",
-		"/home/mike/.config/sublime-text-3/Packages/Default/Default (Linux).sublime-keymap",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/single-record-form/single-record-form.css",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.css",
-		"/tmp/admitall.sql",
-		"/home/mike/bin/pastee",
-		"/tmp/junk.py",
-		"/home/mike/.config/sublime-text-3/Packages/User/HTML.sublime-settings"
+		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/risk-plot-circles/risk-plot-circles.js"
 	],
 	"find":
 	{
@@ -346,134 +363,134 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"filename",
-			"putcont",
-			"heart",
-			"putconte",
-			"putcontents",
-			"putcont",
-			"putcon",
-			"put",
-			":",
-			"next_voltage_check",
-			"sleep_interval",
-			"axis",
-			"gpio",
-			"wifi_in_use",
-			"lua",
-			"dofile",
-			"disconnect_ct",
-			"disconnec",
-			"disconnect_ct",
-			"wifi_connect_timer",
-			"sync",
-			"%sync",
-			",",
-			"reason",
-			"rawcode, ",
-			",",
-			"putcontents",
-			"update_files",
+			"update_",
+			"server_",
+			"server",
+			"UPDATE_SERVER",
 			"nuc",
-			"nextwifi",
-			"lastboot",
-			"identity.lua\"",
-			"confi",
+			"need_rest",
+			"192",
+			"192.168.86.33",
+			"192",
+			"33",
+			"192.168.86.33",
+			"reading",
+			"closeout",
+			"update cycle",
+			"nuc",
+			"registration",
+			"registratoin",
+			"nuc",
+			"192",
+			"nuc",
+			"time",
+			"react",
+			"timezone",
+			"registration",
+			"readings[",
+			"readings",
+			"last",
+			"reading",
+			"print(",
+			"update_checkin(",
+			"update_checkin =",
+			"update_check",
+			"get_",
+			"collapse_",
+			"\"#collapse_",
+			"#collapse_",
+			"collapse_",
+			"action",
+			"timestamp",
+			"LIGHT",
+			"d\\[",
+			"d[",
+			"update",
+			"device_configs",
+			"device_config",
+			"WIFI_ACTIONS: SLEEP_DELAY",
+			"ACTIONS: ",
+			"SLEEP_DELAY",
+			"WIFI_ACTIONS: SLEEP_DELAY",
+			"CTIONS: ",
+			"SLEEP_DURATION: \"..",
+			": ",
+			"print",
+			"id",
+			"data",
+			"gpio",
+			"SLEEP_DELAY",
+			"data",
+			"form",
+			"get_json",
+			"id",
+			"placeholder",
 			"device",
+			"name",
+			"\", ",
+			"\"MEMSLO",
+			"2(\"",
+			": \"..",
+			"print",
+			",",
+			"MAX_ENTRYS_WITHOUT_INIT",
+			"INIT_INTERVAL,\n",
+			",",
+			"INIT_INTERVAL,\n",
+			",",
+			"device_id",
+			"{{ \"#collapse\" + device[0]}}",
 			"mac",
-			"MAC",
-			"mac",
-			"username",
-			"run",
-			"blinkOg",
-			"blinkOn",
-			"blinkOf",
-			"blinkOff",
-			"write_output",
-			"blinkOfa",
-			"blinkOff",
-			"blinkOn",
-			"\n\n",
-			"\t",
-			"ornithopter",
-			"\t",
-			"ornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphlesornithopter\nChanBot\nWildBear\nGlix\nIcebear\nCheeky\nDadane7\nfalco7\nnekomata\nSelfScientist\nsplunk\nurbanmyth\nCoked\nDasMackan\nerizo\nIntr4ns1t\nIota\nmagicp2p\nMal\nmyr\nrachem\ntehlarsie\nTheDog\nVeloxenium\naguerrilla\nallindaze\nAnonyMiss\nArsLonga\narteh\nautark\nbbq4u\nBigPeat\nbishopx40\nBlueAliquot\nbluetardis\nbrundlefly13k\ncappi\ncreative2bad\nCromajo\ndakka\nderekguy\ndigiflip\nehtony\nexcelereight\nfiresidechat\nItalianKitty\nkotoko\nLavenderApple\nliriel\nLombi\nlumma\nmentalmaggot\nmherder3\nmyntt\nNeobenedict\nngxez\nnovoveritasmmx\nOoka\norlyowl\nOtotheli\np137d2\npincerbox\npsychuil\nquintus\nqutue\nRedJack117\nroger\nsemicon\nsleepyb\nsmpjc08\nSpeedyGonzalez\nStathisJunk\nstirlingsilver\nTheFranswer\nTylerGlobal\nuranium1\nvalardohaeris\nvales\nwatchit123\nwelpo\nwubbiduu\nx5i5Mjx8q\nXemaniac\nyouphles",
-			" ",
-			"delete",
-			"mysql",
-			" Fuzzypants | ",
-			"JuliaCochran",
-			", vhost",
-			" reject",
-			", vhost",
-			" Nick:",
-			"\t",
-			",",
-			"\t",
-			"Edgar\tDillard\tprerequisites@mac.com\nHope\tDickson\thdickson@familysupportcircle.org\nPerry\tBrown\tpbrown@familysupportcircle.org\nTamika\tJackson\ttjackson@familysupportcircle.org\nMonica\tWalker\tmwalker@familysupportcircle.org\nTungelia\tNixon\ttcms21st@gmail.com\nChastidy\tWeldon\tcweldon649@gmail.com\nAbby\tCarter\ttcrced@rose.net\nAlex\tCoble\tcoblewil@gmail.com\nKaren\tNguyen\tkaren.nguyen@emory.edu\nKevin\tPark\tkevin.park@emory.edu\nKeiyitho\tOmonuwa\tkeiyitho.iris.omonuwa@emory.edu\nBarbara\tCoble\tbarbara.smith.coble@emory.edu\nDiodato\tGooding\tdgooding@uga.edu\nNaayab\tLadak\tnaayab.n.ladak@emory.edu\nAmber\tJones\tajone37@emory.edu\nHenry\tChappell\thpchapp@emory.edu\nMark\tDunaway\tdunaway.mark@gmail.com\nJohn\tChilds\tjc@mentalfitnessatl.org",
-			"\t",
-			"====",
-			"ornithopter",
-			"sts",
-			"spelm",
-			"savanna",
-			"agnes ",
-			"albany",
-			"alband",
-			"columbus",
-			"mercer",
-			"[A-Za-z ]+",
-			"[A-Za-z]",
-			"\\w",
-			"[a-z]*",
-			"[A-Z]*",
-			"[A-Za-z]*",
-			"[A-Za-z]+",
-			"[A-Za-z ]+",
-			"\\w+",
-			",",
-			"\\$",
-			"$",
-			"exponweib",
-			"[teamB]",
-			"[teamA]",
-			"teamA",
-			", floc=0",
-			"exponweib",
-			"])",
-			"len(data)",
-			")), ",
-			"len(data)),",
-			"len(data)",
-			"numpy",
-			"[]",
-			"y",
-			"v[",
-			"Off",
-			":0",
-			"Off",
-			"alldata",
-			"row",
-			"0",
-			",",
-			":0",
-			"0",
-			"',:0",
-			":0",
-			"0",
-			"',:0",
-			":0",
-			"\t",
-			"[0-9] \\w+",
-			"0 ",
-			"serlio",
-			"24000000 serlio",
-			"0 ",
-			"with the message.*$",
-			" cr to",
-			"subtract",
-			" - ",
-			"lockscreen"
+			"file\\.",
+			"file.",
+			"open",
+			"file.",
+			"file",
+			"MEMSLOT_NEXT_INIT_TIME",
+			"next_",
+			"next_init",
+			"disconn",
+			"volt",
+			"restart",
+			"sec",
+			"MEMSLOT_BOOTS_SINCE_INIT",
+			"write",
+			"MEMSLOT_WIFI_CONNECT_INTERVAL",
+			"MEMSLOT_NEXT_WIFI_TIME",
+			"MEMSLOT",
+			"MEMSLOT_NEXT_WIFI_TIME",
+			"MEMSLOT",
+			"wifi",
+			"TEXT",
+			"fifo",
+			"write32",
+			"read32",
+			"read32(",
+			"read32(VOLTAGE",
+			"read32(",
+			"CONFIG",
+			"_SLOT",
+			"= ",
+			"LAST_WIFI_TIME =",
+			"_TIME ",
+			"LAST_WIFI_TIME",
+			"_TIME",
+			"voltage",
+			"adc.INIT",
+			"adc.INI",
+			"INIT_VDD33",
+			"running",
+			"voltage",
+			"close",
+			"print(\"",
+			"config",
+			"lc",
+			"watch",
+			"alarm",
+			"need_re",
+			"voltage",
+			"end",
+			"decode"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -495,24 +512,24 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "nodemcu/exposed/init.lua",
+					"file": "README.md",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3532,
+						"buffer_size": 5182,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								115,
-								115
+								561,
+								561
 							]
 						],
 						"settings":
@@ -520,69 +537,30 @@
 							"origPos":
 							[
 								0.0,
-								0.0
+								6.0
 							],
 							"syncScroll": false,
-							"syntax": "Packages/Lua/Lua.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Markdown/Markdown.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "nodemcu/exposed/connect_wifi.lua",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 5436,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								436,
-								436
-							]
-						],
-						"settings":
-						{
-							"origPos":
-							[
-								0.0,
-								0.0
-							],
-							"syncScroll": false,
-							"syntax": "Packages/Lua/Lua.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 6.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				}
 			]
-		},
-		{
-			"sheets":
-			[
-			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 24.0
 	},
 	"input":
 	{
-		"height": 33.0
+		"height": 34.0
 	},
 	"layout":
 	{
@@ -593,18 +571,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.439653678793,
 			1.0
 		],
 		"rows":
@@ -614,6 +585,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.SublimeLinter":
+	{
+		"height": 0.0
+	},
 	"output.exec":
 	{
 		"height": 255.0
@@ -634,7 +609,7 @@
 	"project": "gardening.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 44.0
 	},
 	"save_all_on_build": true,
 	"select_file":
