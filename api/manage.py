@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db_dicts
+from api.db import get_db_dicts
 
 bp = Blueprint('manage', __name__, url_prefix='/manage')
 

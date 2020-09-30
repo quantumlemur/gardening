@@ -1,15 +1,10 @@
 node_modules/
 
-
-
 .DS_Store
 ._.DS_Store
 
-
-
 # fuse
 .fuse_hidden*
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -75,7 +70,8 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
-instance/
+instance/*
+!instance/config.cfg
 .webassets-cache
 
 # Scrapy stuff:

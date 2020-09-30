@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-  <title>{% block title %}{% endblock %} - Flaskr</title>
+  <title>{% block title %}{% endblock %} - FlaskrAPI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <script
@@ -10,7 +10,7 @@
 </head>
 
 <nav>
-  <h1>Flaskr</h1>
+  <h1>API</h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
