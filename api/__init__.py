@@ -7,10 +7,6 @@ import os
 
 
 
-
-
-
-
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -46,6 +42,9 @@ def create_app(test_config=None):
 
     from . import api
     app.register_blueprint(api.bp)
+
+    from . import device
+    app.register_blueprint(device.bp)
 
     from . import graph
     app.register_blueprint(graph.bp)
