@@ -1,5 +1,6 @@
 import React from "react";
 import ManageDevices from "./components/ManageDevices";
+import Graph from "./components/Graph";
 import Home from "./components/Home";
 import Navigation from "./components/Navigation";
 import Error from "./components/Error";
@@ -16,6 +17,9 @@ function App() {
         <Route path="/" component={Home} exact />
         <Route path="/manage/:id">
           <ManageDevices />
+        </Route>
+        <Route path="/graph/">
+          <Graph />
         </Route>
         <Route path="/test/:id">
           <TestId />
