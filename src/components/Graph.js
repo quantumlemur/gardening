@@ -1,96 +1,64 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "gestalt/dist/gestalt.css";
-import { useParams } from "react-router-dom";
+import { useSpring, animated } from "react-spring";
+import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
+import { extent } from "d3-array";
+import { schemeCategory10, timeFormat, timeParse } from "d3";
+import AxisLeft from "./Graph/AxisLeft";
+import AxisBottom from "./Graph/AxisBottom";
 
 import { Box, Heading, Text } from "gestalt";
-import * as d3 from "d3";
 
-
-function DrawGraph() {
-  d3.json("/api/get_sensor_data", function(error, data) {
-    if (error) throw error;
-    // set the dimensions and margins of the graph
-    var margin = {top: 10, right: 30, bottom: 30, left: 60},
-       width = 1000 - margin.left - margin.right,
-       height = 400 - margin.top - margin.bottom;
-
-    // append the svg object to the body of the page
-    var svg = d3.select("#sensor_graph")
-     .append("svg")
-       .attr("width", width + margin.left + margin.right)
-       .attr("height", height + margin.top + margin.bottom)
-     .append("g")
-       .attr("transform",
-             "translate(" + margin.left + "," + margin.top + ")");
-
-     // Add X axis
-     var x = d3.scaleTime()
-       .domain([Date.now() - 1000*60*60*24*7, Date.now()])
-       .range([ 0, width ])
-       .nice()
-     svg.append("g")
-       .attr("transform", "translate(0," + height + ")")
-       .call(d3.axisBottom(x));
-
-     // Add Y axis
-     var y = d3.scaleLinear()
-       .domain([0, 1])
-       .range([ height, 0]);
-     svg.append("g")
-       .call(d3.axisLeft(y));
-
-     // colrscale
-     var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-
-     var formatTime = d3.timeFormat("%e %b");
-     var parseTime = d3.timeParse("%a, %d %b %Y %H:%M:%S GMT");
-
-
-     // Define the div for the tooltip
-     var div = d3.select("body").append("div")
-         .attr("class", "tooltip")
-         .style("opacity", 0);
-
-
-     // Add dots
-     svg.append('g')
-       .selectAll("dot")
-       .data(data)
-       .enter()
-       .append("circle")
-         .attr("cx", function (d) { return x(parseTime(d['timestamp'])); } )
-         .attr("cy", function (d) { return y(d['calibrated_value']); } )
-         .attr("r", 3)
-         .style("fill", function(d, i) { return colorScale(d['device_id']); } )
-         // .on("mouseover", function(d) {
-         //     div.transition()
-         //         .duration(200)
-         //         .style("opacity", .9);
-         //     div.html(d.name + "<br/>" + d.timestamp + "<br/>" + d.value)
-         //         .style("left", (d3.event.pageX) + "px")
-         //         .style("top", (d3.event.pageY - 28) + "px");
-         //     })
-         // .on("mouseout", function(d) {
-         //     div.transition()
-         //         .duration(500)
-         //         .style("opacity", 0);
-         // });
-  });
-
-}
 
 function Graph() {
-  const [currentTime, setCurrentTime] = useState(0);
+  const [data, setData] = useState([]);
+  const [open, toggle] = useState(false);
+  const props = useSpring({
+    from: { r: 0, fill: "lightblue" },
+    to: { r: open ? 10 : 5, fill: open ? "purple" : "lightblue" }
+  });
 
-  const params = useParams();
+  fetch("/api/get_sensor_data")
+    .then((res) => res.json())
+    .then((data) => {
+      setData(data);
+    });
 
-  useEffect(() => {
-    fetch("/api/time")
-      .then((res) => res.json())
-      .then((data) => {
-        setCurrentTime(data.time);
-      });
-  }, []);
+  const w = 600,
+    h = 600,
+    margin = {
+      top: 40,
+      bottom: 40,
+      left: 40,
+      right: 40
+    };
+
+  const width = w - margin.right - margin.left,
+    height = h - margin.top - margin.bottom;
+
+  var xScale = scaleTime()
+    .domain([Date.now() - 1000*60*60*24*7, Date.now()])
+    .range([ 0, width ])
+    .nice()
+
+  const yScale = scaleLinear()
+    .domain(extent(data, d => d.calibrated_value))
+    .range([height, 0]);
+
+  var colorScale = scaleOrdinal(schemeCategory10)
+
+  var formatTime = timeFormat("%e %b");
+  var parseTime = timeParse("%a, %d %b %Y %H:%M:%S GMT");
+
+  const circles = data.map((d, i) => (
+    <animated.circle
+      key={i}
+      r={props.r}
+      cx={xScale(parseTime(d.timestamp))}
+      cy={yScale(d.calibrated_value)}
+      style={{ fill: colorScale(d.device_id) }}
+    />
+  ));
 
   return (
     <Box
@@ -101,7 +69,15 @@ function Graph() {
       width="100vw"
       height="100vh"
     >
-      <div id="sensor_graph"></div>
+      <div>
+        <svg width={w} height={h}>
+          <g transform={`translate(${margin.left},${margin.top})`}>
+            <AxisLeft yScale={yScale} width={width} />
+            <AxisBottom xScale={xScale} height={height} />
+            {circles}
+          </g>
+        </svg>
+      </div>
     </Box>
   );
 }
