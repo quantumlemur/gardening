@@ -2,42 +2,33 @@
 
 ## Computer side (frontend + backend)
 
-### Dependencies
-
-`sudo apt-get install python3`
-
-For LTS version of nodejs:
+### Dependencies (python, nodejs, yarn)
 
 ```bash
+sudo apt-get install python3
+
 curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt update; sudo apt install nodejs
-```
 
-Then for yarn:
-
-```bash
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
 ```
 
-
-### Create python venv
+### Download code, create python venv, initialize db, install yarn packages:
 
 ```bash
+git clone git@github.com:quantumlemur/gardening.git
+cd gardening
+
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+flask init-db
+
+yarn install
 ```
-
-### Init db (if needed; otherwise copy old db to instances/)
-
-With venv still activated:
-`flask init-db`
-
-### React setup
-
-`yarn install`
 
 ## Device side
 
@@ -45,27 +36,31 @@ With venv still activated:
 
 - nodemcu/private contains files that aren't exposed to the autoupdater and must be manually copied.
 This includes a CREDENTIALS.lua file which should be created to store the wifi credentials
-- nodemcu/exposed contains all the files which are exposed through the webserver and are subject to auto-updating on the device
+- nodemcu/public contains all the files which are exposed through the webserver and are subject to auto-updating on the device
 
 ## nodemcu setup
 
-- Flash the firmware
-- Upload CREDENTIALS.lua:
+1. At the top of `nodemcu/private/init.lua`, set your server URL path to the exposed device API:
 
-	```
-  SSID = "ssid"
-	PASSWORD = "password"
-  ```
+    ```lua
+    -- Set server path here.  Be careful.  Don't include trailing slash.
+    SERVER_URL = "http://nuc/device"
+    ```
+1. Set your wifi network in `nodemcu/private/CREDENTIALS.lua`:
 
-- Upload fifo.lua
-- Upload init.lua
+    ```lua
+    SSID = "ssid"
+    PASSWORD = "password"
+    ```
 
+1. Flash the firmware, `nodemcu/nodemcu-master-19-modules-2020-08-12-00-38-52-integer.bin`
+1. Upload `nodemcu/private/CREDENTIALS.lua`
+1. Upload `nodemcu/private/fifo.lua`
+1. Upload `nodemcu/private/init.lua`
 
-# Serial console
+## Serial console, if you have a device plugged in
 
 `sudo chmod -R 777 /dev/ttyUSB0 ; stty -F /dev/ttyUSB0 115200 ; tail -f /dev/ttyUSB0`
-
-
 
 # Development
 
@@ -78,7 +73,8 @@ yarn start-api
 yarn start
 ```
 
-API is accessible on http://localhost:5000
+API is accessible on http://localhost:5000.
+
 Frontend is accessible on http://localhost:3000
 
 ### Initialize the db (only do this if needed)
@@ -87,18 +83,50 @@ Frontend is accessible on http://localhost:3000
 
 # Deployment
 
-nginx reverse proxy on top, proxying to gunicorn for the api and nodejs for the frontend
-
+## Normal deployment steps
+(note: is the gunicorn restart necessaary?)
 ```bash
+git pull
+yarn install
+yarn build
+sudo service gunicorn restart
+```
+
+## Deployment setup
+
+**Overall:** nginx out in front, serving the built frontend files, and proxying to gunicorn for the backend
+
+1. Install all dependencies (same as development), download code, install node and python packages, and build the code
+1. Set up systemd service monitoring scripts for gunicorn
+1. Configure nginx site
+1. Start gunicorn and nginx services
+
+### Dependencies, setup, and build
+```bash
+sudo apt install python3 nginx gunicorn
+
+curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt update; sudo apt install nodejs
+
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update && sudo apt-get install yarn
+
+git clone git@github.com:quantumlemur/gardening.git
+cd gardening
+
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+flask init-db
 deactivate
+
 yarn install
+
 yarn build
 ```
 
-## Example systemd scripts
+### Example systemd scripts
 
 /etc/systemd/system/gunicorn.service:
 
@@ -146,7 +174,7 @@ User=www-data
 WantedBy=sockets.target
 ```
 
-## Example nginx config
+### Example nginx config
 
 /etc/nginx/sites-enabled/gardening
 
@@ -171,23 +199,23 @@ server {
   # path for static files
   root /var/lib/gardening/build;
 
-  location / { 
+  location / {
     # checks for static file, if not found proxy to app
     try_files $uri /index.html;
   } 
 
 
-  location /api { 
+  location /api {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
   } 
 
-  location /device { 
+  location /device {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
   } 
 
-  location @proxy_to_gunicorn { 
+  location @proxy_to_gunicorn {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header Host $http_host;
@@ -198,25 +226,21 @@ server {
   } 
 
   error_page 500 502 503 504 /500.html;
-  location = /500.html { 
+  location = /500.html {
     root /path/to/app/current/public;
   } 
 }
 
 ```
 
-## Enable services
+### Enable services
 
 ```bash
 systemctl enable --now gunicorn.socket
 systemctl enable nginx.service
 ```
 
-### Database init (if needed)
-
-`flask init-db`
-
-## Tutorial sources
+# Tutorial sources
 
 Setup was done by following the react+flask tutorial from
 https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
