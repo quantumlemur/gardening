@@ -75,8 +75,7 @@ function ManagementPane({device}) {
 								type="text"
 								readOnly
 								name="mac"
-								defaultValue={formData.mac}
-								onChange={handleInputChange}/>
+								value={formData.mac}/>
 						</Col>
 					</Form.Group>
 
@@ -87,9 +86,7 @@ function ManagementPane({device}) {
 								type="text"
 								readOnly
 								name="checkin_time"
-								defaultValue={formData.checkin_time}
-								onChange={handleInputChange}/>
-
+								value={Date(formData.checkin_time)}/>
 						</Col>
 					</Form.Group>
 

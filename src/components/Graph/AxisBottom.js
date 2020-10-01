@@ -1,9 +1,14 @@
 import React from "react";
 
+import { timeFormat } from "d3";
+
+
 function AxisBottom({ xScale, height }) {
   const textPadding = 10;
 
-  const axis = xScale.ticks(10).map((d, i) => (
+  var formatTime = timeFormat("%a %e");
+
+  const axis = xScale.ticks().map((d, i) => (
     <g className="x-tick" key={i}>
       <line
         style={{ stroke: "#e4e5eb" }}
@@ -18,7 +23,7 @@ function AxisBottom({ xScale, height }) {
         x={xScale(d)}
         y={height + textPadding}
       >
-        {String(d)}
+        {formatTime(d*1000)}
       </text>
 
     </g>

@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS device_status;
 CREATE TABLE devices (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   mac TEXT NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created INTEGER NOT NULL
 );
 
 
@@ -30,9 +30,9 @@ CREATE TABLE device_config (
 
 CREATE TABLE device_status (
   device_id INTEGER NOT NULL,
-  checkin_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  device_time TIMESTAMP,
-  device_next_init TIMESTAMP,
+  checkin_time INTEGER,
+  device_time INTEGER,
+  device_next_init INTEGER,
   voltage INTEGER,
   log TEXT,
   FOREIGN KEY(device_id) REFERENCES devices(id)
@@ -42,7 +42,7 @@ CREATE TABLE device_status (
 -- CREATE TABLE readings (
 --   id INTEGER PRIMARY KEY AUTOINCREMENT,
 --   device_id INTEGER NOT NULL,
---   timestamp TIMESTAMP NOT NULL,
+--   timestamp INTEGER NOT NULL,
 --   value INTEGER NOT NULL,
 --   offset INTEGER NOT NULL,
 --   name TEXT,
