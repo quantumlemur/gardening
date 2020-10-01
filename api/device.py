@@ -78,10 +78,10 @@ def md5(fname):
 @bp.route('/listfiles', methods=('GET', 'POST'))
 def listfiles():
     file_list = []
-    with scandir('nodemcu/exposed') as files:
+    with scandir('nodemcu/public') as files:
         for f in files:
             if f.is_file():
-                file_list.append([f.name, md5('nodemcu/exposed/' + f.name)])
+                file_list.append([f.name, md5('nodemcu/public/' + f.name)])
     return jsonify(file_list)
 
 
