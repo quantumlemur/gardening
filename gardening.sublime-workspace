@@ -108,11 +108,35 @@
 	"buffers":
 	[
 		{
+			"file": "src/App.js",
+			"settings":
+			{
+				"buffer_size": 856,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "api/api.py",
+			"settings":
+			{
+				"buffer_size": 2583,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "README.md",
 			"settings":
 			{
-				"buffer_size": 5182,
-				"encoding": "UTF-8",
+				"buffer_size": 5118,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "api/templates/manage/manage.html",
+			"settings":
+			{
+				"buffer_size": 6708,
 				"line_ending": "Unix"
 			}
 		}
@@ -206,10 +230,44 @@
 	},
 	"expanded_folders":
 	[
-		"/home/mike/gardening"
+		"/home/mike/gardening",
+		"/home/mike/gardening/api",
+		"/home/mike/gardening/api/templates",
+		"/home/mike/gardening/api/templates/graph",
+		"/home/mike/gardening/api/templates/manage",
+		"/home/mike/gardening/src",
+		"/home/mike/gardening/src/components",
+		"/home/mike/gardening/src/components/Graph",
+		"/home/mike/gardening/src/components/ManageDevices"
 	],
 	"file_history":
 	[
+		"/home/mike/gardening/src/components/ManageDevices.js",
+		"/home/mike/gardening/src/components/ManageDevices/ManagementPane.js",
+		"/home/mike/gardening/src/components/Graph.js",
+		"/home/mike/gardening/src/components/Graph/AxisLeft.js",
+		"/home/mike/gardening/src/components/Graph/AxisBottom.js",
+		"/home/mike/gardening/api/templates/graph/graph.html",
+		"/home/mike/gardening/src/components/Home.js",
+		"/home/mike/gardening/src/components/Navigation.js",
+		"/home/mike/gardening/src/components/Graph-old.js",
+		"/home/mike/gardening/nodemcu/private/init.lua",
+		"/home/mike/gardening/api/device.py",
+		"/home/mike/gardening/api/__init__.py",
+		"/home/mike/gardening/api/api.py",
+		"/home/mike/gardening/.gitignore",
+		"/home/mike/gardening/nodemcu/exposed/wifi_actions.lua",
+		"/home/mike/gardening/api/auth.py",
+		"/home/mike/gardening/api/map.py",
+		"/home/mike/gardening/api/graph.py",
+		"/home/mike/gardening/api/manage.py",
+		"/home/mike/gardening/api/tests/test_factory.py",
+		"/home/mike/gardening/api/tests/test_db.py",
+		"/home/mike/gardening/api/tests/test_auth.py",
+		"/home/mike/gardening/api/tests/conftest.py",
+		"/home/mike/gardening/api/setup.cfg",
+		"/home/mike/gardening/README.md",
+		"/home/mike/gardening/api/templates/base.html",
 		"/home/mike/gardening/gardening.sublime-project",
 		"/external/gardening/nodemcu/exposed/wifi_actions.lua",
 		"/external/gardening/nodemcu/private/CREDENTIALS.lua",
@@ -242,8 +300,6 @@
 		"/external/gardening/flaskr/__init__.py",
 		"/external/gardening/gardening-react-flask-app/flaskr/api.py",
 		"/external/gardening/nodemcu/exposed/read_sensors.lua",
-		"/home/mike/gardening/README.md",
-		"/home/mike/gardening/nodemcu/private/init.lua",
 		"/home/mike/gardening/nodemcu/exposed/entry.lua",
 		"/home/mike/gardening/nodemcu/exposed/CONFIG",
 		"/home/mike/gardening/nodemcu/exposed/main.lua",
@@ -313,31 +369,7 @@
 		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/startup.js",
 		"/home/mike/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
 		"/tmp/untitled",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/pie-chart/pie-chart.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/bar-chart/bar-chart.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/dataLoader.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/stacked-bar-chart/stacked-bar-chart.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.js",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/edit-table/edit-table.html",
-		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/engrid-simple-nopadding/engrid-simple.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/calculator.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/boot-strap-controls/boot-strap-controls.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/boot-strap-controls/boot-strap-controls.html",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/dataLoader.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/spmr-basic-page/spmr-basic-page.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/test-page/test-page.html",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/mike-page/mike-page.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/matrix-loader/matrix-loader.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/app/couch.js",
-		"/C/Users/mr234/AppData/Local/Temp/BYR-420110F395003440_92IDA-RWOMN-3P651-8SNIZ-6BVCV_0000_1.LICZ",
-		"/C/Users/mr234/Desktop/plink-asdl.bat",
-		"/C/Users/mr234/Documents/ssh/id_rsa.pub",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/filter-control-page/filter-control-page.html",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.html",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/boot-strap-controls/boot-strap-controls.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/task-lego/task-lego.js",
-		"/C/Users/mr234/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/components/risk-plot-circles/risk-plot-circles.js"
+		"/home/mike/Dropbox/Documents/Projects/NASA ARMD SPMR/nasaProjectPortfolio/src/standard-components/pie-chart/pie-chart.js"
 	],
 	"find":
 	{
@@ -363,6 +395,53 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"class",
+			"</small>",
+			"class=\"form-text text-muted\"",
+			"<small",
+			"small",
+			"value",
+			"readonly",
+			"/Form.label",
+			"</label>",
+			"class=\"col-sm-2 col-form-label\"",
+			"<label",
+			"class=\"form-control\"",
+			"input type=\"text\"",
+			"readonly",
+			"input type=\"text\" ",
+			"input type=\"text\"",
+			"</div>\n\t\t\t\t\t\t</Form",
+			"div class=\"col-sm-10\"",
+			"</div>\n\n\t\t\t\t\t\t<Form.Group",
+			"div class=\"form-group row\"",
+			"\">\n",
+			"div class=\"form-group row\">",
+			"div class=\"form-group row\"",
+			"'] }}",
+			"=\"{{",
+			"\"] }}",
+			"{{ device[",
+			"{{ device",
+			"\"]) }}",
+			"{}\".format(device[\"",
+			"={{ \"",
+			"useEffect",
+			"bottom",
+			"axis",
+			"handleCl",
+			"click",
+			"handleClick",
+			"setData",
+			"hand",
+			"event",
+			"url",
+			"device",
+			"api",
+			"readings",
+			"api",
+			"Flaskr",
+			"flaskr",
 			"update_",
 			"server_",
 			"server",
@@ -443,54 +522,7 @@
 			"mac",
 			"file\\.",
 			"file.",
-			"open",
-			"file.",
-			"file",
-			"MEMSLOT_NEXT_INIT_TIME",
-			"next_",
-			"next_init",
-			"disconn",
-			"volt",
-			"restart",
-			"sec",
-			"MEMSLOT_BOOTS_SINCE_INIT",
-			"write",
-			"MEMSLOT_WIFI_CONNECT_INTERVAL",
-			"MEMSLOT_NEXT_WIFI_TIME",
-			"MEMSLOT",
-			"MEMSLOT_NEXT_WIFI_TIME",
-			"MEMSLOT",
-			"wifi",
-			"TEXT",
-			"fifo",
-			"write32",
-			"read32",
-			"read32(",
-			"read32(VOLTAGE",
-			"read32(",
-			"CONFIG",
-			"_SLOT",
-			"= ",
-			"LAST_WIFI_TIME =",
-			"_TIME ",
-			"LAST_WIFI_TIME",
-			"_TIME",
-			"voltage",
-			"adc.INIT",
-			"adc.INI",
-			"INIT_VDD33",
-			"running",
-			"voltage",
-			"close",
-			"print(\"",
-			"config",
-			"lc",
-			"watch",
-			"alarm",
-			"need_re",
-			"voltage",
-			"end",
-			"decode"
+			"open"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -517,19 +549,19 @@
 			[
 				{
 					"buffer": 0,
-					"file": "README.md",
+					"file": "src/App.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5182,
+						"buffer_size": 856,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								561,
-								561
+								405,
+								405
 							]
 						],
 						"settings":
@@ -537,7 +569,79 @@
 							"origPos":
 							[
 								0.0,
-								6.0
+								0.0
+							],
+							"syncScroll": false,
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "api/api.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2583,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								760,
+								760
+							]
+						],
+						"settings":
+						{
+							"origPos":
+							[
+								0.0,
+								0.0
+							],
+							"syncScroll": false,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "README.md",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5118,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								67,
+								67
+							]
+						],
+						"settings":
+						{
+							"origPos":
+							[
+								0.0,
+								0.0
 							],
 							"syncScroll": false,
 							"syntax": "Packages/Markdown/Markdown.sublime-syntax",
@@ -545,10 +649,52 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 6.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 3,
+					"file": "api/templates/manage/manage.html",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 6708,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6259,
+								6259
+							]
+						],
+						"settings":
+						{
+							"origPos":
+							[
+								0.0,
+								18.0
+							],
+							"syncScroll": false,
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2994.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -571,11 +717,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.616417364262,
 			1.0
 		],
 		"rows":
