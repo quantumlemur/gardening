@@ -140,7 +140,7 @@ def readings():
 			device_id, int(time()) - calibration_time_window * 24 * 60 * 60,
 		)).fetchall()
 	values = [row[0] for row in data]
-	values.append([reading[1] for reading in request.json])
+	values.extend([reading[1] for reading in request.json])
 	avg = mean(values)
 	stddev = stdev(values)
 
@@ -157,7 +157,7 @@ def readings():
 				name,
 				zscore
 			)
-			VALUES (?, ?, ?, ?, ?)""",
+			VALUES (?, ?, ?, ?, ?, ?)""",
 			(
 				device_id,
 				reading[0],

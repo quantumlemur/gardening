@@ -21,6 +21,10 @@ parse_config = function(status_code, body, headers)
 		rtcmem.write32(MEMSLOT_SLEEP_DURATION, device_config["SLEEP_DURATION"])
 		rtcmem.write32(MEMSLOT_SLEEP_DELAY, device_config["SLEEP_DELAY"])
 		rtcmem.write32(MEMSLOT_LIGHT, device_config["LIGHT"])
+
+		-- update the next boot time, in case the config has changed
+		local sec, usec, rate = rtctime.get()
+		rtcmem.write32(MEMSLOT_NEXT_INIT_TIME, sec + rtcmem.read32(MEMSLOT_INIT_INTERVAL))
 	end
 end
 
