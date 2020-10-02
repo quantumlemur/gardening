@@ -158,11 +158,6 @@ server {
     try_files $uri @proxy_to_gunicorn;
   } 
 
-  location /graph { 
-    # checks for static file, if not found proxy to app
-    try_files $uri @proxy_to_gunicorn;
-  } 
-
   location /api { 
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;

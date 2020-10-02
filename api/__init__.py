@@ -46,9 +46,6 @@ def create_app(test_config=None):
     from . import device
     app.register_blueprint(device.bp)
 
-    from . import graph
-    app.register_blueprint(graph.bp)
-
     from . import manage
     app.register_blueprint(manage.bp)
 
