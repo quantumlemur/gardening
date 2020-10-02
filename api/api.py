@@ -2,6 +2,7 @@ import functools
 import hashlib
 
 from datetime import datetime, timezone, timedelta
+from time import time
 from os import scandir
 
 
@@ -99,8 +100,13 @@ def get_sensor_data():
 		FROM readings
 		LEFT JOIN device_config
 		ON readings.device_id = device_config.device_id
-		WHERE readings.name = "soil"
-		""").fetchall()
+		WHERE
+			readings.name = "soil" AND
+			timestamp > ?
+		""", 
+		(
+			int(time()) - 14 * 24 * 60 * 60,
+		)).fetchall()
 	return jsonify(data)
 
 

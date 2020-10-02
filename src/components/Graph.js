@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
 import { useSpring, animated } from "react-spring";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -18,13 +18,15 @@ function Graph() {
     to: { r: open ? 10 : 5, fill: open ? "purple" : "lightblue" }
   });
 
-  fetch("/api/get_sensor_data")
-    .then((res) => res.json())
-    .then((data) => {
-      setData(data);
-    });
+  useEffect(() => {
+    fetch("/api/get_sensor_data")
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+      });
+  }, []);
 
-  const w = 600,
+  const w = 1200,
     h = 600,
     margin = {
       top: 40,
@@ -37,24 +39,21 @@ function Graph() {
     height = h - margin.top - margin.bottom;
 
   var xScale = scaleTime()
-    .domain([Date.now() - 1000*60*60*24*7, Date.now()])
+    .domain([Date.now()/1000 - 60*60*24*14, Date.now()/1000])
     .range([ 0, width ])
     .nice()
 
   const yScale = scaleLinear()
-    .domain(extent(data, d => d.calibrated_value))
-    .range([height, 0]);
+    .domain([0, 1])
+    .range([0, height]);
 
   var colorScale = scaleOrdinal(schemeCategory10)
-
-  var formatTime = timeFormat("%e %b");
-  var parseTime = timeParse("%a, %d %b %Y %H:%M:%S GMT");
 
   const circles = data.map((d, i) => (
     <animated.circle
       key={i}
       r={props.r}
-      cx={xScale(parseTime(d.timestamp))}
+      cx={xScale(d.timestamp)}
       cy={yScale(d.calibrated_value)}
       style={{ fill: colorScale(d.device_id) }}
     />

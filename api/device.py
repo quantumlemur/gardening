@@ -1,9 +1,8 @@
 import functools
 import hashlib
 
-from datetime import datetime, timezone, timedelta
+from time import time
 from os import scandir
-
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, send_from_directory, current_app
@@ -52,14 +51,13 @@ def update_checkin(view):
     def wrapped_view(**kwargs):
         db = get_db()
         device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-        print(device_id[0], datetime.now())
         if device_id is not None:
             db.execute(
                 """UPDATE device_status
                 SET checkin_time = ?
                 WHERE
                 device_id = ?""",
-                (datetime.now(), device_id[0],)
+                (int(time()), device_id[0],)
                 )
             db.commit()
         return view(**kwargs)
@@ -138,16 +136,13 @@ def readings():
                 VALUES (?, ?, ?, ?, ?)""",
                 (
                     device_id[0],
-                    datetime.fromtimestamp(reading[0]),
+                    reading[0],
                     reading[1],
                     reading[2],
                     reading[3]
                 )
             )
-            print("{} {} {} {}".format(datetime.fromtimestamp(reading[0]), reading[1], reading[2], reading[3]))
         db.commit()
-
-
 
         # recalibrate sensors
         calibration_time_window = 7 # days
@@ -170,7 +165,7 @@ def readings():
             """,
             (
                 device_id[0],
-                datetime.now(timezone.utc) - timedelta(days=calibration_time_window),
+                int(time()) - calibration_time_window * 24 * 60 * 60,
                 device_id[0]
             ))
         db.execute("""
@@ -192,13 +187,10 @@ def readings():
             """,
             (
                 device_id[0],
-                datetime.now(timezone.utc) - timedelta(days=calibration_time_window),
+                int(time()) - calibration_time_window * 24 * 60 * 60,
                 device_id[0]
             ))
         db.commit()
-
-
-
     return "{\"status\": \"ok\"}"
 
 

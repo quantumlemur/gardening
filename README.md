@@ -199,23 +199,23 @@ server {
   # path for static files
   root /var/lib/gardening/build;
 
-  location / { 
+  location / {
     # checks for static file, if not found proxy to app
     try_files $uri /index.html;
   } 
 
 
-  location /api { 
+  location /api {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
   } 
 
-  location /device { 
+  location /device {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
   } 
 
-  location @proxy_to_gunicorn { 
+  location @proxy_to_gunicorn {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header Host $http_host;
@@ -226,7 +226,7 @@ server {
   } 
 
   error_page 500 502 503 504 /500.html;
-  location = /500.html { 
+  location = /500.html {
     root /path/to/app/current/public;
   } 
 }
