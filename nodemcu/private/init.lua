@@ -1,7 +1,8 @@
-node.startupcommand("@init.lua")
-
 -- Set server path here.  Be careful.  Don't include trailing slash.
 SERVER_URL = "http://nuc/device"
+
+
+node.startupcommand("@init.lua")
 
 node.egc.setmode(node.egc.ON_MEM_LIMIT, -6096) -- Change garbage collector settings
 
