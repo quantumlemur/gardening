@@ -5,7 +5,7 @@
 ### Dependencies (python, nodejs, yarn)
 
 ```bash
-sudo apt-get install python3
+sudo apt-get install python3 python3-dev python3-pip python3-venv python3-wheel
 
 curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt update; sudo apt install nodejs

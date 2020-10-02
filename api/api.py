@@ -2,6 +2,7 @@ import functools
 import hashlib
 
 from datetime import datetime, timezone, timedelta
+from statistics import mean, stdev
 from time import time
 from os import scandir
 
@@ -102,12 +103,67 @@ def get_sensor_data():
 		ON readings.device_id = device_config.device_id
 		WHERE
 			readings.name = "soil" AND
+			zscore < 2 AND
 			timestamp > ?
 		""", 
 		(
 			int(time()) - 14 * 24 * 60 * 60,
 		)).fetchall()
 	return jsonify(data)
+
+
+@bp.route('/recalibrate_data')
+def recalibrate_data():
+	db = get_db()
+	error = None
+
+	devices = db.execute("""SELECT id FROM devices""").fetchall()
+	for device in devices:
+		device_id = device[0]
+
+		# select data from last time period
+		data = db.execute("""
+			SELECT
+				device_id,
+				timestamp,
+				value,
+				name
+			FROM
+				readings
+			WHERE
+				device_id = ? AND
+				name = "soil"
+			""", 
+			(
+				device_id,
+			)).fetchall()
+		values = [reading[2] for reading in data]
+		avg = mean(values)
+		stddev = stdev(values)
+
+		for reading in data:
+			zscore = abs(reading[2] - avg) / stddev
+			db.execute("""
+				UPDATE
+					readings
+				SET
+					zscore = ?
+				WHERE
+					device_id = ? AND
+					timestamp = ? AND
+					value = ? AND
+					name = ?
+				""",
+				(
+					zscore,
+					reading[0],
+					reading[1],
+					reading[2],
+					reading[3]
+				)
+			)
+	db.commit()
+	return jsonify([avg, stddev])
 
 
 @bp.route('/time')
