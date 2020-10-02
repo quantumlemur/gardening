@@ -86,7 +86,7 @@ function ManagementPane({device}) {
 								type="text"
 								readOnly
 								name="checkin_time"
-								value={Date(formData.checkin_time)}/>
+								value={new Date(formData.checkin_time*1000)}/>
 						</Col>
 					</Form.Group>
 
