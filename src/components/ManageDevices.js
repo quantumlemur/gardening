@@ -2,40 +2,38 @@ import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
 import { useParams } from "react-router-dom";
 
+import ManagementPane from "./ManageDevices/ManagementPane"
+
 import { Box, Heading, Text } from "gestalt";
 
 function ManageDevices() {
-  const [currentTime, setCurrentTime] = useState(0);
+	const [deviceList, setDeviceList] = useState([]);
 
-  const params = useParams();
+	const params = useParams();
 
-  useEffect(() => {
-    fetch("/api/time")
-      .then((res) => res.json())
-      .then((data) => {
-        setCurrentTime(data.time);
-      });
-  }, []);
+	useEffect(() => {
+		fetch("/api/get_devices")
+			.then((res) => res.json())
+			.then((data) => {
+				setDeviceList(data);
+			});
+	}, []);
 
-  return (
-    <Box
-      display="flex"
-      color="gray"
-      justifyContent="center"
-      alignItems="center"
-      width="100vw"
-      height="100vh"
-    >
-      <Box padding={4} direction="column">
-        <Heading size="lg" color="white">
-          Manage Device: {params.id}
-        </Heading>
-        <Box padding={4}>
-          <Text>The current time is {currentTime}.</Text>
-        </Box>
-      </Box>
-    </Box>
-  );
+
+	return (
+		<Box
+			display="flex"
+			color="gray"
+			justifyContent="center"
+			alignItems="center"
+			width="100vw"
+			height="100vh"
+		>
+			{deviceList.map((device, index) => (
+				<ManagementPane key={index} device={device} />
+			))}
+		</Box>
+	);
 }
 
 export default ManageDevices;

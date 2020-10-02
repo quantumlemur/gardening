@@ -10,29 +10,29 @@ import { BrowserRouter, Route, Switch, useParams } from "react-router-dom";
 import { Box } from "gestalt";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Navigation />
-      <Switch>
-        <Route path="/" component={Home} exact />
-        <Route path="/manage/:id">
-          <ManageDevices />
-        </Route>
-        <Route path="/graph/">
-          <Graph />
-        </Route>
-        <Route path="/test/:id">
-          <TestId />
-        </Route>
-        <Route component={Error} />
-      </Switch>
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<Navigation />
+			<Switch>
+				<Route path="/" component={Home} exact />
+				<Route path="/manage/">
+					<ManageDevices />
+				</Route>
+				<Route path="/graph/">
+					<Graph />
+				</Route>
+				<Route path="/test/:id">
+					<TestId />
+				</Route>
+				<Route component={Error} />
+			</Switch>
+		</BrowserRouter>
+	);
 }
 
 function TestId() {
-  let params = useParams();
-  return <Box padding={4}>URL params: {params.id}</Box>;
+	let params = useParams();
+	return <Box padding={4}>URL params: {params.id}</Box>;
 }
 
 export default App;
