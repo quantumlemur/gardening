@@ -64,7 +64,7 @@ This includes a CREDENTIALS.lua file which should be created to store the wifi c
 
 # Development
 
-## Computer development 
+## Computer development
 
 ### Start development servers
 

@@ -183,7 +183,7 @@ def readings():
 					zscore < 2 AND
 					device_id = ? AND
 					timestamp > ?
-				)
+				),
 			calibration_min = (
 				SELECT
 					MIN(value)
@@ -199,6 +199,8 @@ def readings():
 			device_id = ?
 		""",
 		(
+			device_id,
+			int(time()) - calibration_time_window * 24 * 60 * 60,
 			device_id,
 			int(time()) - calibration_time_window * 24 * 60 * 60,
 			device_id
