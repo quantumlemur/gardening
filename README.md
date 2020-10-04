@@ -40,15 +40,10 @@ This includes a CREDENTIALS.lua file which should be created to store the wifi c
 
 ## nodemcu setup
 
-1. At the top of `nodemcu/private/init.lua`, set your server URL path to the exposed device API:
+1. Set your wifi network and server URL in `nodemcu/private/CREDENTIALS.lua`:
 
     ```lua
-    -- Set server path here.  Be careful.  Don't include trailing slash.
     SERVER_URL = "http://nuc/device"
-    ```
-1. Set your wifi network in `nodemcu/private/CREDENTIALS.lua`:
-
-    ```lua
     SSID = "ssid"
     PASSWORD = "password"
     ```
