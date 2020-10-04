@@ -8,19 +8,6 @@ local sleep_duration = math.min(rtcmem.read32(MEMSLOT_SLEEP_DURATION), rtcmem.re
 sleep_duration = math.max(sleep_duration, 1)
 
 if DEBUG ~= nil then
-	print("EXIT: going to sleep in "..sleep_delay.." seconds for "..sleep_duration.." seconds.")
-	gpio.write(4, 1)
-	tmr.create():alarm(sleep_delay*1000,
-		tmr.ALARM_SINGLE,
-		function()
-			if logfile then
-				logfile:close()
-				logfile = nil
-			end
-			rtctime.dsleep(sleep_duration*1000000, 4)
-		end
-	)
-else
 	print("EXIT: DEBUG: staying awake and going to sleep in  "..(sleep_delay + sleep_duration).." seconds for 1 second.")
 	gpio.write(4, 1)
 	tmr.create():alarm((sleep_delay + sleep_duration)*1000,
@@ -31,6 +18,19 @@ else
 				logfile = nil
 			end
 			rtctime.dsleep(1*1000000, 4)
+		end
+	)
+else
+	print("EXIT: going to sleep in "..sleep_delay.." seconds for "..sleep_duration.." seconds.")
+	gpio.write(4, 1)
+	tmr.create():alarm(sleep_delay*1000,
+		tmr.ALARM_SINGLE,
+		function()
+			if logfile then
+				logfile:close()
+				logfile = nil
+			end
+			rtctime.dsleep(sleep_duration*1000000, 4)
 		end
 	)
 end
