@@ -30,7 +30,7 @@ def get_devices():
 				checkin_time,
 				INIT_INTERVAL,
 				SLEEP_DURATION,
-				SLEEP_DELAY,
+				MAX_ENTRYS_WITHOUT_INIT,
 				LIGHT,
 				calibration_min,
 				calibration_max,
