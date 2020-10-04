@@ -45,6 +45,7 @@ CREATE TABLE device_status (
 --   timestamp INTEGER NOT NULL,
 --   value INTEGER NOT NULL,
 --   offset INTEGER NOT NULL,
+--   zscore FLOAT,
 --   name TEXT,
---   FOREIGN KEY(device_id) REFERENCES devices(mac)
+--   FOREIGN KEY(device_id) REFERENCES devices(id)
 -- );
