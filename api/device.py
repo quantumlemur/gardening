@@ -220,7 +220,7 @@ def config():
 			mac,
 			INIT_INTERVAL,
 			SLEEP_DURATION,
-			SLEEP_DELAY,
+			MAX_ENTRYS_WITHOUT_INIT,
 			LIGHT
 			from device_config
 			JOIN devices ON devices.id = device_config.device_id
@@ -231,7 +231,7 @@ def config():
 		'mac': config[0],
 		'INIT_INTERVAL': config[1],
 		'SLEEP_DURATION': config[2],
-		'SLEEP_DELAY': config[3],
+		'MAX_ENTRYS_WITHOUT_INIT': config[3],
 		'LIGHT': config[4]
 		}
 	return json

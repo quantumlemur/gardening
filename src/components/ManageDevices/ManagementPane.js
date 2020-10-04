@@ -119,16 +119,16 @@ function ManagementPane({device}) {
 					</Form.Group>
 
 					<Form.Group as={Row}>
-						<Form.Label column sm={2}>SLEEP_DELAY</Form.Label>
+						<Form.Label column sm={2}>MAX_ENTRYS_WITHOUT_INIT</Form.Label>
 						<Col sm="10">
 							<Form.Control
 								type="text"
-								name="SLEEP_DELAY"
-								defaultValue={formData.SLEEP_DELAY}
+								name="MAX_ENTRYS_WITHOUT_INIT"
+								defaultValue={formData.MAX_ENTRYS_WITHOUT_INIT}
 								onChange={handleInputChange}
 								placeholder="10"
-								aria-describedby="SLEEP_DELAY_help"/>
-							<Form.Text className="text-muted">How long to wait at the end of a cycle before going back to sleep.  Must be long enough to allow all actions (including http requests) to complete.</Form.Text>
+								aria-describedby="MAX_ENTRYS_WITHOUT_INIT_help"/>
+							<Form.Text className="text-muted">Connect to wifi at least every X boots.</Form.Text>
 						</Col>
 					</Form.Group>
 

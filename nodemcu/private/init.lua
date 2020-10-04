@@ -1,6 +1,6 @@
--- Set server path here.  Be careful.  Don't include trailing slash.
-SERVER_URL = "http://nuc/device"
 
+
+require("CREDENTIALS")
 
 node.startupcommand("@init.lua")
 
@@ -78,9 +78,6 @@ end
 
 
 -----------------------  WIFI  -----------------------
-
-
-require("CREDENTIALS")
 
 startup = function()
 	-- if file.open("init.lua") == nil then

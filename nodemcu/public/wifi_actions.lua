@@ -14,13 +14,16 @@ parse_config = function(status_code, body, headers)
 		print("WIFI_ACTIONS: "..body)
 		print("WIFI_ACTIONS: CONFIG: INIT_INTERVAL: "..device_config["INIT_INTERVAL"])
 		print("WIFI_ACTIONS: CONFIG: SLEEP_DURATION: "..device_config["SLEEP_DURATION"])
-		print("WIFI_ACTIONS: CONFIG: SLEEP_DELAY: "..device_config["SLEEP_DELAY"])
+		-- print("WIFI_ACTIONS: CONFIG: SLEEP_DELAY: "..device_config["SLEEP_DELAY"])
+		print("WIFI_ACTIONS: CONFIG: MAX_ENTRYS_WITHOUT_INIT: "..device_config["MAX_ENTRYS_WITHOUT_INIT"])
 		print("WIFI_ACTIONS: CONFIG: LIGHT: "..device_config["LIGHT"])
 
-		rtcmem.write32(MEMSLOT_INIT_INTERVAL, device_config["INIT_INTERVAL"])
-		rtcmem.write32(MEMSLOT_SLEEP_DURATION, device_config["SLEEP_DURATION"])
-		rtcmem.write32(MEMSLOT_SLEEP_DELAY, device_config["SLEEP_DELAY"])
-		rtcmem.write32(MEMSLOT_LIGHT, device_config["LIGHT"])
+		if device_config["INIT_INTERVAL"] ~= nil then rtcmem.write32(MEMSLOT_INIT_INTERVAL, device_config["INIT_INTERVAL"]) end
+		if device_config["SLEEP_DURATION"] ~= nil then rtcmem.write32(MEMSLOT_SLEEP_DURATION, device_config["SLEEP_DURATION"]) end
+		-- if device_config["SLEEP_DELAY"] ~= nil then rtcmem.write32(MEMSLOT_SLEEP_DELAY, device_config["SLEEP_DELAY"]) end
+		if device_config["MAX_ENTRYS_WITHOUT_INIT"] ~= nil then rtcmem.write32(MEMSLOT_MAX_ENTRYS_WITHOUT_INIT, device_config["MAX_ENTRYS_WITHOUT_INIT"]) end
+		if device_config["LIGHT"] ~= nil then rtcmem.write32(MEMSLOT_LIGHT, device_config["LIGHT"]) end
+		
 
 		-- update the next boot time, in case the config has changed
 		local sec, usec, rate = rtctime.get()
