@@ -79,7 +79,7 @@ def listfiles():
 	file_list = []
 	with scandir('nodemcu/public') as files:
 		for f in files:
-			if f.is_file():
+			if f.is_file() and (f.name[-4:] == '.lua' or f.name[-4:] == '.cfg'):
 				file_list.append([f.name, md5('nodemcu/public/' + f.name)])
 	return jsonify(file_list)
 

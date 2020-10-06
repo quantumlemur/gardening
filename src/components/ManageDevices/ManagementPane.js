@@ -4,6 +4,8 @@ import "gestalt/dist/gestalt.css";
 import 'bootstrap/dist/css/bootstrap.css';
 import { Button, Card, Col, Collapse, Form, Row } from 'react-bootstrap';
 
+import Map from "../HouseMap/Map"
+
 import { Box, Heading, Text } from "gestalt";
 
 
@@ -20,7 +22,7 @@ function SubmitConfig(data) {
 }
 
 
-function ManagementPane({device}) {
+function ManagementPane({device, alldevices}) {
 
 	const [open, setOpen] = useState(false);
 	const [formData, setFormData] = useState(device)
@@ -31,12 +33,19 @@ function ManagementPane({device}) {
 		const name = target.name;
 
 		// this is DEFINITELY not the right way to do this.  omg.
-		const newFormData = formData;
+		// const newFormData = formData;
 		formData[name] = value;
 
-		setFormData(newFormData);
+		// setFormData(newFormData);
 
-  }
+	}
+	
+
+	function SetLocation(event) {
+		const newFormData = formData;
+		formData.location_x = event.nativeEvent.offsetX;
+		formData.location_y = event.nativeEvent.offsetY;
+	}
 
 
 	return (
@@ -208,6 +217,12 @@ function ManagementPane({device}) {
 						</Col>
 					</Form.Group>
 */}
+
+					<div onClick={SetLocation} >
+					<Map
+						devices={alldevices}
+						activeDevice={device} />
+					</div>
 
 					<button
 						onClick={() => SubmitConfig(formData)}

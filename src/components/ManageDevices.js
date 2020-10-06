@@ -30,7 +30,7 @@ function ManageDevices() {
 			height="100vh"
 		>
 			{deviceList.map((device, index) => (
-				<ManagementPane key={index} device={device} />
+				<ManagementPane key={index} device={device} alldevices={deviceList}/>
 			))}
 		</Box>
 	);

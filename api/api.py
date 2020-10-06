@@ -28,6 +28,9 @@ def get_devices():
 				mac,
 				device_config.name,
 				checkin_time,
+				location_zone,
+				location_x,
+				location_y,
 				INIT_INTERVAL,
 				SLEEP_DURATION,
 				MAX_ENTRYS_WITHOUT_INIT,
@@ -60,17 +63,21 @@ def submit_config():
 	db = get_db()
 	error = None
 
-	db.execute(
-		"""UPDATE device_config
+	db.execute("""
+			UPDATE
+				device_config
 			SET
-			name = ?,
-			INIT_INTERVAL = ?,
-			SLEEP_DURATION = ?,
-			MAX_ENTRYS_WITHOUT_INIT = ?,
-			LIGHT = ?,
-			calibration_min = ?,
-			calibration_max = ?,
-			trigger_min = ?
+				name = ?,
+				INIT_INTERVAL = ?,
+				SLEEP_DURATION = ?,
+				MAX_ENTRYS_WITHOUT_INIT = ?,
+				LIGHT = ?,
+				calibration_min = ?,
+				calibration_max = ?,
+				trigger_min = ?,
+				location_zone = ?,
+				location_x = ?,
+				location_y = ?
 			WHERE device_id = ?""",
 		(
 			request.json['name'],
@@ -81,6 +88,9 @@ def submit_config():
 			request.json['calibration_min'],
 			request.json['calibration_max'],
 			request.json['trigger_min'],
+			request.json['location_zone'],
+			request.json['location_x'],
+			request.json['location_y'],
 			request.json['id']
 		))
 	db.commit()

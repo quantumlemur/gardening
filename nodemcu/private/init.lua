@@ -42,7 +42,7 @@ pcall(load_common_defs) -- protected call wrapper to catch errors
 -- compile all .lua files to save on ram
 local l = file.list(".\.lua");
 for k,v in pairs(l) do
-	if k ~= "init.lua" and not file.exists(string.gsub(k, "\.lua", "\.lc")) then
+	if k ~= "init.lua" and k ~= "CREDENTIALS.lua" and not file.exists(string.gsub(k, "\.lua", "\.lc")) then
 		if pcall(node.compile, k) then
 			-- no errors while running `foo'
 			if k == "COMMON_DEFS.lua" then
@@ -84,7 +84,8 @@ startup = function()
 	-- 	print("INIT: init.lua deleted or renamed")
 	-- else
 	-- 	print("INIT: Running")
-		http.get(SERVER_URL.."/listfiles", "", check_for_updates)
+	print("INIT: Fetching list of files from "..SERVER_URL)
+	http.get(SERVER_URL.."/listfiles", "", check_for_updates)
 	-- end
 end
 
@@ -127,7 +128,7 @@ create_write_callback = function(filename)
 			fd = file.open(filename, "w")
 			if fd then
 				fd:write(body)
-				fd:close()
+				fd:close(); fd=nil
 				if filename_base == "COMMON_DEFS" then
 					pcall(initialize_memory)
 				end
@@ -180,7 +181,23 @@ check_for_updates = function(status_code, body, headers)
 end
 
 closeout = function()
-	print("INIT: update cycle complete.")
+	print("INIT: update cycle complete.  Checking for disallowed files...")
+
+	if file.exists("ALLOWED_FILES.cfg") then
+		local fd_allowed = file.open("ALLOWED_FILES.cfg")
+		if fd_allowed then
+			local allowed_file_list = fd_allowed.read()
+			fd_allowed.close(); fd_allowed = nil
+		
+			local l = file.list();
+			for k,v in pairs(l) do
+				if not string.find(allowed_file_list, k) then
+					print("INIT: DELETING FILE "..k)
+					file.remove(k)
+				end
+			end
+		end
+	end
 
 	-- restart if updates downloaded, else move on to normal processing
 	if need_restart then
@@ -189,6 +206,26 @@ closeout = function()
 	else
 		if file.exists("entry.lua") then
 			require("entry")
+		end
+	end
+end
+
+
+-----------------------  DELETE FILES  -----------------------
+
+delete_files = function()
+	if file.exists("ALLOWED_FILES.cfg") then
+		local fd_allowed = file.open("ALLOWED_FILES.cfg")
+		if fd_allowed then
+			local allowed_file_list = fd_allowed.read()
+			fd_allowed.close(); fd_allowed = nil
+		
+			local l = file.list();
+			for k,v in pairs(l) do
+				if not strfind(allowed_file_list, k) then
+					print("INIT: DELETING FILE "..k)
+				end
+			end
 		end
 	end
 end
