@@ -22,16 +22,8 @@ function Map({devices, activeDevice}) {
     to: { r: 10 }
   });
 
-
-  function circleFill(d) {
-    if (d.id == activeDevice.id) {
-      return "blue"
-    } else {
-      const calibrated_value = (d.value - d.calibration_min) / (d.calibration_max - d.calibration_min);
-      return calibrated_value > .8 ? "red" : "green";
-    }
-  }
-
+  var colorScale = scaleLinear().domain([0,1])
+  .range(["green", "brown"])
 
   const width = 640,
     height = 400
@@ -42,7 +34,7 @@ function Map({devices, activeDevice}) {
       r={props.r}
       cx={d.location_x}
       cy={d.location_y}
-      fill={circleFill(d)}
+      fill={d.id == activeDevice.id ? "blue" : colorScale(d.calibrated_value)}
     />
   ));
 

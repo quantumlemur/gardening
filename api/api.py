@@ -40,7 +40,8 @@ def get_devices():
 				calibration_max,
 				trigger_min,
 				timestamp,
-				value
+				value,
+				CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
 				FROM (
 					SELECT
 					MAX(timestamp) AS latest_timestamp,
