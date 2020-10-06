@@ -20,7 +20,6 @@ const Navigation = () => {
     <Box display="flex" direction="row" height="60px" color="pine">
       <Box display="flex" direction="row" alignItems="center">
         <NavItem path="/" label="Home" />
-        <NavItem path="/status" label="Status" />
         <NavItem path="/graph" label="Graph" />
         <NavItem path="/manage" label="Manage" />
         <NavItem path="/test/123" label="Test URL Params" />
