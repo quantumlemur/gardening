@@ -28,6 +28,7 @@ def get_devices():
 				mac,
 				device_config.name,
 				checkin_time,
+				device_next_init,
 				location_zone,
 				location_x,
 				location_y,

@@ -140,6 +140,7 @@ create_write_callback = function(filename)
 		end
 		-- try to process the next file in the queue, or if there is none, go to closeout()
 		if not update_fifo:dequeue(get_file) then
+			print("INIT: end, inside callback")
 			closeout()
 		end
 	end
@@ -171,12 +172,14 @@ check_for_updates = function(status_code, body, headers)
 		end
 
 		-- try to process the next file in the queue, or if there is none, go to closeout()
-		if not update_fifo:dequeue(get_file) then
+		if need_restart then
+			update_fifo:dequeue(get_file)
+		else
+			print("INIT: end, outside callback")
 			closeout()
 		end
 	else
 		print("INIT: Update check failed.  http status code: "..status_code)
-
 	end
 end
 
@@ -201,8 +204,8 @@ closeout = function()
 
 	-- restart if updates downloaded, else move on to normal processing
 	if need_restart then
-		print("INIT: restarting in 20 seconds...")
-		tmr.create():alarm(20000, tmr.ALARM_SINGLE, function() node.restart() end)
+		print("INIT: restarting in 10 seconds...")
+		tmr.create():alarm(10000, tmr.ALARM_SINGLE, function() node.restart() end)
 	else
 		if file.exists("entry.lua") then
 			require("entry")
@@ -240,21 +243,6 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, wifi_got_ip_event)
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, wifi_disconnect_event)
 
 print("INIT: Connecting to WiFi access point...")
-wifi.setmode(wifi.STATION)
+wifi.setmode(wifi.STATION, false)
 wifi.sta.config({ssid=SSID, pwd=PASSWORD})
 -- wifi.sta.connect() not necessary because config() uses auto-connect=true by default
-
-
--- Files available to compile?
--- 		Y: We're in update cycle.  Compile files.
--- 	In voltage read mode?
--- 		Y:	Read + store voltage.
--- 			Set ADC mode.
--- 			Set voltage-read flag
--- 	Connect to wifi
--- 	Updates available?
--- 		Y:	Download updates
--- 			Set restart timer.  Restart
--- 		N:	Was voltage read?
--- 				Y:	Set restart timer.  Restart.
--- 				N:	Run Main

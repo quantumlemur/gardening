@@ -100,6 +100,17 @@ function ManagementPane({device, alldevices}) {
 					</Form.Group>
 
 					<Form.Group as={Row}>
+						<Form.Label column sm={2}>Next expected</Form.Label>
+						<Col sm="10">
+							<Form.Control
+								type="text"
+								readOnly
+								name="device_next_init"
+								value={new Date(formData.device_next_init*1000)}/>
+						</Col>
+					</Form.Group>
+
+					<Form.Group as={Row}>
 						<Form.Label column sm={2}>INIT_INTERVAL</Form.Label>
 						<Col sm="10">
 							<Form.Control

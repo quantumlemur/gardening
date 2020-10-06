@@ -55,11 +55,16 @@ def update_checkin(view):
 		if device_id is not None:
 			db.execute(
 				"""UPDATE device_status
-				SET checkin_time = ?
+				SET
+					checkin_time = ?,
+					device_next_init = ?
 				WHERE
-				device_id = ?""",
-				(int(time()), device_id[0],)
-				)
+					device_id = ?""",
+				(
+					int(time()),
+					request.headers['device_next_init'],
+					device_id[0]
+				))
 			db.commit()
 		return view(**kwargs)
 
