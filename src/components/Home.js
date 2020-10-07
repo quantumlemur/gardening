@@ -35,11 +35,12 @@ function Home() {
   return (
     <Box
       display="flex"
+      flex="grow"
       color="lightGray"
       justifyContent="center"
       alignItems="center"
       width="100vw"
-      height="100vh"
+      height="90vh"
     >
       <Box display="flex" direction="column" alignContent="center">
         {map}

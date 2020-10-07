@@ -64,14 +64,7 @@ function Graph() {
   ));
 
   return (
-    <Box
-      display="flex"
-      color="gray"
-      justifyContent="center"
-      alignItems="center"
-      width="100vw"
-      height="100vh"
-    >
+    <Box>
       <div>
         <svg width={w} height={h}>
           <g transform={`translate(${margin.left},${margin.top})`}>
