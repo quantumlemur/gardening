@@ -6,12 +6,15 @@ import { extent } from "d3-array";
 import { schemeCategory10, timeFormat, timeParse } from "d3";
 import AxisLeft from "./Graph/AxisLeft";
 import AxisBottom from "./Graph/AxisBottom";
+import Legend from "./Graph/Legend";
+
 
 import { Box, Heading, Text } from "gestalt";
 
 
 function Graph() {
   const [data, setData] = useState([]);
+  const [legend, setLegend] = useState(false);
   const [open, toggle] = useState(false);
   const props = useSpring({
     from: { r: 0, fill: "lightblue" },
@@ -23,6 +26,7 @@ function Graph() {
       .then((res) => res.json())
       .then((data) => {
         setData(data);
+        setLegend(<Legend width={w/10} height={h} data={data} />)
       });
   }, []);
 
@@ -55,19 +59,12 @@ function Graph() {
       r={props.r}
       cx={xScale(d.timestamp)}
       cy={yScale(d.calibrated_value)}
-      style={{ fill: colorScale(d.device_id) }}
+      fill={colorScale(d.device_id)}
     />
   ));
 
   return (
-    <Box
-      display="flex"
-      color="gray"
-      justifyContent="center"
-      alignItems="center"
-      width="100vw"
-      height="100vh"
-    >
+    <Box>
       <div>
         <svg width={w} height={h}>
           <g transform={`translate(${margin.left},${margin.top})`}>
@@ -76,6 +73,7 @@ function Graph() {
             {circles}
           </g>
         </svg>
+        {legend}
       </div>
     </Box>
   );

@@ -17,7 +17,7 @@ function NavItem(props) {
 
 const Navigation = () => {
   return (
-    <Box display="flex" direction="row" height="60px" color="pine">
+    <Box display="flex" direction="row" height="10vh" color="pine">
       <Box display="flex" direction="row" alignItems="center">
         <NavItem path="/" label="Home" />
         <NavItem path="/graph" label="Graph" />

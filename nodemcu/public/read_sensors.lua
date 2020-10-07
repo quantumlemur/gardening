@@ -9,10 +9,12 @@ if sec > 0 then
 
 	if voltage ~= 65535 then
 		-- we're in voltage mode
+		print("READ_SENSORS: read voltage")
 		rtcfifo.put(sec, voltage, 0, "volt")
 		adc.force_init_mode(adc.INIT_ADC)
 	else
 		-- we're in ADC mode
+		print("READ_SENSORS: read soil sensor")
 		rtcfifo.put(sec, adcval, 0, "soil")
 	end
 else

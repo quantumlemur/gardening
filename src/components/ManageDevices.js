@@ -22,15 +22,11 @@ function ManageDevices() {
 
 	return (
 		<Box
-			display="flex"
-			color="gray"
-			justifyContent="center"
-			alignItems="center"
-			width="100vw"
-			height="100vh"
+			justifyContent="start"
+			alignItems="start"
 		>
 			{deviceList.map((device, index) => (
-				<ManagementPane key={index} device={device} />
+				<ManagementPane key={index} device={device} alldevices={deviceList}/>
 			))}
 		</Box>
 	);

@@ -13,19 +13,28 @@ function App() {
 	return (
 		<BrowserRouter>
 			<Navigation />
-			<Switch>
-				<Route path="/" component={Home} exact />
-				<Route path="/manage/">
-					<ManageDevices />
-				</Route>
-				<Route path="/graph/">
-					<Graph />
-				</Route>
-				<Route path="/test/:id">
-					<TestId />
-				</Route>
-				<Route component={Error} />
-			</Switch>
+				<Box
+				display="flex"
+				color="gray"
+				justifyContent="center"
+				alignItems="center"
+				width="100vw"
+				height="90vh"
+			>
+				<Switch>
+					<Route path="/" component={Home} exact />
+					<Route path="/manage/">
+						<ManageDevices />
+					</Route>
+					<Route path="/graph/">
+						<Graph />
+					</Route>
+					<Route path="/test/:id">
+						<TestId />
+					</Route>
+					<Route component={Error} />
+				</Switch>
+			</Box>
 		</BrowserRouter>
 	);
 }

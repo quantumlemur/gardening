@@ -34,7 +34,7 @@ end
 fetch_config = function()
 	print("WIFI_ACTIONS: in fetch_config")
 	http.get(SERVER_URL.."/config",
-		"mac: "..wifi.sta.getmac().."\r\n",
+		"mac: "..wifi.sta.getmac().."\r\ndevice-next-init: "..rtcmem.read32(MEMSLOT_NEXT_INIT_TIME).."\r\nContent-Type: application/json\r\n",
 		parse_config
 		)
 end
@@ -49,7 +49,7 @@ send_log = function()
 		if contents ~= nil then
 			uart.write(0,"WIFI_ACTIONS: Sending a bit of the log\r\n")
 			http.post(SERVER_URL.."/log",
-				"mac: "..wifi.sta.getmac().."\r\n",
+				"mac: "..wifi.sta.getmac().."\r\ndevice-next-init: "..rtcmem.read32(MEMSLOT_NEXT_INIT_TIME).."\r\nContent-Type: application/json\r\n",
 				contents,
 				send_log
 				)
@@ -99,7 +99,7 @@ send_readings = function()
 		print("WIFI_ACTIONS: sending history")
 		local history_json = sjson.encode(history)
 		http.post(SERVER_URL.."/readings",
-			"mac: "..wifi.sta.getmac().."\r\nContent-Type: application/json\r\n",
+			"mac: "..wifi.sta.getmac().."\r\ndevice-next-init: "..rtcmem.read32(MEMSLOT_NEXT_INIT_TIME).."\r\nContent-Type: application/json\r\n",
 			history_json,
 			handle_submission)
 	else

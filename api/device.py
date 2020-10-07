@@ -55,11 +55,16 @@ def update_checkin(view):
 		if device_id is not None:
 			db.execute(
 				"""UPDATE device_status
-				SET checkin_time = ?
+				SET
+					checkin_time = ?,
+					device_next_init = ?
 				WHERE
-				device_id = ?""",
-				(int(time()), device_id[0],)
-				)
+					device_id = ?""",
+				(
+					int(time()),
+					request.headers['device_next_init'],
+					device_id[0]
+				))
 			db.commit()
 		return view(**kwargs)
 
@@ -79,7 +84,7 @@ def listfiles():
 	file_list = []
 	with scandir('nodemcu/public') as files:
 		for f in files:
-			if f.is_file():
+			if f.is_file() and (f.name[-4:] == '.lua' or f.name[-4:] == '.cfg'):
 				file_list.append([f.name, md5('nodemcu/public/' + f.name)])
 	return jsonify(file_list)
 

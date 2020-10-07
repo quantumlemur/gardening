@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
 
+import Map from "./HouseMap/Map"
+
 import { Box, Heading, Text } from "gestalt";
 
 function Home() {
   const [currentTime, setCurrentTime] = useState(0);
+  const [devices, setDevices] = useState([]);
+  const [map, setMap] = useState(0);
 
   useEffect(() => {
     fetch("/api/time")
@@ -13,24 +17,33 @@ function Home() {
         setCurrentTime(data.time);
       });
   }, []);
+  
+  useEffect(() => {
+    fetch("/api/get_devices")
+      .then((res) => res.json())
+      .then((data) => {
+        setDevices(data);
+        setMap(
+          <Map
+            devices={data}
+            activeDevice={false}
+          />);
+      });
+  }, []);
+  
 
   return (
     <Box
       display="flex"
+      flex="grow"
       color="lightGray"
       justifyContent="center"
       alignItems="center"
       width="100vw"
-      height="100vh"
+      height="90vh"
     >
-      <Heading size="lg" color="white">
-        Learn React meow
-      </Heading>
-      <Box display="flex" color="blue" direction="column" alignContent="center">
-        <Box padding={4}></Box>
-        <Box padding={4}>
-          <Text>The current time is {currentTime}.</Text>
-        </Box>
+      <Box display="flex" direction="column" alignContent="center">
+        {map}
       </Box>
     </Box>
   );
