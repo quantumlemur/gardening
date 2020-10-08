@@ -17,14 +17,10 @@ function Legend({ width, height, data }) {
   var legendIDs = []
   data.forEach(element => {
     if (!legendIDs.includes(element.device_id)) {
-      console.log(element.device_id)
       legendIDs.push(element.device_id);
       legendItems.push(element);
     }
   })
-
-  console.log(legendIDs)
-  console.log(legendItems)
 
   const yScale = scaleLinear()
     .domain([0, legendItems.length])
