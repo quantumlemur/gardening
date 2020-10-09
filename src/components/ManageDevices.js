@@ -22,7 +22,11 @@ function ManageDevices() {
   return (
     <Box display="flex" direction="column" width="100%">
       {deviceList.map((device, index) => (
-        <ManagementPane key={index} device={device} alldevices={deviceList} />
+        <ManagementPane
+          key={device.id}
+          device={device}
+          alldevices={deviceList}
+        />
       ))}
     </Box>
   );
