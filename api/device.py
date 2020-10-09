@@ -24,18 +24,17 @@ def registration_required(view):
             'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
         if device_id is None:
             db.execute(
-                'INSERT INTO devices (mac) VALUES (?)',
-                (request.headers['mac'],)
+                'INSERT INTO devices (mac, created) VALUES (?, ?)',
+                (request.headers['mac'], int(time()))
             )
             device_id = db.execute(
                 'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
             db.execute(
                 """INSERT INTO device_config
 					(device_id,
-					name,
-					created)
-					VALUES (?, ?, ?)""",
-                (device_id[0], request.headers['mac'], int(time()))
+					name)
+					VALUES (?, ?)""",
+                (device_id[0], request.headers['mac'])
             )
             db.execute(
                 """INSERT INTO device_status
