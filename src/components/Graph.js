@@ -55,8 +55,7 @@ function Graph() {
 
   var xScale = scaleTime()
     .domain([Date.now() / 1000 - 60 * 60 * 24 * 14, Date.now() / 1000])
-    .range([0, width])
-    .nice();
+    .range([0, width]);
 
   const yScale = scaleLinear().domain([0, 1]).range([0, height]);
 

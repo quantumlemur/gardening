@@ -6,7 +6,7 @@ from time import time
 from os import scandir
 
 from flask import (
-	Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, send_from_directory, current_app
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, send_from_directory, current_app
 )
 # from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -17,121 +17,126 @@ bp = Blueprint('device', __name__, url_prefix='/device')
 
 
 def registration_required(view):
-	@functools.wraps(view)
-	def wrapped_view(**kwargs):
-		db = get_db()
-		device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-		if device_id is None:
-			db.execute(
-				'INSERT INTO devices (mac) VALUES (?)',
-				(request.headers['mac'],)
-				)
-			device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-			db.execute(
-				"""INSERT INTO device_config
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        db = get_db()
+        device_id = db.execute(
+            'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+        if device_id is None:
+            db.execute(
+                'INSERT INTO devices (mac) VALUES (?)',
+                (request.headers['mac'],)
+            )
+            device_id = db.execute(
+                'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+            db.execute(
+                """INSERT INTO device_config
 					(device_id,
-					name)
-					VALUES (?, ?)""",
-				(device_id[0], request.headers['mac'])
-				)
-			db.execute(
-				"""INSERT INTO device_status
+					name,
+					created)
+					VALUES (?, ?, ?)""",
+                (device_id[0], request.headers['mac'], int(time()))
+            )
+            db.execute(
+                """INSERT INTO device_status
 					(device_id
 					)
 					VALUES (?)""",
-				(device_id[0],)
-				)
-			db.commit()
-		return view(**kwargs)
+                (device_id[0],)
+            )
+            db.commit()
+        return view(**kwargs)
 
-	return wrapped_view
+    return wrapped_view
 
 
 def update_checkin(view):
-	@functools.wraps(view)
-	def wrapped_view(**kwargs):
-		db = get_db()
-		device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-		if device_id is not None:
-			db.execute(
-				"""UPDATE device_status
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        db = get_db()
+        device_id = db.execute(
+            'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+        if device_id is not None:
+            db.execute(
+                """UPDATE device_status
 				SET
 					checkin_time = ?,
 					device_next_init = ?
 				WHERE
 					device_id = ?""",
-				(
-					int(time()),
-					request.headers['device_next_init'],
-					device_id[0]
-				))
-			db.commit()
-		return view(**kwargs)
+                (
+                    int(time()),
+                    request.headers['device_next_init'],
+                    device_id[0]
+                ))
+            db.commit()
+        return view(**kwargs)
 
-	return wrapped_view
+    return wrapped_view
 
 
 def md5(fname):
-	hash_md5 = hashlib.md5()
-	with open(fname, "rb") as f:
-		for chunk in iter(lambda: f.read(4096), b""):
-			hash_md5.update(chunk)
-	return hash_md5.hexdigest()
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 
 @bp.route('/listfiles', methods=('GET', 'POST'))
 def listfiles():
-	file_list = []
-	with scandir('nodemcu/public') as files:
-		for f in files:
-			if f.is_file() and (f.name[-4:] == '.lua' or f.name[-4:] == '.cfg'):
-				file_list.append([f.name, md5('nodemcu/public/' + f.name)])
-	return jsonify(file_list)
+    file_list = []
+    with scandir('nodemcu/public') as files:
+        for f in files:
+            if f.is_file() and (f.name[-4:] == '.lua' or f.name[-4:] == '.cfg'):
+                file_list.append([f.name, md5('nodemcu/public/' + f.name)])
+    return jsonify(file_list)
 
 
 @bp.route('/getfile/<path:filename>', methods=('GET', 'POST'))
 def getfile(filename):
-	return send_from_directory(current_app.config['NODEMCU_FILE_PATH'], filename)
+    return send_from_directory(current_app.config['NODEMCU_FILE_PATH'], filename)
 
 
 @bp.route('/status', methods=('GET', 'POST'))
 def status():
-	db = get_db()
-	error = None
-	db.execute(
-		'INSERT INTO device_status (voltage) VALUES (?)',
-		(request.json.voltage,)
-		)
-	print("{}".format(request.json.voltage))
-	db.commit()
-	return "{\"status\": \"ok\"}"
+    db = get_db()
+    error = None
+    db.execute(
+        'INSERT INTO device_status (voltage) VALUES (?)',
+        (request.json.voltage,)
+    )
+    print("{}".format(request.json.voltage))
+    db.commit()
+    return "{\"status\": \"ok\"}"
 
 
 @bp.route('/log', methods=('GET', 'POST'))
 @registration_required
 @update_checkin
 def store_log():
-	db = get_db()
-	error = None
-	db.execute(
-		'INSERT INTO device_status (mac, log) VALUES (?, ?)',
-		(request.headers.get("mac"), request.data)
-		)
-	db.commit()
-	return "{\"status\": \"ok\"}"
+    db = get_db()
+    error = None
+    db.execute(
+        'INSERT INTO device_status (mac, log) VALUES (?, ?)',
+        (request.headers.get("mac"), request.data)
+    )
+    db.commit()
+    return "{\"status\": \"ok\"}"
 
 
 @bp.route('/readings', methods=('GET', 'POST'))
 @registration_required
 @update_checkin
 def readings():
-	db = get_db()
-	error = None
-	device_id = db.execute('SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()[0]
-	calibration_time_window = 14 # days
+    db = get_db()
+    error = None
+    device_id = db.execute('SELECT id FROM devices WHERE mac = ?',
+                           (request.headers['mac'],)).fetchone()[0]
+    calibration_time_window = 14  # days
 
-	# select data from last time period and calculate mean and stddev
-	data = db.execute("""
+    # select data from last time period and calculate mean and stddev
+    data = db.execute("""
 		SELECT
 			value
 		FROM
@@ -140,20 +145,21 @@ def readings():
 			device_id = ? AND
 			readings.name = "soil" AND
 			timestamp > ?
-		""", 
-		(
-			device_id, int(time()) - calibration_time_window * 24 * 60 * 60,
-		)).fetchall()
-	values = [row[0] for row in data]
-	values.extend([reading[1] for reading in request.json])
-	avg = mean(values)
-	stddev = stdev(values)
+		""",
+                      (
+                          device_id, int(time()) -
+                          calibration_time_window * 24 * 60 * 60,
+                      )).fetchall()
+    values = [row[0] for row in data]
+    values.extend([reading[1] for reading in request.json])
+    avg = mean(values)
+    stddev = stdev(values)
 
-	# insert values into table
-	for reading in request.json:
-		zscore = abs(reading[1] - avg) / stddev
-		db.execute(
-			"""INSERT INTO readings
+    # insert values into table
+    for reading in request.json:
+        zscore = abs(reading[1] - avg) / stddev
+        db.execute(
+            """INSERT INTO readings
 			(
 				device_id,
 				timestamp,
@@ -163,18 +169,18 @@ def readings():
 				zscore
 			)
 			VALUES (?, ?, ?, ?, ?, ?)""",
-			(
-				device_id,
-				reading[0],
-				reading[1],
-				reading[2],
-				reading[3],
-				zscore
-			)
-		)
+            (
+                device_id,
+                reading[0],
+                reading[1],
+                reading[2],
+                reading[3],
+                zscore
+            )
+        )
 
-	# recalibrate sensors
-	db.execute("""
+    # recalibrate sensors
+    db.execute("""
 		UPDATE
 			device_config
 		SET
@@ -203,25 +209,25 @@ def readings():
 		WHERE
 			device_id = ?
 		""",
-		(
-			device_id,
-			int(time()) - calibration_time_window * 24 * 60 * 60,
-			device_id,
-			int(time()) - calibration_time_window * 24 * 60 * 60,
-			device_id
-		))
-	db.commit()
-	return "{\"status\": \"ok\"}"
+               (
+                   device_id,
+                   int(time()) - calibration_time_window * 24 * 60 * 60,
+                   device_id,
+                   int(time()) - calibration_time_window * 24 * 60 * 60,
+                   device_id
+               ))
+    db.commit()
+    return "{\"status\": \"ok\"}"
 
 
 @bp.route('/config', methods=('GET',))
 @registration_required
 @update_checkin
 def config():
-	db = get_db()
-	error = None
-	config = db.execute(
-		"""SELECT
+    db = get_db()
+    error = None
+    config = db.execute(
+        """SELECT
 			mac,
 			INIT_INTERVAL,
 			SLEEP_DURATION,
@@ -230,13 +236,13 @@ def config():
 			from device_config
 			JOIN devices ON devices.id = device_config.device_id
 			WHERE mac = ?""",
-		(request.headers.get("mac"),)
-		).fetchone()
-	json = {
-		'mac': config[0],
-		'INIT_INTERVAL': config[1],
-		'SLEEP_DURATION': config[2],
-		'MAX_ENTRYS_WITHOUT_INIT': config[3],
-		'LIGHT': config[4]
-		}
-	return json
+        (request.headers.get("mac"),)
+    ).fetchone()
+    json = {
+        'mac': config[0],
+        'INIT_INTERVAL': config[1],
+        'SLEEP_DURATION': config[2],
+        'MAX_ENTRYS_WITHOUT_INIT': config[3],
+        'LIGHT': config[4]
+    }
+    return json
