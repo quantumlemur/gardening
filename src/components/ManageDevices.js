@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 import ManagementPane from "./ManageDevices/ManagementPane"
 
-import { Box, Heading, Text } from "gestalt";
+import { Box } from "gestalt";
 
 function ManageDevices() {
 	const [deviceList, setDeviceList] = useState([]);
@@ -22,8 +22,9 @@ function ManageDevices() {
 
 	return (
 		<Box
-			justifyContent="start"
-			alignItems="start"
+			display="flex"
+			direction="column"
+			width="100%"
 		>
 			{deviceList.map((device, index) => (
 				<ManagementPane key={index} device={device} alldevices={deviceList}/>

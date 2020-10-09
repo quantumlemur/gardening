@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "gestalt/dist/gestalt.css";
+import { Box } from "gestalt";
 import { useSpring, animated } from "react-spring";
-import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
-import { extent } from "d3-array";
-import { schemeCategory10, timeFormat, timeParse } from "d3";
-
-import { Box, Heading, Text } from "gestalt";
-
+import { scaleLinear } from "d3-scale";
 
 
 function Map({devices, activeDevice}) {
@@ -56,7 +52,7 @@ function Map({devices, activeDevice}) {
   ));
 
   return (
-    <div
+    <Box display="flex"
       onClick={printData}
       style={{background: "color url('zone0.png')"}}>
       <svg width={width} height={height}>
@@ -66,7 +62,7 @@ function Map({devices, activeDevice}) {
           {crosses}
         </g>
       </svg>
-    </div>
+    </Box>
   );
 }
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
 import { useSpring, animated } from "react-spring";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
-import { extent } from "d3-array";
 import { schemeCategory10, timeFormat, timeParse } from "d3";
 import AxisLeft from "./Graph/AxisLeft";
 import AxisBottom from "./Graph/AxisBottom";

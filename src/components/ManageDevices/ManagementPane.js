@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import "gestalt/dist/gestalt.css";
 
-import 'bootstrap/dist/css/bootstrap.css';
-import { Button, Card, Col, Collapse, Form, Row } from 'react-bootstrap';
+import "gestalt/dist/gestalt.css";
+import { Box, Button, Heading, Layer, Modal } from "gestalt";
 
 import Map from "../HouseMap/Map"
-
-import { Box, Heading, TextField } from "gestalt";
+import ManagementElement from "./ManagementElement";
 
 
 
@@ -24,270 +22,196 @@ function SubmitConfig(data) {
 
 function ManagementPane({device, alldevices}) {
 
-	const [open, setOpen] = useState(false);
-	const [formData, setFormData] = useState(device)
+	const [showSettings, setShowSettings] = useState(false);
+	const [showMap, setShowMap] = useState(false);
 
-	function handleInputChange(event) {
-		const target = event.event.target;
-		// console.log(event)
-		// console.log(event.event)
-		// console.log(event.event.target)
-    const value = target.value;
-		const name = target.name;
 
-		// this is DEFINITELY not the right way to do this.  omg.
-		// var newFormData = formData;
-		// console.log(name, value)
-		formData[name] = value;
-
-		// setFormData(newFormData);
-
+	function updateValue(tag, value) {
+		device[tag] = value;
 	}
 	
 
 	function SetLocation(event) {
-		const newFormData = formData;
-		formData.location_x = event.nativeEvent.offsetX;
-		formData.location_y = event.nativeEvent.offsetY;
+		device.location_x = event.nativeEvent.offsetX;
+		device.location_y = event.nativeEvent.offsetY;
 	}
 
 
 	return (
-		<Card>
-			<Card.Header>
-				<Button
-					onClick={() => setOpen(!open)}
-					aria-controls={"#manage_"+formData.id}
-					aria-expanded={open}
-					data-toggle="collapse"
-					href={"#manage_"+formData.id}
-					role="button"
-				>
-					{formData.name}
-				</Button>
-			</Card.Header>
-
-			<Collapse in={open}>
-				<Card.Body>
-					<Box
-						display="flex"
-						marginLeft={-3}
-						marginRight={-3}
-						marginBottom={-3}
-						marginTop={-3}
-						wrap
-						width="100%"
-						direction="column"
-						maxWidth={800}
-					>
-						<Box flex="grow" paddingX={3} paddingY={3}>
-							<Box
-								display="flex"
-								wrap
-								marginLeft={-3}
-								marginRight={-3}
-								marginBottom={-3}
-								marginTop={-3}
-							>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										label="Name"
-										name="name"
-										id="name"
-										defaultValue={formData.name}
-										value={formData.name}
-										onChange={handleInputChange}
-										placeholder={formData.name}
-									/>
-								</Box>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										disabled
-										label="MAC"
-										id="man"
-										value={formData.mac}
-									/>
-								</Box>
-							</Box>
-						</Box>
-
-
-						<Box flex="grow" paddingX={3} paddingY={3}>
-							<Box
-								display="flex"
-								wrap
-								marginLeft={-3}
-								marginRight={-3}
-								marginBottom={-3}
-								marginTop={-3}
-							>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										disabled
-										label="Last seen"
-										id="checkin_time"
-										value={new Date(formData.checkin_time*1000)}
-									/>
-								</Box>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										disabled
-										label="Next expected"
-										id="device_next_init"
-										value={new Date(formData.device_next_init*1000)}
-									/>
-								</Box>
-							</Box>
-						</Box>
-						<Box flex="grow" paddingX={3} paddingY={3}>
-							<Box
-								display="flex"
-								wrap
-								marginLeft={-3}
-								marginRight={-3}
-								marginBottom={-3}
-								marginTop={-3}
-							>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										label="INIT_INTERVAL"
-										name="INIT_INTERVAL"
-										id="INIT_INTERVAL"
-										defaultValue={formData.INIT_INTERVAL}
-										value={formData.INIT_INTERVAL}
-										onChange={handleInputChange}
-										placeholder="Max time between INIT boots (wifi)"
-									/>
-								</Box>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										label="SLEEP_DURATION"
-										name="SLEEP_DURATION"
-										id="SLEEP_DURATION"
-										defaultValue={formData.SLEEP_DURATION}
-										value={formData.SLEEP_DURATION}
-										onChange={handleInputChange}
-										placeholder="Sleep time (sec)"
-									/>
-								</Box>
-							</Box>
-						</Box>
-
-
-
-						<Box flex="grow" paddingX={3} paddingY={3}>
-							<Box
-								display="flex"
-								wrap
-								marginLeft={-3}
-								marginRight={-3}
-								marginBottom={-3}
-								marginTop={-3}
-							>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										label="MAX_ENTRYS_WITHOUT_INIT"
-										name="MAX_ENTRYS_WITHOUT_INIT"
-										id="MAX_ENTRYS_WITHOUT_INIT"
-										defaultValue={formData.MAX_ENTRYS_WITHOUT_INIT}
-										value={formData.MAX_ENTRYS_WITHOUT_INIT}
-										onChange={handleInputChange}
-										placeholder="Max boots before going to INIT"
-									/>
-								</Box>
-								<Box flex="grow" paddingX={3} paddingY={3}>
-									<TextField
-										label="LIGHT"
-										name="LIGHT"
-										id="LIGHT"
-										defaultValue={formData.LIGHT}
-										value={formData.LIGHT}
-										onChange={handleInputChange}
-										placeholder="Light? 1/0"
-									/>
-								</Box>
-							</Box>
-						</Box>
-
-
-	{/* 
-						<Form.Group as={Row}>
-							<Form.Label column sm={2}>Last sensor reading</Form.Label>
-							<Col sm="5">
-								<Form.Control
-									type="text"
-									readOnly
-									defaultValue={formData.value}
-									onChange={handleInputChange}/>
-							</Col>
-							<Col sm="5">
-								<Form.Control
-									type="text"
-									readOnly
-									defaultValue={formData.timestamp}
-									onChange={handleInputChange}/>
-							</Col>
-						</Form.Group>
-
-						<Form.Group as={Row}>
-							<Form.Label column sm={2}>calibration_max</Form.Label>
-							<Col sm="10">
-								<Form.Control
-									type="text"
-									name="calibration_max"
-									defaultValue={formData.calibration_max}
-									onChange={handleInputChange}
-									placeholder="10"
-									aria-describedby="calibration_max_help"/>
-								<Form.Text className="text-muted">Sensor calibration "wet" reading</Form.Text>
-							</Col>
-						</Form.Group>
-
-						<Form.Group as={Row}>
-							<Form.Label column sm={2}>calibration_min</Form.Label>
-							<Col sm="10">
-								<Form.Control
-									type="text"
-									name="calibration_min"
-									defaultValue={formData.calibration_min}
-									onChange={handleInputChange}
-									placeholder="10"
-									aria-describedby="calibration_min_help"/>
-								<Form.Text className="text-muted">Sensor calibration "dry" reading</Form.Text>
-							</Col>
-						</Form.Group>
-
-						<Form.Group as={Row}>
-							<Form.Label column sm={2}>trigger_min</Form.Label>
-							<Col sm="10">
-								<Form.Control
-									type="text"
-									name="trigger_min"
-									defaultValue={formData.trigger_min}
-									onChange={handleInputChange}
-									placeholder="10"
-									aria-describedby="trigger_min_help"/>
-								<Form.Text className="text-muted">Plant sensor trigger value for "I need water!"</Form.Text>
-							</Col>
-						</Form.Group>
-	*/}
-
-						<div onClick={SetLocation} >
-						<Map
-							devices={alldevices}
-							activeDevice={device} />
-						</div>
-
-						<button
-							onClick={() => SubmitConfig(formData)}
-						>
-							Submit
-						</button>
+		<Box display="flex" paddingX={3} paddingY={3}>
+			<Box display="flex" paddingX={3} paddingY={3}>
+				<Heading>
+					{device.name}
+				</Heading>
+			</Box>
+			<Box display="flex" paddingX={3} paddingY={3}>
+				<Box marginLeft={-1} marginRight={-1}>
+					<Box padding={1}>
+						<Button
+							inline
+							text="Edit settings"
+							onClick={() => { setShowSettings(!showSettings)}}
+						/>
 					</Box>
-				</Card.Body>
-			</Collapse>
-		</Card>
+				</Box>
+				{showSettings && (
+					<Layer>
+						<Modal
+							heading={device.name}
+							accessibilityModalLabel={device.name}
+							onDismiss={() => { setShowSettings(!showSettings)}}
+							size="lg"
+							>
+							<Box
+								display="flex"
+								wrap
+								width="100%"
+								direction="column"
+							>
+								<Box flex="grow" paddingX={3} paddingY={3}>
+									<Box
+										display="flex"
+										wrap
+									>
+										<ManagementElement
+											varName="name"
+											value={device.name}
+											updateValue={updateValue}
+											/>
+										<ManagementElement
+											varName="mac"
+											value={device.mac}
+											updateValue={updateValue}
+											disabled
+											/>
+									</Box>
+								</Box>
 
+
+								<Box flex="grow" paddingX={3} paddingY={3}>
+									<Box
+										display="flex"
+										wrap
+									>
+										<ManagementElement
+											varName="checkin_time"
+											label="Last seen"
+											value={device.checkin_time}
+											updateValue={updateValue}
+											disabled
+											date
+											/>
+										<ManagementElement
+											varName="device_next_init"
+											label="Next expected"
+											value={device.device_next_init}
+											updateValue={updateValue}
+											disabled
+											date
+											/>
+									</Box>
+								</Box>
+
+								<Box flex="grow" paddingX={3} paddingY={3}>
+									<Box
+										display="flex"
+										wrap
+									>
+										<ManagementElement
+											varName="INIT_INTERVAL"
+											value={device.INIT_INTERVAL}
+											updateValue={updateValue}
+											placeholder="Max time between INIT boots (wifi)"
+											allowedType="positiveInt"
+											/>
+										<ManagementElement
+											varName="SLEEP_DURATION"
+											value={device.SLEEP_DURATION}
+											updateValue={updateValue}
+											placeholder="Sleep time (sec)"
+											allowedType="positiveInt"
+											/>
+									</Box>
+								</Box>
+
+
+
+								<Box flex="grow" paddingX={3} paddingY={3}>
+									<Box
+										display="flex"
+										wrap
+									>
+										<ManagementElement
+											varName="MAX_ENTRYS_WITHOUT_INIT"
+											value={device.MAX_ENTRYS_WITHOUT_INIT}
+											updateValue={updateValue}
+											placeholder="Max boots before going to INIT"
+											allowedType="positiveInt"
+											/>
+										<ManagementElement
+											varName="LIGHT"
+											value={device.LIGHT}
+											updateValue={updateValue}
+											placeholder="Light? 1/0"
+											allowedType="bool"
+											/>
+									</Box>
+								</Box>
+
+								<Button
+									onClick={() => SubmitConfig(device)}
+									paddingX={3}
+									paddingY={3}
+									text="Submit" />
+							</Box>
+						</Modal>
+					</Layer>
+				)}
+			</Box>
+			<Box display="flex" paddingX={3} paddingY={3}>
+				<Box marginLeft={-1} marginRight={-1}>
+					<Box padding={1}>
+						<Button
+							inline
+							text="Edit map"
+							onClick={() => { setShowMap(!showMap)}}
+						/>
+					</Box>
+				</Box>
+				{showMap && (
+					<Layer>
+						<Modal
+							heading={device.name}
+							accessibilityModalLabel={device.name}
+							onDismiss={() => { setShowMap(!showMap)}}
+							size="lg" >
+							<Box
+								display="flex"
+								wrap
+								direction="column"
+								onClick={SetLocation} >
+								<Box
+									display="flex"
+									direction="row"
+									wrap>
+									<Map
+										devices={alldevices}
+										activeDevice={device} />
+								</Box>
+								<Box
+									display="flex">
+									<Button
+										onClick={() => SubmitConfig(device)}
+										paddingX={3}
+										paddingY={3}
+										text="Submit" />
+								</Box>
+							</Box>
+						</Modal>
+					</Layer>
+				)}
+			</Box>
+		</Box>
 	);
 
 }
