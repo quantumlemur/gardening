@@ -35,18 +35,18 @@ yarn install
 ## nodemcu files
 
 - nodemcu/private contains files that aren't exposed to the autoupdater and must be manually copied.
-This includes a CREDENTIALS.lua file which should be created to store the wifi credentials
+  This includes a CREDENTIALS.lua file which should be created to store the wifi credentials
 - nodemcu/public contains all the files which are exposed through the webserver and are subject to auto-updating on the device
 
 ## nodemcu setup
 
 1. Set your wifi network and server URL in `nodemcu/private/CREDENTIALS.lua`:
 
-    ```lua
-    SERVER_URL = "http://nuc/device"
-    SSID = "ssid"
-    PASSWORD = "password"
-    ```
+   ```lua
+   SERVER_URL = "http://nuc/device"
+   SSID = "ssid"
+   PASSWORD = "password"
+   ```
 
 1. Flash the firmware, `nodemcu/nodemcu-master-19-modules-2020-08-12-00-38-52-integer.bin`
 1. Upload `nodemcu/private/CREDENTIALS.lua`
@@ -79,7 +79,9 @@ Frontend is accessible on http://localhost:3000
 # Deployment
 
 ## Normal deployment steps
+
 (note: is the gunicorn restart necessaary?)
+
 ```bash
 git pull
 yarn install
@@ -97,6 +99,7 @@ sudo service gunicorn restart
 1. Start gunicorn and nginx services
 
 ### Dependencies, setup, and build
+
 ```bash
 sudo apt install python3 nginx gunicorn
 
@@ -197,18 +200,18 @@ server {
   location / {
     # checks for static file, if not found proxy to app
     try_files $uri /index.html;
-  } 
+  }
 
 
   location /api {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
-  } 
+  }
 
   location /device {
     # checks for static file, if not found proxy to app
     try_files $uri @proxy_to_gunicorn;
-  } 
+  }
 
   location @proxy_to_gunicorn {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -218,12 +221,12 @@ server {
     # redirects, we set the Host: header above already.
     proxy_redirect off;
     proxy_pass http://unix:/run/gunicorn.sock;
-  } 
+  }
 
   error_page 500 502 503 504 /500.html;
   location = /500.html {
     root /path/to/app/current/public;
-  } 
+  }
 }
 
 ```
