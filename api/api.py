@@ -42,7 +42,8 @@ def get_devices():
 				timestamp,
 				value,
 				CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
-				FROM (
+                FROM devices
+				LEFT JOIN (
 					SELECT
 					MAX(timestamp) AS latest_timestamp,
 					device_id
@@ -50,8 +51,7 @@ def get_devices():
 					WHERE name = "soil"
 					GROUP BY device_id
 				) AS latest_reading_timestamps
-				JOIN device_config ON device_config.device_id = latest_reading_timestamps.device_id
-				JOIN devices ON devices.id = device_config.device_id
+				LEFT JOIN device_config ON device_config.device_id = latest_reading_timestamps.device_id
 				LEFT JOIN device_status ON devices.id = device_status.device_id
 				LEFT JOIN readings ON
 					readings.device_id = latest_reading_timestamps.device_id AND

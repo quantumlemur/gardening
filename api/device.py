@@ -241,7 +241,6 @@ def readings():
                     zscore
                 )
             )
-    end
 
     db.commit()
     return "{\"status\": \"ok\"}"
