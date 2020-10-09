@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Box, Heading, Text } from "gestalt";
+import { scaleLinear } from "d3-scale";
+
+var colorScale = scaleLinear().domain([0, 1]).range(["green", "brown"]);
 
 function Cross({ data, index }) {
   const now = new Date();
@@ -37,13 +40,11 @@ function Circle({ data, index, color }) {
   );
 }
 
-function PlantSymbol(props) {
-  const { data, index, onClick } = props;
-  // var colorScale = scaleLinear().domain([0, 1]).range(["green", "brown"]);
-
-  const color = "blue";
+function PlantSymbol({ data, index, onClick, activeDeviceId }) {
+  const color =
+    data.id === activeDeviceId ? "blue" : colorScale(data.calibrated_value);
   return (
-    <g onClick={() => onClick(data)}>
+    <g draggable onClick={() => onClick(data)}>
       <Circle data={data} index={index} color={color} />
       <Cross data={data} index={index} />
     </g>

@@ -24,7 +24,7 @@ function ManagementPane({ device, alldevices }) {
     device[tag] = value;
   }
 
-  function SetLocation(event) {
+  function setLocation(event) {
     device.location_x = event.nativeEvent.offsetX;
     device.location_y = event.nativeEvent.offsetY;
   }
@@ -91,9 +91,13 @@ function ManagementPane({ device, alldevices }) {
               }}
               size="lg"
             >
-              <Box display="flex" wrap direction="column" onClick={SetLocation}>
+              <Box display="flex" wrap direction="column">
                 <Box display="flex" direction="row" wrap>
-                  <Map devices={alldevices} activeDevice={device} />
+                  <Map
+                    devices={alldevices}
+                    initialActiveDevice={device}
+                    setLocation={setLocation}
+                  />
                 </Box>
                 <Box display="flex">
                   <Button
