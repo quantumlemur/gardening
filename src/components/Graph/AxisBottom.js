@@ -2,7 +2,6 @@ import React from "react";
 
 import { timeFormat } from "d3";
 
-
 function AxisBottom({ xScale, height }) {
   const textPadding = 10;
 
@@ -23,9 +22,8 @@ function AxisBottom({ xScale, height }) {
         x={xScale(d)}
         y={height + textPadding}
       >
-        {formatTime(d*1000)}
+        {formatTime(d * 1000)}
       </text>
-
     </g>
   ));
   return <>{axis}</>;

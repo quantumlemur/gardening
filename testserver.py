@@ -14,7 +14,6 @@ def md5(fname):
     return hash_md5.hexdigest()
 
 
-
 app = Flask(__name__, static_url_path='')
 
 
@@ -38,7 +37,6 @@ def list_files():
             if f.is_file():
                 file_list.append([f.name, md5('nodemcu/exposed/' + f.name)])
     return json.dumps(file_list)
-
 
 
 if __name__ == '__main__':

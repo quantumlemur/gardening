@@ -12,7 +12,6 @@ from api.db import get_db, get_db_dicts
 bp = Blueprint('map', __name__, url_prefix='/map')
 
 
-
 @bp.route('/')
 def map():
     db = get_db()

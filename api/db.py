@@ -15,6 +15,7 @@ def get_db():
         def make_dicts(cursor, row):
             return dict((cursor.description[idx][0], value)
                         for idx, value in enumerate(row))
+
         def make_lists(cursor, row):
             return list(row)
 
@@ -35,6 +36,7 @@ def get_db_dicts():
         def make_dicts(cursor, row):
             return dict((cursor.description[idx][0], value)
                         for idx, value in enumerate(row))
+
         def make_lists(cursor, row):
             return list(row)
 
