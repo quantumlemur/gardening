@@ -152,69 +152,97 @@ def readings():
     values = [row[0] for row in data]
     values.extend([reading[1] for reading in request.json])
     avg = mean(values)
-    stddev = stdev(values)
 
-    # insert values into table
-    for reading in request.json:
-        zscore = abs(reading[1] - avg) / stddev
-        db.execute(
-            """INSERT INTO readings
-			(
-				device_id,
-				timestamp,
-				value,
-				offset,
-				name,
-				zscore
-			)
-			VALUES (?, ?, ?, ?, ?, ?)""",
-            (
-                device_id,
-                reading[0],
-                reading[1],
-                reading[2],
-                reading[3],
-                zscore
+    if len(values) > 1:
+        stddev = stdev(values)
+        # insert values into table
+        for reading in request.json:
+            zscore = abs(reading[1] - avg) / stddev
+            db.execute(
+                """INSERT INTO readings
+                (
+                    device_id,
+                    timestamp,
+                    value,
+                    offset,
+                    name,
+                    zscore
+                )
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (
+                    device_id,
+                    reading[0],
+                    reading[1],
+                    reading[2],
+                    reading[3],
+                    zscore
+                )
             )
-        )
 
-    # recalibrate sensors
-    db.execute("""
-		UPDATE
-			device_config
-		SET
-			calibration_max = (
-				SELECT
-					MAX(value)
-				FROM
-					readings
-				WHERE
-					name = "soil" AND
-					zscore < 2 AND
-					device_id = ? AND
-					timestamp > ?
-				),
-			calibration_min = (
-				SELECT
-					MIN(value)
-				FROM
-					readings
-				WHERE
-					name = "soil" AND
-					zscore < 2 AND
-					device_id = ? AND
-					timestamp > ?
-				)
-		WHERE
-			device_id = ?
-		""",
-               (
-                   device_id,
-                   int(time()) - calibration_time_window * 24 * 60 * 60,
-                   device_id,
-                   int(time()) - calibration_time_window * 24 * 60 * 60,
-                   device_id
-               ))
+        # recalibrate sensors
+        db.execute("""
+            UPDATE
+                device_config
+            SET
+                calibration_max = (
+                    SELECT
+                        MAX(value)
+                    FROM
+                        readings
+                    WHERE
+                        name = "soil" AND
+                        zscore < 2 AND
+                        device_id = ? AND
+                        timestamp > ?
+                    ),
+                calibration_min = (
+                    SELECT
+                        MIN(value)
+                    FROM
+                        readings
+                    WHERE
+                        name = "soil" AND
+                        zscore < 2 AND
+                        device_id = ? AND
+                        timestamp > ?
+                    )
+            WHERE
+                device_id = ?
+            """,
+                   (
+                       device_id,
+                       int(time()) - calibration_time_window * 24 * 60 * 60,
+                       device_id,
+                       int(time()) - calibration_time_window * 24 * 60 * 60,
+                       device_id
+                   ))
+    else:
+        stddev = 1
+        # insert values into table
+        for reading in request.json:
+            zscore = abs(reading[1] - avg) / stddev
+            db.execute(
+                """INSERT INTO readings
+                (
+                    device_id,
+                    timestamp,
+                    value,
+                    offset,
+                    name,
+                    zscore
+                )
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (
+                    device_id,
+                    reading[0],
+                    reading[1],
+                    reading[2],
+                    reading[3],
+                    zscore
+                )
+            )
+    end
+
     db.commit()
     return "{\"status\": \"ok\"}"
 
