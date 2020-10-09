@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Text, Heading, Link } from "gestalt";
+import { Box, Heading, Link } from "gestalt";
 
 // import { NavLink } from "react-router-dom";
 // <NavLink to={props.path}>

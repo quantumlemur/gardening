@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
 import { useSpring, animated } from "react-spring";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
-import { extent } from "d3-array";
 import { schemeCategory10, timeFormat, timeParse } from "d3";
 import AxisLeft from "./Graph/AxisLeft";
 import AxisBottom from "./Graph/AxisBottom";
@@ -16,10 +15,30 @@ function Graph() {
   const [data, setData] = useState([]);
   const [legend, setLegend] = useState(false);
   const [open, toggle] = useState(false);
+
   const props = useSpring({
     from: { r: 0, fill: "lightblue" },
     to: { r: open ? 10 : 5, fill: open ? "purple" : "lightblue" }
   });
+
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipText, setTooltipText] = useState([]);
+  const [tooltipTransform, setTooltipTransform] = useState("translate(0,0)")
+  const [tooltipProps, setTooltipProps, stopTooltipProps] = useSpring(() => ({opacity: 0}))
+
+
+        //   div.transition()		
+      //       .duration(200)		
+      //       .style("opacity", .9);		
+      //   div.html(formatTime(d.date) + "<br/>"  + d.close)	
+      //       .styl
+      //       .style("top", (d3.event.pageY - 28) + "px");	
+      //   }			
+      // onMouseOut={		
+      //   div.transition()		
+      //       .duration(500)		
+      //       .style("opacity", 0);	
+      //   }
 
   useEffect(() => {
     fetch("/api/get_sensor_data")
@@ -53,6 +72,26 @@ function Graph() {
 
   var colorScale = scaleOrdinal(schemeCategory10)
 
+  function mouseEnter(e, d) {
+    console.log(e.nativeEvent.offsetX)
+    console.log(d)
+    const date = new Date()
+    const dateString = date.toString()
+    setTooltipText([
+      d.name,
+      dateString,
+      d.value + " => " + d.calibrated_value])
+    setTooltipProps({opacity: 1})
+    setTooltipTransform("translate("+xScale(d.timestamp)+", "+yScale(d.calibrated_value)+")")
+  }
+  
+
+  function mouseLeave(e, d) {
+    console.log(e)
+    console.log(d)
+    setTooltipProps({opacity: 0})
+  }
+
   const circles = data.map((d, i) => (
     <animated.circle
       key={i}
@@ -60,8 +99,12 @@ function Graph() {
       cx={xScale(d.timestamp)}
       cy={yScale(d.calibrated_value)}
       fill={colorScale(d.device_id)}
+      onMouseEnter={(e) => mouseEnter(e, d)}	
+
     />
   ));
+
+  
 
   return (
     <Box>
@@ -71,9 +114,30 @@ function Graph() {
             <AxisLeft yScale={yScale} width={width} />
             <AxisBottom xScale={xScale} height={height} />
             {circles}
+            <text transform={tooltipTransform} >
+              <tspan x="10" y="45">{tooltipText[0]}</tspan>
+              <tspan x="10" y="70">{tooltipText[1]}</tspan>
+              <tspan x="10" y="95">{tooltipText[2]}</tspan>
+
+            </text>
           </g>
+          
         </svg>
         {legend}
+        {/* <animated.div
+          position="absolute"	
+          text-align="center"	
+          width="60px"
+          height="28px"			
+          padding="2px"		
+          font="12px sans-serif"
+          background="lightsteelblue"
+          border="0px"
+          border-radius="8px"	
+          style={tooltipProps}
+        >
+          {tooltipText}
+        </animated.div> */}
       </div>
     </Box>
   );
