@@ -38,6 +38,8 @@ function ManagementElement({
       } else {
         setErrorMessage(typeCheckErrors[allowedType]);
       }
+    } else {
+      updateValue(varName, target.value);
     }
 
     setData(target.value);

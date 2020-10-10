@@ -17,9 +17,23 @@ if sec > 0 then
 		print("READ_SENSORS: read soil sensor")
 		rtcfifo.put(sec, adcval, 0, "soil")
 	end
+
+	-- read DHT22 temp and humidity
+	local status, temp, humi, temp_dec, humi_dec = dht.read(DHT_PIN)
+	if status == dht.OK then
+		rtcfifo.put(sec, math.floor(temp), 0, "temp")
+		rtcfifo.put(sec, math.floor(humi), 0, "humi")
+	elseif status == dht.ERROR_CHECKSUM then
+		print( "DHT Checksum error." )
+	elseif status == dht.ERROR_TIMEOUT then
+		print( "DHT timed out." )
+	end
+	
 else
 	print("READ_SENSORS: didn't read because t=0")
 end
+
+
 
 
 -- go_to_sleep = function()

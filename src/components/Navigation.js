@@ -21,6 +21,7 @@ const Navigation = () => {
       <Box display="flex" direction="row" alignItems="center">
         <NavItem path="/" label="Home" />
         <NavItem path="/graph" label="Graph" />
+        <NavItem path="/rawgraph" label="RawGraph" />
         <NavItem path="/manage" label="Manage" />
         <NavItem path="/test/123" label="Test URL Params" />
       </Box>

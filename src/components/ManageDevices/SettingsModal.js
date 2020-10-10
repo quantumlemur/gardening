@@ -3,9 +3,7 @@ import React from "react";
 import { Box, Button, Modal, Layer } from "gestalt";
 import ManagementElement from "./ManagementElement";
 
-function SettingsModal(props) {
-  const { device, onDismiss, updateValue, onSubmit } = props;
-
+function SettingsModal({ device, onDismiss, updateValue, onSubmit }) {
   return (
     <Layer>
       <Modal

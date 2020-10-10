@@ -22,41 +22,40 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 def get_devices():
     db = get_db_dicts()
     error = None
-    devices = db.execute(
-        """SELECT
-				devices.id,
-				mac,
-				device_config.name,
-				checkin_time,
-				device_next_init,
-				location_zone,
-				location_x,
-				location_y,
-				INIT_INTERVAL,
-				SLEEP_DURATION,
-				MAX_ENTRYS_WITHOUT_INIT,
-				LIGHT,
-				calibration_min,
-				calibration_max,
-				trigger_min,
-				timestamp,
-				value,
-				CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
-                FROM devices
-				LEFT JOIN (
-					SELECT
-					MAX(timestamp) AS latest_timestamp,
-					device_id
-					FROM readings
-					WHERE name = "soil"
-					GROUP BY device_id
-				) AS latest_reading_timestamps
-				LEFT JOIN device_config ON device_config.device_id = latest_reading_timestamps.device_id
-				LEFT JOIN device_status ON devices.id = device_status.device_id
-				LEFT JOIN readings ON
-					readings.device_id = latest_reading_timestamps.device_id AND
-					readings.timestamp = latest_reading_timestamps.latest_timestamp
-			""").fetchall()
+    devices = db.execute("""
+        SELECT
+            devices.id,
+            mac,
+            device_config.name,
+            checkin_time,
+            device_next_init,
+            location_zone,
+            location_x,
+            location_y,
+            INIT_INTERVAL,
+            SLEEP_DURATION,
+            MAX_ENTRYS_WITHOUT_INIT,
+            LIGHT,
+            calibration_min,
+            calibration_max,
+            trigger_min,
+            timestamp,
+            value,
+            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
+        FROM
+            devices
+        LEFT JOIN (
+            SELECT
+                MAX(timestamp) AS timestamp,
+                value,
+                device_id
+            FROM readings
+            WHERE name = "soil"
+            GROUP BY device_id
+            ) AS latest_readings ON latest_readings.device_id = devices.id
+        LEFT JOIN device_config ON device_config.device_id = devices.id
+        LEFT JOIN device_status ON device_status.device_id = devices.id
+            """).fetchall()
     return jsonify(devices)
 
 
@@ -66,21 +65,21 @@ def submit_config():
     error = None
 
     db.execute("""
-			UPDATE
-				device_config
-			SET
-				name = ?,
-				INIT_INTERVAL = ?,
-				SLEEP_DURATION = ?,
-				MAX_ENTRYS_WITHOUT_INIT = ?,
-				LIGHT = ?,
-				calibration_min = ?,
-				calibration_max = ?,
-				trigger_min = ?,
-				location_zone = ?,
-				location_x = ?,
-				location_y = ?
-			WHERE device_id = ?""",
+        UPDATE
+            device_config
+        SET
+            name = ?,
+            INIT_INTERVAL = ?,
+            SLEEP_DURATION = ?,
+            MAX_ENTRYS_WITHOUT_INIT = ?,
+            LIGHT = ?,
+            calibration_min = ?,
+            calibration_max = ?,
+            trigger_min = ?,
+            location_zone = ?,
+            location_x = ?,
+            location_y = ?
+        WHERE device_id = ?""",
                (
                    request.json['name'],
                    request.json['INIT_INTERVAL'],
@@ -104,22 +103,48 @@ def get_sensor_data():
     db = get_db_dicts()
     error = None
     data = db.execute("""
-		SELECT
-		timestamp,
-		value,
-		CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
-		readings.device_id,
-		device_config.name
-		FROM readings
-		LEFT JOIN device_config
-		ON readings.device_id = device_config.device_id
-		WHERE
-			readings.name = "soil" AND
-			zscore < 2 AND
-			timestamp > ?
-		""",
+        SELECT
+            timestamp,
+            value,
+            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
+            readings.device_id,
+            device_config.name
+        FROM readings
+        LEFT JOIN device_config
+        ON readings.device_id = device_config.device_id
+        WHERE
+            readings.name = "soil" AND
+            zscore < 2 AND
+            timestamp > ?
+        """,
                       (
                           int(time()) - 14 * 24 * 60 * 60,
+                      )).fetchall()
+    return jsonify(data)
+
+
+@bp.route('/get_raw_sensor_data/<path:deviceid>')
+def get_raw_sensor_data(deviceid):
+    db = get_db_dicts()
+    error = None
+    data = db.execute("""
+        SELECT
+            timestamp,
+            value,
+            zscore,
+            readings.device_id,
+            device_config.name,
+            readings.name AS sensor
+        FROM readings
+        LEFT JOIN device_config
+        ON readings.device_id = device_config.device_id
+        WHERE
+            timestamp > ? AND
+            readings.device_id = ?
+        """,
+                      (
+                          int(time()) - 14 * 24 * 60 * 60,
+                          deviceid
                       )).fetchall()
     return jsonify(data)
 
@@ -135,17 +160,17 @@ def recalibrate_data():
 
         # select data from last time period
         data = db.execute("""
-			SELECT
-				device_id,
-				timestamp,
-				value,
-				name
-			FROM
-				readings
-			WHERE
-				device_id = ? AND
-				name = "soil"
-			""",
+            SELECT
+                device_id,
+                timestamp,
+                value,
+                name
+            FROM
+                readings
+            WHERE
+                device_id = ? AND
+                name = "soil"
+            """,
                           (
                               device_id,
                           )).fetchall()
@@ -156,24 +181,23 @@ def recalibrate_data():
         for reading in data:
             zscore = abs(reading[2] - avg) / stddev
             db.execute("""
-				UPDATE
-					readings
-				SET
-					zscore = ?
-				WHERE
-					device_id = ? AND
-					timestamp = ? AND
-					value = ? AND
-					name = ?
-				""",
+                UPDATE
+                    readings
+                SET
+                    zscore = ?
+                WHERE
+                    device_id = ? AND
+                    timestamp = ? AND
+                    value = ? AND
+                    name = ?
+                """,
                        (
                            zscore,
                            reading[0],
                            reading[1],
                            reading[2],
                            reading[3]
-                       )
-                       )
+                       ))
     db.commit()
     return jsonify([avg, stddev])
 
