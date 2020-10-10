@@ -1,9 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-import { Box, Button, Modal, Layer } from "gestalt";
-import ManagementElement from "./ManagementElement";
+import { Box, Button, Modal, Layer, Switch, Text } from "gestalt";
+import InputField from "./InputField";
 
-function SettingsModal({ device, onDismiss, updateValue, onSubmit }) {
+function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
+  const [device, setDevice] = useState(currDevice);
+  const [name, setName] = useState(currDevice.name);
+  const [initInterval, setInitInterval] = useState(currDevice.INIT_INTERVAL);
+  const [sleepDuration, setSleepDuration] = useState(currDevice.SLEEP_DURATION);
+  const [maxEntries, setMaxEntries] = useState(
+    currDevice.MAX_ENTRYS_WITHOUT_INIT
+  );
+  const [light, setLight] = useState(currDevice.LIGHT);
+
+  function handleLight(value) {
+    if (value) {
+      setLight(1);
+    } else {
+      setLight(0);
+    }
+  }
+
   return (
     <Layer>
       <Modal
@@ -12,79 +29,94 @@ function SettingsModal({ device, onDismiss, updateValue, onSubmit }) {
         onDismiss={onDismiss}
         size="lg"
       >
-        <Box display="flex" wrap width="100%" direction="column">
-          <Box flex="grow" paddingX={3} paddingY={3}>
-            <Box display="flex" wrap>
-              <ManagementElement
-                varName="name"
-                value={device.name}
-                updateValue={updateValue}
+        <Box
+          display="flex"
+          wrap
+          width="100%"
+          direction="column"
+          paddingX={3}
+          paddingY={3}
+        >
+          <Box display="flex">
+            <Box column={6}>
+              <InputField
+                varName="NAME"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
-              <ManagementElement
-                varName="mac"
-                value={device.mac}
-                updateValue={updateValue}
-                disabled
-              />
+            </Box>
+            <Box column={6}>
+              <InputField varName="mac" value={device.mac} disabled />
             </Box>
           </Box>
 
-          <Box flex="grow" paddingX={3} paddingY={3}>
-            <Box display="flex" wrap>
-              <ManagementElement
+          <Box display="flex">
+            <Box column={6}>
+              <InputField
                 varName="checkin_time"
-                label="Last seen"
+                label="LAST SEEN"
                 value={device.checkin_time}
-                updateValue={updateValue}
                 disabled
-                date
               />
-              <ManagementElement
+            </Box>
+            <Box column={6}>
+              <InputField
                 varName="device_next_init"
                 label="Next expected"
                 value={device.device_next_init}
-                updateValue={updateValue}
                 disabled
-                date
               />
             </Box>
           </Box>
 
-          <Box flex="grow" paddingX={3} paddingY={3}>
-            <Box display="flex" wrap>
-              <ManagementElement
+          <Box display="flex">
+            <Box column={6}>
+              <InputField
                 varName="INIT_INTERVAL"
-                value={device.INIT_INTERVAL}
-                updateValue={updateValue}
+                value={initInterval}
+                onChange={(e) => setInitInterval(e.target.value)}
                 placeholder="Max time between INIT boots (wifi)"
+                type="number"
                 allowedType="positiveInt"
               />
-              <ManagementElement
+            </Box>
+            <Box column={6}>
+              <InputField
                 varName="SLEEP_DURATION"
-                value={device.SLEEP_DURATION}
-                updateValue={updateValue}
+                value={sleepDuration}
                 placeholder="Sleep time (sec)"
+                onChange={(e) => setSleepDuration(e.target.value)}
+                type="number"
                 allowedType="positiveInt"
               />
             </Box>
           </Box>
 
-          <Box flex="grow" paddingX={3} paddingY={3}>
-            <Box display="flex" wrap>
-              <ManagementElement
+          <Box display="flex">
+            <Box column={6}>
+              <InputField
                 varName="MAX_ENTRYS_WITHOUT_INIT"
-                value={device.MAX_ENTRYS_WITHOUT_INIT}
-                updateValue={updateValue}
+                value={maxEntries}
+                onChange={(e) => setMaxEntries(e.target.value)}
                 placeholder="Max boots before going to INIT"
+                type="number"
                 allowedType="positiveInt"
               />
-              <ManagementElement
-                varName="LIGHT"
-                value={device.LIGHT}
-                updateValue={updateValue}
-                placeholder="Light? 1/0"
-                allowedType="bool"
-              />
+            </Box>
+            <Box column={6}>
+              <Box display="flex" direction="column" padding={3}>
+                <Box>
+                  <Text>{"Light"}</Text>
+                </Box>
+                <Box paddingY={1}>
+                  <Switch
+                    name="Light"
+                    switched={light === 1}
+                    onChange={(e) => handleLight(e.value)}
+                    placeholder="Light? 1/0"
+                  />
+                </Box>
+              </Box>
             </Box>
           </Box>
 

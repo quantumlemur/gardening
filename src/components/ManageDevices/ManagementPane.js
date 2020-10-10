@@ -4,7 +4,7 @@ import "gestalt/dist/gestalt.css";
 import { Box, Button, Heading, Layer, Modal } from "gestalt";
 
 import Map from "../HouseMap/Map";
-import ManagementElement from "./ManagementElement";
+import InputField from "./InputField";
 import SettingsModal from "./SettingsModal";
 
 function SubmitConfig(data) {
@@ -63,9 +63,9 @@ function ManagementPane({ device, alldevices }) {
       </Box>
       {showSettings && (
         <SettingsModal
-          device={device}
+          currDevice={device}
           onDismiss={handleDismiss}
-          updateValue={updateValue}
+          // updateValue={updateValue}
           onSubmit={handleSubmit}
         />
       )}

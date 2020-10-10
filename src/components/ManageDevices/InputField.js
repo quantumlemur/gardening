@@ -3,18 +3,19 @@ import React, { useState } from "react";
 import "gestalt/dist/gestalt.css";
 import { Box, TextField } from "gestalt";
 
-function ManagementElement({
+function InputField({
   varName,
   value,
   placeholder,
-  updateValue,
+  type,
   disabled,
   label,
   date,
   helperText,
   allowedType,
+  onChange,
 }) {
-  const [data, setData] = useState(value);
+  // const [data, setData] = useState(value);
   const [errorMessage, setErrorMessage] = useState("");
 
   const typeCheckRegexes = {
@@ -28,39 +29,43 @@ function ManagementElement({
   };
 
   function handleInputChange(event) {
-    const target = event.event.target;
-
-    if (allowedType) {
-      if (typeCheckRegexes[allowedType].test(target.value)) {
-        setErrorMessage("");
-
-        updateValue(varName, target.value);
-      } else {
-        setErrorMessage(typeCheckErrors[allowedType]);
-      }
-    } else {
-      updateValue(varName, target.value);
-    }
-
-    setData(target.value);
+    // const target = event.event.target;
+    // console.log(target.id);
+    // console.log(target.value);
+    //
+    // if (allowedType) {
+    //   if (typeCheckRegexes[allowedType].test(target.value)) {
+    //     setErrorMessage("");
+    //
+    //     updateValue(varName, target.value);
+    //   } else {
+    //     setErrorMessage(typeCheckErrors[allowedType]);
+    //   }
+    // } else {
+    //   updateValue(varName, target.value);
+    // }
+    //
+    // setData(target.value);
   }
+  // console.log("management element render");
 
   return (
-    <Box flex="grow" paddingX={3} paddingY={3}>
+    <Box flex="grow" padding={3}>
       <TextField
         key={varName}
         id={varName}
         label={label ? label : varName}
         name={varName}
-        value={date ? new Date(data * 1000).toString() : data.toString()}
+        value={value}
         helperText={helperText}
-        onChange={handleInputChange}
+        onChange={(e) => onChange(e.event)}
         placeholder={placeholder ? placeholder : varName}
         disabled={disabled}
         errorMessage={errorMessage}
+        type={type}
       />
     </Box>
   );
 }
 
-export default ManagementElement;
+export default InputField;
