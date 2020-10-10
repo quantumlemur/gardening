@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
 import "gestalt/dist/gestalt.css";
 import { Box, TextField } from "gestalt";
 
 function InputField({
-  varName,
+  name,
   value,
   placeholder,
   type,
@@ -12,54 +12,20 @@ function InputField({
   label,
   date,
   helperText,
-  allowedType,
   onChange,
+  errorMessage,
 }) {
-  // const [data, setData] = useState(value);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const typeCheckRegexes = {
-    positiveInt: /^\d+$/,
-    bool: /^[01]$/,
-  };
-
-  const typeCheckErrors = {
-    positiveInt: "Must be positive int",
-    bool: "Must be 0 or 1",
-  };
-
-  function handleInputChange(event) {
-    // const target = event.event.target;
-    // console.log(target.id);
-    // console.log(target.value);
-    //
-    // if (allowedType) {
-    //   if (typeCheckRegexes[allowedType].test(target.value)) {
-    //     setErrorMessage("");
-    //
-    //     updateValue(varName, target.value);
-    //   } else {
-    //     setErrorMessage(typeCheckErrors[allowedType]);
-    //   }
-    // } else {
-    //   updateValue(varName, target.value);
-    // }
-    //
-    // setData(target.value);
-  }
-  // console.log("management element render");
-
   return (
     <Box flex="grow" padding={3}>
       <TextField
-        key={varName}
-        id={varName}
-        label={label ? label : varName}
-        name={varName}
+        key={name}
+        id={name}
+        label={label ? label : name}
+        name={name}
         value={value}
         helperText={helperText}
         onChange={(e) => onChange(e.event)}
-        placeholder={placeholder ? placeholder : varName}
+        placeholder={placeholder ? placeholder : name}
         disabled={disabled}
         errorMessage={errorMessage}
         type={type}

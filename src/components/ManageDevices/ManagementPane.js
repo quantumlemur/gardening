@@ -20,10 +20,6 @@ function ManagementPane({ device, alldevices }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
-  function updateValue(tag, value) {
-    device[tag] = value;
-  }
-
   function setLocation(event) {
     device.location_x = event.nativeEvent.offsetX;
     device.location_y = event.nativeEvent.offsetY;
@@ -34,7 +30,6 @@ function ManagementPane({ device, alldevices }) {
   }
 
   function handleSubmit(data) {
-    console.log("submit", data);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
