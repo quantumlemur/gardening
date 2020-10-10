@@ -1,6 +1,7 @@
 import React from "react";
 import ManageDevices from "./components/ManageDevices";
 import Graph from "./components/Graph";
+import RawGraph from "./components/RawGraph";
 import Home from "./components/Home";
 import Navigation from "./components/Navigation";
 import Error from "./components/Error";
@@ -28,6 +29,9 @@ function App() {
             </Route>
             <Route path="/graph/">
               <Graph />
+            </Route>
+            <Route path="/rawgraph/">
+              <RawGraph />
             </Route>
             <Route path="/test/:id">
               <TestId />

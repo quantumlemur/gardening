@@ -12,6 +12,8 @@ MEMSLOT_SLEEP_DURATION = 28
 -- MEMSLOT_SLEEP_DELAY = 29 -- number of seconds to pause before sleeping
 MEMSLOT_LIGHT = 30
 
+DHT_PIN = 1
+
 
 -- rtcmem.write32(MEMSLOT_INITIALIZED, 0)  -- reset memory next boot?
 

@@ -104,11 +104,11 @@ def get_sensor_data():
     error = None
     data = db.execute("""
         SELECT
-        timestamp,
-        value,
-        CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
-        readings.device_id,
-        device_config.name
+            timestamp,
+            value,
+            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
+            readings.device_id,
+            device_config.name
         FROM readings
         LEFT JOIN device_config
         ON readings.device_id = device_config.device_id
@@ -119,6 +119,32 @@ def get_sensor_data():
         """,
                       (
                           int(time()) - 14 * 24 * 60 * 60,
+                      )).fetchall()
+    return jsonify(data)
+
+
+@bp.route('/get_raw_sensor_data/<path:deviceid>')
+def get_raw_sensor_data(deviceid):
+    db = get_db_dicts()
+    error = None
+    data = db.execute("""
+        SELECT
+            timestamp,
+            value,
+            zscore,
+            readings.device_id,
+            device_config.name,
+            readings.name AS sensor
+        FROM readings
+        LEFT JOIN device_config
+        ON readings.device_id = device_config.device_id
+        WHERE
+            timestamp > ? AND
+            readings.device_id = ?
+        """,
+                      (
+                          int(time()) - 14 * 24 * 60 * 60,
+                          deviceid
                       )).fetchall()
     return jsonify(data)
 
