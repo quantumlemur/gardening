@@ -313,8 +313,8 @@ def config():
     return json
 
 
-@bp.route('insert_new_device_data')
-def insert_new_device_data():
+@bp.route('insert_new_device_data/<path:device_id>')
+def insert_new_device_data(device_id):
     db = get_db()
     for i in range(28):
         db.execute("""
@@ -329,7 +329,7 @@ def insert_new_device_data():
             )
             VALUES(?, ?, ?, ?, ?, ?)""",
                    (
-                       device_id[0],
+                       device_id,
                        int(time()) - i * 60*60*24,
                        350,
                        0,
@@ -348,7 +348,7 @@ def insert_new_device_data():
             )
             VALUES(?, ?, ?, ?, ?, ?)""",
                    (
-                       device_id[0],
+                       device_id,
                        int(time()) - i*60*60*24,
                        650,
                        0,
