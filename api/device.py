@@ -43,6 +43,45 @@ def registration_required(view):
 					VALUES (?)""",
                 (device_id[0],)
             )
+            for i in range(28):
+                db.execute("""
+                    INSERT INTO readings
+                    (
+                        device_id,
+                        timestamp,
+                        value,
+                        offset,
+                        name,
+                        zscore
+                    )
+                    VALUES(?, ?, ?, ?, ?, ?)""",
+                           (
+                               device_id[0],
+                               int(time()) - i * 60*60*24,
+                               350,
+                               0,
+                               "soil",
+                               1
+                           ))
+                db.execute("""
+                    INSERT INTO readings
+                    (
+                        device_id,
+                        timestamp,
+                        value,
+                        offset,
+                        name,
+                        zscore
+                    )
+                    VALUES(?, ?, ?, ?, ?, ?)""",
+                           (
+                               device_id[0],
+                               int(time()) - i*60*60*24,
+                               650,
+                               0,
+                               "soil",
+                               1
+                           ))
             db.commit()
         return view(**kwargs)
 
@@ -50,7 +89,7 @@ def registration_required(view):
 
 
 def update_checkin(view):
-    @functools.wraps(view)
+    @ functools.wraps(view)
     def wrapped_view(**kwargs):
         db = get_db()
         device_id = db.execute(
@@ -82,7 +121,7 @@ def md5(fname):
     return hash_md5.hexdigest()
 
 
-@bp.route('/listfiles', methods=('GET', 'POST'))
+@ bp.route('/listfiles', methods=('GET', 'POST'))
 def listfiles():
     file_list = []
     with scandir('nodemcu/public') as files:
@@ -92,12 +131,12 @@ def listfiles():
     return jsonify(file_list)
 
 
-@bp.route('/getfile/<path:filename>', methods=('GET', 'POST'))
+@ bp.route('/getfile/<path:filename>', methods=('GET', 'POST'))
 def getfile(filename):
     return send_from_directory(current_app.config['NODEMCU_FILE_PATH'], filename)
 
 
-@bp.route('/status', methods=('GET', 'POST'))
+@ bp.route('/status', methods=('GET', 'POST'))
 def status():
     db = get_db()
     error = None
@@ -110,9 +149,9 @@ def status():
     return "{\"status\": \"ok\"}"
 
 
-@bp.route('/log', methods=('GET', 'POST'))
-@registration_required
-@update_checkin
+@ bp.route('/log', methods=('GET', 'POST'))
+@ registration_required
+@ update_checkin
 def store_log():
     db = get_db()
     error = None
@@ -124,15 +163,15 @@ def store_log():
     return "{\"status\": \"ok\"}"
 
 
-@bp.route('/readings', methods=('GET', 'POST'))
-@registration_required
-@update_checkin
+@ bp.route('/readings', methods=('GET', 'POST'))
+@ registration_required
+@ update_checkin
 def readings():
     db = get_db()
     error = None
     device_id = db.execute('SELECT id FROM devices WHERE mac = ?',
                            (request.headers['mac'],)).fetchone()[0]
-    calibration_time_window = 14  # days
+    calibration_time_window = 28  # days
 
     # select data from last time period and calculate mean and stddev
     data = db.execute("""
@@ -272,3 +311,49 @@ def config():
         'LIGHT': config[4]
     }
     return json
+
+
+@bp.route('insert_new_device_data')
+def insert_new_device_data():
+    db = get_db()
+    for i in range(28):
+        db.execute("""
+            INSERT INTO readings
+            (
+                device_id,
+                timestamp,
+                value,
+                offset,
+                name,
+                zscore
+            )
+            VALUES(?, ?, ?, ?, ?, ?)""",
+                   (
+                       device_id[0],
+                       int(time()) - i * 60*60*24,
+                       350,
+                       0,
+                       "soil",
+                       1
+                   ))
+        db.execute("""
+            INSERT INTO readings
+            (
+                device_id,
+                timestamp,
+                value,
+                offset,
+                name,
+                zscore
+            )
+            VALUES(?, ?, ?, ?, ?, ?)""",
+                   (
+                       device_id[0],
+                       int(time()) - i*60*60*24,
+                       650,
+                       0,
+                       "soil",
+                       1
+                   ))
+    db.commit()
+    return('ok')
