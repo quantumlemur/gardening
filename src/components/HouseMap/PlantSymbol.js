@@ -1,52 +1,68 @@
 import React, { useState } from "react";
-import { Box, Heading, Text } from "gestalt";
-import { scaleLinear } from "d3-scale";
+import { Icon } from "gestalt";
+import { animated } from "react-spring";
+import { Keyframes } from "react-spring/renderprops";
 
-var colorScale = scaleLinear().domain([0, 1]).range(["green", "brown"]);
+function Circle({ color, pulse }) {
+  const Chain = Keyframes.Spring(async (next) => {
+    while (true) {
+      await next({
+        from: { r: 5 },
+        to: { r: 20 },
+      });
+      await next({
+        from: { r: 20 },
+        to: { r: 5 },
+      });
+    }
+  });
 
-function Cross({ data, index }) {
-  const now = new Date();
+  if (pulse) {
+    return (
+      <Chain>{(props) => <animated.circle style={props} fill={color} />}</Chain>
+    );
+  } else {
+    return <circle r="8" fill={color} />;
+  }
+}
+
+function Alert() {
   return (
-    <polyline
-      key={index}
-      points={[
-        data.location_x - 10,
-        data.location_y - 10,
-        data.location_x + 10,
-        data.location_y + 10,
-        data.location_x,
-        data.location_y,
-        data.location_x - 10,
-        data.location_y + 10,
-        data.location_x + 10,
-        data.location_y - 10,
-      ].join(", ")}
-      stroke="red"
-      strokeWidth={now > data.device_next_init * 1000 ? "5" : "0"}
-      fill="none"
+    <g transform="translate(-16, 0)">
+      <Icon icon="alert" accessibilityLabel="alert" color="darkGray" />
+    </g>
+  );
+}
+
+function LightningBolt() {
+  return (
+    <Icon
+      icon="lightning-bolt-circle"
+      accessibilityLabel="lightning-bolt-circle"
+      color="darkGray"
+      inline="true"
     />
   );
 }
 
-function Circle({ data, index, color }) {
+function PlantSymbol({
+  data,
+  index,
+  onClick,
+  color,
+  pulse,
+  needCharge,
+  alert,
+}) {
   return (
-    <circle
-      key={index}
-      r={10}
-      cx={data.location_x}
-      cy={data.location_y}
-      fill={color}
-    />
-  );
-}
-
-function PlantSymbol({ data, index, onClick, activeDeviceId }) {
-  const color =
-    data.id === activeDeviceId ? "blue" : colorScale(data.calibrated_value);
-  return (
-    <g draggable onClick={() => onClick(data)}>
-      <Circle data={data} index={index} color={color} />
-      <Cross data={data} index={index} />
+    <g
+      transform={`translate(${data.location_x}, ${data.location_y})`}
+      draggable
+      onClick={() => onClick(data)}
+    >
+      <Circle color={color} pulse={pulse} />
+      {alert && <Alert />}
+      {needCharge && <LightningBolt />}
     </g>
   );
 }

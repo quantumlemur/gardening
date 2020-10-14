@@ -40,8 +40,9 @@ def get_devices():
             calibration_max,
             trigger_min,
             timestamp,
-            value,
-            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
+            latest_soil_readings.value AS soil,
+            latest_volt_readings.value AS volt,
+            CAST(latest_soil_readings.value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
         FROM
             devices
         LEFT JOIN (
@@ -50,9 +51,18 @@ def get_devices():
                 value,
                 device_id
             FROM readings
-            WHERE name = "soil"
+            WHERE name="soil"
             GROUP BY device_id
-            ) AS latest_readings ON latest_readings.device_id = devices.id
+            ) AS latest_soil_readings ON latest_soil_readings.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MAX(timestamp),
+                value,
+                device_id
+            FROM readings
+            WHERE name="volt"
+            GROUP BY device_id
+            ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
             """).fetchall()
@@ -147,59 +157,6 @@ def get_raw_sensor_data(deviceid):
                           deviceid
                       )).fetchall()
     return jsonify(data)
-
-
-@bp.route('/recalibrate_data')
-def recalibrate_data():
-    db = get_db()
-    error = None
-
-    devices = db.execute("""SELECT id FROM devices""").fetchall()
-    for device in devices:
-        device_id = device[0]
-
-        # select data from last time period
-        data = db.execute("""
-            SELECT
-                device_id,
-                timestamp,
-                value,
-                name
-            FROM
-                readings
-            WHERE
-                device_id = ? AND
-                name = "soil"
-            """,
-                          (
-                              device_id,
-                          )).fetchall()
-        values = [reading[2] for reading in data]
-        avg = mean(values)
-        stddev = stdev(values)
-
-        for reading in data:
-            zscore = abs(reading[2] - avg) / stddev
-            db.execute("""
-                UPDATE
-                    readings
-                SET
-                    zscore = ?
-                WHERE
-                    device_id = ? AND
-                    timestamp = ? AND
-                    value = ? AND
-                    name = ?
-                """,
-                       (
-                           zscore,
-                           reading[0],
-                           reading[1],
-                           reading[2],
-                           reading[3]
-                       ))
-    db.commit()
-    return jsonify([avg, stddev])
 
 
 @bp.route('/time')
