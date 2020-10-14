@@ -33,7 +33,7 @@ function Map({ devices, initialActiveDevice, setLocation }) {
       onClick={handleClick}
       pulse={d.id === activeDeviceId}
       color={colorScale(d.calibrated_value)}
-      needCharge={d.volt < 3300}
+      needCharge={d.volt < 3000}
       alert={new Date() > data.device_next_init * 1000}
     />
   ));
