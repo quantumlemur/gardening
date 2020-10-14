@@ -133,6 +133,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 name="checkin_time"
                 label="LAST SEEN"
                 value={device.checkin_time}
+                type="timestamp"
                 disabled
               />
             </Box>
@@ -141,6 +142,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 name="device_next_init"
                 label="Next expected"
                 value={device.device_next_init}
+                type="timestamp"
                 disabled
               />
             </Box>

@@ -22,7 +22,7 @@ function InputField({
         id={name}
         label={label ? label : name}
         name={name}
-        value={value}
+        value={type === "timestamp" ? new Date(value * 1000) : value}
         helperText={helperText}
         onChange={(e) => onChange(e.event)}
         placeholder={placeholder ? placeholder : name}
