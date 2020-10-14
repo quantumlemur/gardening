@@ -4,7 +4,7 @@ import "gestalt/dist/gestalt.css";
 import { Box, Button, Heading, Layer, Modal } from "gestalt";
 
 import Map from "../HouseMap/Map";
-import ManagementElement from "./ManagementElement";
+import InputField from "./InputField";
 import SettingsModal from "./SettingsModal";
 
 function SubmitConfig(data) {
@@ -20,10 +20,6 @@ function ManagementPane({ device, alldevices }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
-  function updateValue(tag, value) {
-    device[tag] = value;
-  }
-
   function setLocation(event) {
     device.location_x = event.nativeEvent.offsetX;
     device.location_y = event.nativeEvent.offsetY;
@@ -34,7 +30,6 @@ function ManagementPane({ device, alldevices }) {
   }
 
   function handleSubmit(data) {
-    console.log("submit", data);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,9 +58,9 @@ function ManagementPane({ device, alldevices }) {
       </Box>
       {showSettings && (
         <SettingsModal
-          device={device}
+          currDevice={device}
           onDismiss={handleDismiss}
-          updateValue={updateValue}
+          // updateValue={updateValue}
           onSubmit={handleSubmit}
         />
       )}
