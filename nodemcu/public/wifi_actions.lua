@@ -121,6 +121,7 @@ sntp.sync("128.138.140.44",
 		end
 	end,
 	function()
+		local sec, usec, rate = rtctime.get()
 		print("WIFI_ACTIONS: SNTP sync unsuccessful. Time: "..format_time(sec))
 		if not http_queue:dequeue(do_http_request) then
 			print("QUEUE: queue was empty")
