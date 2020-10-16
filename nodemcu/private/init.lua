@@ -19,11 +19,13 @@ if rtcfifo.ready() == 0 then -- prepare FIFO
 	rtcfifo.prepare()
 end
 
+local initialize_memory, load_common_defs, get_file, create_write_callback, file_is_changed, check_for_updates, closeout, delete_files
+
 initialize_memory = function()
 	rtcmem.write32(MEMSLOT_INITIALIZED, 0)
 end
 
-load_common_defs = function()
+oad_common_defs = function()
 	require("COMMON_DEFS")
 	rtcmem.write32(MEMSLOT_ENTRYS_SINCE_INIT, 0)
 	rtcmem.write32(MEMSLOT_LAST_INIT_TIME, sec)
@@ -34,6 +36,7 @@ load_common_defs = function()
 	end
 end
 pcall(load_common_defs) -- protected call wrapper to catch errors
+
 
 
 -----------------------  COMPILATION  -----------------------
@@ -79,7 +82,7 @@ end
 
 -----------------------  WIFI  -----------------------
 
-startup = function()
+local function startup()
 	-- if file.open("init.lua") == nil then
 	-- 	print("INIT: init.lua deleted or renamed")
 	-- else
@@ -89,20 +92,20 @@ startup = function()
 	-- end
 end
 
-wifi_connect_event = function(T)
+local function wifi_connect_event(T)
 	print("INIT: Connection to AP("..T.SSID..") established!")
 	print("INIT: Waiting for IP address...")
 	-- if disconnect_ct ~= nil then disconnect_ct = nil end
 end
 
-wifi_got_ip_event = function(T)
+local function wifi_got_ip_event(T)
 	-- Note: Having an IP address does not mean there is internet access!
 	-- Internet connectivity can be determined with net.dns.resolve().
 	print("INIT: Wifi connection is ready! IP address is: "..T.IP)
 	tmr.create():alarm(1000, tmr.ALARM_SINGLE, startup)
 end
 
-wifi_disconnect_event = function(T)
+local function wifi_disconnect_event(T)
 	print('WIFI DISCONNECT EVENT '..T.reason)
 	node.restart()
 end
@@ -118,6 +121,7 @@ get_file = function(filename)
 end
 
 create_write_callback = function(filename)
+	print("INIT: in create_write_callback")
 	return function(status_code, body, headers)
 		if status_code == 200 then
 			print("INIT: UPDATING FILE: "..filename)
@@ -158,6 +162,7 @@ file_is_changed = function(filename, hash)
 end
 
 check_for_updates = function(status_code, body, headers)
+	print("INIT: in check_for_updates")
 	if status_code == 200 then
 		print("INIT: Update check got file list...")
 		local decoder = sjson.decoder()
@@ -208,6 +213,14 @@ closeout = function()
 		tmr.create():alarm(10000, tmr.ALARM_SINGLE, function() node.restart() end)
 	else
 		if file.exists("entry.lua") then
+			initialize_memory = nil
+			load_common_defs = nil
+			get_file = nil
+			create_write_callback = nil
+			file_is_changed = nil
+			check_for_updates = nil
+			closeout = nil
+			delete_files = nil
 			require("entry")
 		end
 	end

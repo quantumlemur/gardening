@@ -1,10 +1,16 @@
 print("WIFI_ACTIONS: entering wifi_actions.lua")
 
+-----------------------  SET HTTP REQUEST FILES TO PROCESS  -----------------------
 
------------------------  SEND LOG  -----------------------
+local http_request_files = {
+	"config_http_requests",
+	"readings_http_requests"
+}
+
+-----------------------  LOG HANDLING  -----------------------
 
 
-send_log = function()
+local function send_log()
 	if logfile_to_send then
 		local contents = logfile_to_send:read()
 		if contents ~= nil then
@@ -32,87 +38,73 @@ if logfile then
 end
 
 
------------------------  SEND READINGS  -----------------------
+-----------------------  HTTP QUEUE CREATION  -----------------------
 
 
-send_readings = function()
-	local history = {}
+local http_queue = (require "fifo").new()
 
-	while rtcfifo.peek() do
-		print("WIFI_ACTIONS: reading rtcfifo")
-		local timestamp, value, neg_e, name = rtcfifo.pop()
-		table.insert(history, {timestamp, value, neg_e, name})
-	end
+local function do_http_request(args)
+	local type = args['type'] or "get"
+	local url = args['url']
+	local headers = args['headers'] or string.format("mac: %s\r\ndevice-next-init: %s\r\nContent-Type: application/json\r\n", wifi.sta.getmac(), rtcmem.read32(MEMSLOT_NEXT_INIT_EXPECTED))
+	local body = args['body']
+	local body_generator = args['body_generator']
+	local callback = args['callback']
+	local name = args['name']
 
-	handle_submission = function(status_code, body, headers)
-		if status_code == 200 then
-			print("WIFI_ACTIONS: readings sent successfully")
-		else
-			print("WIFI_ACTIONS: reading send failed")
+	local function do_callback(...)
+		if name then
+			print("QUEUE: in do_callback for "..name)
 		end
-		send_log() -- move up to send_log()
+
+		if callback then
+			callback(unpack(arg))
+		end
+
+		if not http_queue:dequeue(do_http_request) then
+			print("QUEUE: done with queue, sending log")
+			-- http_queue = nil
+			-- send_log()
+		end
 	end
 
-	if table.getn(history) > 0 then
-		print("WIFI_ACTIONS: sending history")
-		local history_json = sjson.encode(history)
-		http.post(SERVER_URL.."/readings",
-			"mac: "..wifi.sta.getmac().."\r\ndevice-next-init: "..next_init_expected.."\r\nContent-Type: application/json\r\n",
-			history_json,
-			handle_submission)
-	else
-		print("WIFI_ACTIONS: no history to send")
-		send_log() -- move up to send_log()
+	if name then
+		print("WIFI_ACTIONS: Performing request: "..name)
+	end
+
+	if type == "get" then
+		http.get(url, headers, do_callback)
+	elseif type == "post" then
+		if body_generator then
+			print("WIFI: body generator")
+			http.post(url, headers, body_generator(), do_callback)
+		else
+			print("WIFI: plain body")
+			http.post(url, headers, body, do_callback)
+		end
 	end
 end
 
 
------------------------  GET CONFIG  -----------------------
-
-calc_next_init_expected = function()
-	local sec, usec, rate = rtctime.get()
-	local next_init_by_time = rtcmem.read32(MEMSLOT_NEXT_INIT_TIME)
-	local next_init_by_count = sec + ((rtcmem.read32(MEMSLOT_MAX_ENTRYS_WITHOUT_INIT) - rtcmem.read32(MEMSLOT_ENTRYS_SINCE_INIT)) * rtcmem.read32(MEMSLOT_SLEEP_DURATION))
-	return math.min(next_init_by_time, next_init_by_count)
-end
+-----------------------  PROCESS FILES AND ENQUEUE REQUESTS  -----------------------
 
 
-parse_config = function(status_code, body, headers)
-	print("WIFI_ACTIONS: in parse_config")
+----- WE SHOULD ENQUEUE THE FILES AND PROCESS AND REQUEST THEM ONE AT A TIME.  EACH FILE CAN DO ONE REQUEST.
 
-	if status_code == 200 then
-		local decoder = sjson.decoder()
-		decoder:write(body)
-		local device_config = decoder:result()
-		print("WIFI_ACTIONS: "..body)
-		print("WIFI_ACTIONS: CONFIG: INIT_INTERVAL: "..device_config["INIT_INTERVAL"])
-		print("WIFI_ACTIONS: CONFIG: SLEEP_DURATION: "..device_config["SLEEP_DURATION"])
-		-- print("WIFI_ACTIONS: CONFIG: SLEEP_DELAY: "..device_config["SLEEP_DELAY"])
-		print("WIFI_ACTIONS: CONFIG: MAX_ENTRYS_WITHOUT_INIT: "..device_config["MAX_ENTRYS_WITHOUT_INIT"])
-		print("WIFI_ACTIONS: CONFIG: LIGHT: "..device_config["LIGHT"])
 
-		if device_config["INIT_INTERVAL"] ~= nil then rtcmem.write32(MEMSLOT_INIT_INTERVAL, device_config["INIT_INTERVAL"]) end
-		if device_config["SLEEP_DURATION"] ~= nil then rtcmem.write32(MEMSLOT_SLEEP_DURATION, device_config["SLEEP_DURATION"]) end
-		-- if device_config["SLEEP_DELAY"] ~= nil then rtcmem.write32(MEMSLOT_SLEEP_DELAY, device_config["SLEEP_DELAY"]) end
-		if device_config["MAX_ENTRYS_WITHOUT_INIT"] ~= nil then rtcmem.write32(MEMSLOT_MAX_ENTRYS_WITHOUT_INIT, device_config["MAX_ENTRYS_WITHOUT_INIT"]) end
-		if device_config["LIGHT"] ~= nil then rtcmem.write32(MEMSLOT_LIGHT, device_config["LIGHT"]) end
-		
 
-		-- update the next boot time, in case the config has changed
-		local sec, usec, rate = rtctime.get()
-		rtcmem.write32(MEMSLOT_NEXT_INIT_TIME, sec + rtcmem.read32(MEMSLOT_INIT_INTERVAL))
+print("WIFI: processing requests")
+
+for i, request_file in pairs(http_request_files) do
+	print("WIFI_ACTIONS: Processing file "..request_file)
+	for j, request_info in pairs(require(request_file)) do
+		if request_info then
+			http_queue:queue(request_info, do_http_request)
+			print("WIFI: enqueuing request from "..request_file)
+		else
+			print("WIFI: no requests from "..request_file)
+		end
 	end
-	next_init_expected = calc_next_init_expected()
-	send_readings()
-end
-
-fetch_config = function()
-	print("WIFI_ACTIONS: in fetch_config")
-	next_init_expected = calc_next_init_expected()
-	http.get(SERVER_URL.."/config",
-		"mac: "..wifi.sta.getmac().."\r\ndevice-next-init: "..next_init_expected.."\r\nContent-Type: application/json\r\n",
-		parse_config
-		)
 end
 
 
@@ -124,10 +116,14 @@ sntp.sync("128.138.140.44",
 		local sec, usec, rate = rtctime.get()
 		-- rtcmem.write32(MEMSLOT_LAST_WIFI_TIME, sec)
 		print("WIFI_ACTIONS: SNTP sync successful. Time: "..format_time(sec))
-		fetch_config()
+		if not http_queue:dequeue(do_http_request) then
+			print("QUEUE: queue was empty")
+		end
 	end,
 	function()
 		print("WIFI_ACTIONS: SNTP sync unsuccessful. Time: "..format_time(sec))
-		fetch_config()
+		if not http_queue:dequeue(do_http_request) then
+			print("QUEUE: queue was empty")
+		end
 	end,
 	nil)

@@ -39,12 +39,13 @@ print("ENTRY: sleep duration: "..rtcmem.read32(MEMSLOT_SLEEP_DURATION))
 
 
 require("read_sensors")
+package.loaded["read_sensors"] = nil
 
 
 -----------------------  WIFI  -----------------------
 
 
-if wifi.sta.status() == wifi.STA_GOTIP then
+if wifi.getmode() == wifi.STATION then
 	require("wifi_actions")
 end
 

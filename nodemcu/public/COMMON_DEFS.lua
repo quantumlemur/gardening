@@ -9,10 +9,13 @@ MEMSLOT_MAX_ENTRYS_WITHOUT_INIT = 25 -- Max number of boots before falling back 
 MEMSLOT_ENTRYS_SINCE_INIT = 26
 MEMSLOT_INIT_INTERVAL = 27 -- Max time between INITs
 MEMSLOT_SLEEP_DURATION = 28
--- MEMSLOT_SLEEP_DELAY = 29 -- number of seconds to pause before sleeping
+MEMSLOT_NEXT_INIT_EXPECTED = 29 -- calculated expectation of next init
 MEMSLOT_LIGHT = 30
 
+
+-- Config
 DHT_PIN = 1
+USE_RTCFIFO = false -- alternative is file-based logging
 
 
 -- rtcmem.write32(MEMSLOT_INITIALIZED, 0)  -- reset memory next boot?
@@ -29,7 +32,7 @@ if rtcmem.read32(MEMSLOT_INITIALIZED) ~= 1 then
 	rtcmem.write32(MEMSLOT_ENTRYS_SINCE_INIT, 0)
 	rtcmem.write32(MEMSLOT_INIT_INTERVAL, 1)
 	rtcmem.write32(MEMSLOT_SLEEP_DURATION, 3)
-	-- rtcmem.write32(MEMSLOT_SLEEP_DELAY, 3)
+	rtcmem.write32(MEMSLOT_NEXT_INIT_EXPECTED, 0)
 	rtcmem.write32(MEMSLOT_LIGHT, 1)
 end
 
