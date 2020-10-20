@@ -1,4 +1,5 @@
 import json
+from time import time
 import urequests
 from ubinascii import hexlify
 
@@ -8,6 +9,10 @@ from machine import unique_id
 from credentials import credentials
 
 CONFIGFILE = "config.json"
+
+
+def now():
+    return time() + 946684800
 
 
 class Config:
@@ -57,6 +62,7 @@ class Config:
         return self.config[item]
 
     def put(self, item, value):
+        self.load()
         self.config[item] = value
         self.save()
 
@@ -76,12 +82,18 @@ class Config:
             configFromServer = request.json()
             self.config.update(configFromServer)
             self.save()
+            self.calcNextInitExpected()
         else:
             print("Error: server update fetch unsuccessful")
         # request.close()
 
     def calcNextInitExpected(self):
-        pass
+        nextInitByTime = self.config['NEXT_INIT_TIME']
+        nextInitByCount = now() + \
+            (self.config['MAX_ENTRYS_WITHOUT_INIT'] -
+             self.config['bootNum']) * self.config['SLEEP_DURATION']
+        nextInitExpected = min(nextInitByTime, nextInitByCount)
+        self.put('next_init_expected', nextInitExpected)
 
 
 if __name__ == "__main__":

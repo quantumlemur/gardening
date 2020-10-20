@@ -1,11 +1,14 @@
 import machine
 import urequests
+# import traceback
 
-from time import sleep, time
+from time import sleep
 from os import listdir, remove
 
 from credentials import credentials
 from config import Config
+from utilities import now
+
 
 config = Config()
 
@@ -24,7 +27,7 @@ class Sensor:
 
     def storeReading(self):
         sensorString = '[{}, {}, 0, "soil"]'.format(
-            time()+946684800, self.read())
+            now(), self.read())
 
         fname = config.get("sensorFile")
         if fname not in listdir():
@@ -46,25 +49,35 @@ class Sensor:
 
         success = False
         if fname in listdir():
-            with open(fname, 'r') as f:
-                data = f.read() + ']'
-                print(data)
-                url = "{}/readings".format(credentials['server_url'])
-                headers = {
-                    "mac": str(config.get("mac")),
-                    "device-next-init": str(config.get("next_init_expected")),
-                    "Content-Type": "application/json",
-                }
+            try:
+                with open(fname, 'r') as f:
+                    data = f.read() + ']'
+                    print(data)
+                    url = "{}/readings".format(credentials['server_url'])
+                    headers = {
+                        "mac": str(config.get("mac")),
+                        "device-next-init": str(config.get("next_init_expected")),
+                        "Content-Type": "application/json",
+                    }
 
-                request = urequests.post(url=url, headers=headers, data=data)
-                if request.status_code == 200:
-                    success = True
-            if success:
-                print("Sensor upload successful")
+                    request = urequests.post(
+                        url=url, headers=headers, data=data)
+                    if request.status_code == 200:
+                        success = True
+                if success:
+                    print("Sensor upload successful")
+                    remove(fname)
+                else:
+                    print("Sensor upload unsuccessful.  Deleting old readings.")
+                    remove(fname)
+                    # print(f.read())
+            except Exception as err:
+                print('========= Error during sensor send!  Trying deleting sensorfile')
+                print(err)
+                # print(traceback.format_exc())
+
+                config.put('runningWithoutError', False)
                 remove(fname)
-            else:
-                print("Sensor upload unsuccessful")
-                # print(f.read())
         else:
             print('sensor file not found')
 

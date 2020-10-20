@@ -1,7 +1,11 @@
+# boot.py can handle checking for a new boot.py (really, main.py), ensuring that it runs ok, and if not then falling back to the old one!
+# To implement that, all this stuff should be moved to main.py
+
+
 # This file is executed on every boot (including wake-boot from deepsleep)
-#import esp
+# import esp
 # esp.osdebug(None)
-#import webrepl
+# import webrepl
 # webrepl.start()
 
 # import main
@@ -9,7 +13,7 @@
 from machine import WDT
 from machine import Timer
 from os import listdir, remove, rename
-from time import sleep
+from time import sleep, time
 
 import machine
 
@@ -28,9 +32,18 @@ wdt = WDT(timeout=60000)  # milliseconds
 # led.on()
 
 
+def now():
+    return time() + 946684800
+
+
+doConnectWifi = False
+
+
 # check if the device woke from a deep sleep
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print('woke from a deep sleep')
+else:
+    doConnectWifi = True
 
 
 # check for new files downloaded last boot
@@ -38,32 +51,7 @@ for filename in listdir():
     if filename[-4:] == ".new":
         print("renaming file from {} to {}".format(filename, filename[:-4]))
         rename(filename, filename[:-4])
-
-
-def runUpdates():
-    from wifi import WifiConnection
-    from updater import Updater
-
-    wifiConnection = WifiConnection()
-
-    wifiConnection.connect_wifi()
-
-    wifiConnection.monitor_connection()
-
-    # Try
-    try:
-        from config import Config
-        config = Config()
-        config.put('runningWithoutError', False)
-        config.updateFromServer()
-        sleep(3)  # Why is this here?
-    except:
-        pass
-
-    updater = Updater()
-    if updater.update_all_files():
-        # Reboot if any files were downloaded
-        machine.reset()
+        doConnectWifi = True
 
 
 try:
@@ -80,7 +68,36 @@ try:
         print('turning off LED')
         led.off()
 
-    if config.get('bootNum') == 0 or not config.get('runningWithoutError'):
-        runUpdates()
+    if config.get('bootNum') == 0 or now() >= config.get('NEXT_INIT_TIME') or not config.get('runningWithoutError'):
+        doConnectWifi = True
 except:
-    runUpdates()
+    doConnectWifi = True
+
+
+if doConnectWifi:
+    from wifi import WifiConnection
+    from updater import Updater
+
+    wifiConnection = WifiConnection()
+
+    wifiConnection.connect_wifi()
+
+    wifiConnection.monitor_connection()
+
+    # Try
+    try:
+        from config import Config
+        config = Config()
+        config.put('runningWithoutError', False)
+        config.updateFromServer()
+        config.put('LAST_INIT_TIME', now())
+        config.put('NEXT_INIT_TIME', now() +
+                   config.get('INIT_INTERVAL'))
+        sleep(1)  # Why is this here?
+    except:
+        pass
+
+    updater = Updater()
+    if updater.update_all_files():
+        # Reboot if any files were downloaded
+        machine.reset()
