@@ -47,7 +47,7 @@ def registration_required(view):
                         VALUES (?)""",
                     (device_id[0],)
                 )
-                for i in range(28):
+                for i in range(21, 28):
                     db.execute("""
                         INSERT INTO readings
                         (
@@ -59,14 +59,14 @@ def registration_required(view):
                             zscore
                         )
                         VALUES(?, ?, ?, ?, ?, ?)""",
-                            (
-                                device_id[0],
-                                int(time()) - i * 60*60*24,
-                                350,
-                                0,
-                                "soil",
-                                1
-                            ))
+                               (
+                                   device_id[0],
+                                   int(time()) - i * 60*60*24,
+                                   350,
+                                   0,
+                                   "soil",
+                                   1
+                               ))
                     db.execute("""
                         INSERT INTO readings
                         (
@@ -78,14 +78,14 @@ def registration_required(view):
                             zscore
                         )
                         VALUES(?, ?, ?, ?, ?, ?)""",
-                            (
-                                device_id[0],
-                                int(time()) - i*60*60*24,
-                                3000,
-                                0,
-                                "soil",
-                                1
-                            ))
+                               (
+                                   device_id[0],
+                                   int(time()) - i*60*60*24,
+                                   3000,
+                                   0,
+                                   "soil",
+                                   1
+                               ))
                 db.commit()
         return view(**kwargs)
 
