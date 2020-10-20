@@ -1,5 +1,5 @@
 import functools
-import hashlib
+from hashlib import md5, sha256
 
 from statistics import mean, stdev
 from time import time
@@ -20,69 +20,73 @@ def registration_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         db = get_db()
-        device_id = db.execute(
-            'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-        if device_id is None:
-            db.execute(
-                'INSERT INTO devices (mac, created) VALUES (?, ?)',
-                (request.headers['mac'], int(time()))
-            )
+        if 'mac' not in request.headers:
+            error = "no mac in headers"
+            flash(error)
+        else:
             device_id = db.execute(
                 'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
-            db.execute(
-                """INSERT INTO device_config
-					(device_id,
-					name)
-					VALUES (?, ?)""",
-                (device_id[0], request.headers['mac'])
-            )
-            db.execute(
-                """INSERT INTO device_status
-					(device_id
-					)
-					VALUES (?)""",
-                (device_id[0],)
-            )
-            for i in range(28):
-                db.execute("""
-                    INSERT INTO readings
-                    (
-                        device_id,
-                        timestamp,
-                        value,
-                        offset,
-                        name,
-                        zscore
-                    )
-                    VALUES(?, ?, ?, ?, ?, ?)""",
-                           (
-                               device_id[0],
-                               int(time()) - i * 60*60*24,
-                               350,
-                               0,
-                               "soil",
-                               1
-                           ))
-                db.execute("""
-                    INSERT INTO readings
-                    (
-                        device_id,
-                        timestamp,
-                        value,
-                        offset,
-                        name,
-                        zscore
-                    )
-                    VALUES(?, ?, ?, ?, ?, ?)""",
-                           (
-                               device_id[0],
-                               int(time()) - i*60*60*24,
-                               650,
-                               0,
-                               "soil",
-                               1
-                           ))
-            db.commit()
+            if device_id is None:
+                db.execute(
+                    'INSERT INTO devices (mac, created) VALUES (?, ?)',
+                    (request.headers['mac'], int(time()))
+                )
+                device_id = db.execute(
+                    'SELECT id FROM devices WHERE mac = ?', (request.headers['mac'],)).fetchone()
+                db.execute(
+                    """INSERT INTO device_config
+                        (device_id,
+                        name)
+                        VALUES (?, ?)""",
+                    (device_id[0], request.headers['mac'])
+                )
+                db.execute(
+                    """INSERT INTO device_status
+                        (device_id
+                        )
+                        VALUES (?)""",
+                    (device_id[0],)
+                )
+                for i in range(28):
+                    db.execute("""
+                        INSERT INTO readings
+                        (
+                            device_id,
+                            timestamp,
+                            value,
+                            offset,
+                            name,
+                            zscore
+                        )
+                        VALUES(?, ?, ?, ?, ?, ?)""",
+                            (
+                                device_id[0],
+                                int(time()) - i * 60*60*24,
+                                350,
+                                0,
+                                "soil",
+                                1
+                            ))
+                    db.execute("""
+                        INSERT INTO readings
+                        (
+                            device_id,
+                            timestamp,
+                            value,
+                            offset,
+                            name,
+                            zscore
+                        )
+                        VALUES(?, ?, ?, ?, ?, ?)""",
+                            (
+                                device_id[0],
+                                int(time()) - i*60*60*24,
+                                3000,
+                                0,
+                                "soil",
+                                1
+                            ))
+                db.commit()
         return view(**kwargs)
 
     return wrapped_view
@@ -113,12 +117,20 @@ def update_checkin(view):
     return wrapped_view
 
 
-def md5(fname):
-    hash_md5 = hashlib.md5()
+def md5_file(fname):
+    hash_md5 = md5()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+
+def sha256_file(fname):
+    hash_sha256 = sha256()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
 
 @ bp.route('/listfiles', methods=('GET', 'POST'))
@@ -127,7 +139,24 @@ def listfiles():
     with scandir('nodemcu/public') as files:
         for f in files:
             if f.is_file() and (f.name[-4:] == '.lua' or f.name[-4:] == '.cfg'):
-                file_list.append([f.name, md5('nodemcu/public/' + f.name)])
+                file_list.append(
+                    [f.name, md5_file('nodemcu/public/' + f.name)])
+    return jsonify(file_list)
+
+
+@ bp.route('/getfile_python/<path:filename>', methods=('GET', 'POST'))
+def getfile_python(filename):
+    return send_from_directory(current_app.config['MICROPYTHON_FILE_PATH'], filename)
+
+
+@ bp.route('/listfiles_python', methods=('GET', 'POST'))
+def listfiles_python():
+    file_list = []
+    with scandir('micropython/src') as files:
+        for f in files:
+            if f.is_file() and (f.name[-3:] == '.py' or f.name[-4:] == '.cfg'):
+                file_list.append(
+                    [f.name, sha256_file('micropython/src/' + f.name)])
     return jsonify(file_list)
 
 

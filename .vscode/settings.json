@@ -1,4 +1,11 @@
 {
   "editor.formatOnSave": true,
-  "editor.formatOnPaste": true
+  "editor.formatOnPaste": true,
+  "python.linting.enabled": true,
+  "python.jediEnabled": false,
+  "python.autoComplete.extraPaths": ["micropython/.micropy/micropython"],
+  "python.autoComplete.typeshedPaths": ["micropython/.micropy/micropython"],
+  "python.analysis.typeshedPaths": ["micropython/.micropy/micropython"],
+  "python.linting.pylintEnabled": true,
+  "python.languageServer": "Microsoft"
 }

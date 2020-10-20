@@ -238,6 +238,29 @@ systemctl enable --now gunicorn.socket
 systemctl enable nginx.service
 ```
 
+# Micropython
+
+```bash
+sudo apt-get install build-essential libreadline-dev libffi-dev git pkg-config gcc-arm-none-eabi libnewlib-arm-none-eabi
+cd micropython
+git clone --recurse-submodules https://github.com/micropython/micropython.git
+cd micropython/mpy-cross
+make
+cd ../ports/unix
+make axtls
+make
+```
+
+## Device
+
+Flash device:
+
+```bash
+cd micropython
+esptool.py --port /dev/ttyUSB0 erase_flash
+esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash -z 0x1000 esp32-idf3-20200902-v1.13.bin
+```
+
 # Tutorial sources
 
 Setup was done by following the react+flask tutorial from
@@ -245,3 +268,7 @@ https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
 
 nginx reverse proxy on top, proxying to gunicorn for the api and nodejs for the frontend
 https://docs.gunicorn.org/en/stable/deploy.html?highlight=unix%20socket#monitoring
+
+Micropython: https://github.com/micropython/micropython/wiki/Getting-Started
+https://lemariva.com/blog/2019/08/micropython-vsc-ide-intellisense
+https://lemariva.com/blog/2018/12/micropython-visual-studio-code-as-ide
