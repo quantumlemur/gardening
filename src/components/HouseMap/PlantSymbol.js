@@ -40,7 +40,6 @@ function LightningBolt() {
       icon="lightning-bolt-circle"
       accessibilityLabel="lightning-bolt-circle"
       color="darkGray"
-      inline="true"
     />
   );
 }

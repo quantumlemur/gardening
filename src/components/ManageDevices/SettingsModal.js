@@ -133,7 +133,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 name="checkin_time"
                 label="LAST SEEN"
                 value={device.checkin_time}
-                type="timestamp"
+                type="datetime-local"
                 disabled
               />
             </Box>
@@ -142,7 +142,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 name="device_next_init"
                 label="Next expected"
                 value={device.device_next_init}
-                type="timestamp"
+                type="datetime-local"
                 disabled
               />
             </Box>
@@ -190,6 +190,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 <Box paddingY={1}>
                   <Switch
                     name="Light"
+                    id="Light"
                     switched={light === 1}
                     onChange={(e) => handleLight(e.value)}
                     placeholder="Light? 1/0"
