@@ -46,6 +46,8 @@ def goToSleep(quickSleep=False):
     # hold the pin to prevent current leakage.  is this necessary?
     p16 = machine.Pin(config.get('ledPin'), machine.Pin.IN,
                       machine.Pin.PULL_HOLD)
+    # p25 = machine.Pin(25, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    # p26 = machine.Pin(26, machine.Pin.IN, machine.Pin.PULL_HOLD)
 
     config.put('runningWithoutError', True)
 

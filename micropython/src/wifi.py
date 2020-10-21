@@ -1,6 +1,7 @@
-import network
-import urequests
+from machine import reset
+from network import STA_IF, WLAN
 from ntptime import settime
+from time import sleep, time
 from ubinascii import hexlify
 
 
@@ -10,7 +11,7 @@ from credentials import credentials
 class WifiConnection:
 
     def __init__(self):
-        self.wifi = network.WLAN(network.STA_IF)
+        self.wifi = WLAN(STA_IF)
         # Try to store the mac if the config module is working
         # print("mac address: " + hexlify(self.wifi.config('mac'), ':'))
 
@@ -33,9 +34,17 @@ class WifiConnection:
             print("Connecting to wifi...")
             self.wifi.connect(
                 credentials["wifi_ssid"], credentials["wifi_password"])
+            wifiConnectStartTime = time()
             while not self.wifi.isconnected():
-                pass
-            settime()
+                sleep(.1)
+                if time() > wifiConnectStartTime + 20:
+                    print("Wifi connect timed out.  restarting...")
+                    reset()
+
+            try:
+                settime()
+            except OSError:
+                print("NTP sync failed")
 
     def monitor_connection(self):
         if self.wifi.isconnected():

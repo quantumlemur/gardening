@@ -67,10 +67,9 @@ class Config:
         self.save()
 
     def updateFromServer(self):
+        self.calcNextInitExpected()
         url = "{}/config".format(credentials['server_url'])
-        request = urequests.get(url=url)
         print("Checking for server config updates from {}".format(url))
-
         headers = {
             "mac": str(self.config['mac']),
             "device-next-init": str(self.config['next_init_expected']),

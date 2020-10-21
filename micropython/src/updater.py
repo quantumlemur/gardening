@@ -28,9 +28,6 @@ class Updater:
             while chunk != b"":
                 hash_sha256.update(chunk)
                 chunk = f.read(4096)
-
-            # for chunk in iter(lambda: f.read(4096), b""):
-            #     print('qwe')
         return hexlify(hash_sha256.digest()).decode("utf-8")
 
     def update_all_files(self):

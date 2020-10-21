@@ -1,103 +1,210 @@
-# boot.py can handle checking for a new boot.py (really, main.py), ensuring that it runs ok, and if not then falling back to the old one!
-# To implement that, all this stuff should be moved to main.py
+from machine import reset
+from os import listdir, remove, rename, urandom
+from ubinascii import hexlify
+from uhashlib import sha256
+
+criticalFiles = ["main.py", "wifi.py", "config.py",
+                 "updater.py"]  # does config need to be in here?
+upgradeSuccessFile = '__UPGRADE_SUCCESSFUL'
+upgradeFile = '__UPGRADE_IN_PROGRESS'
+canaryFile = '__canary.py'
 
 
-# This file is executed on every boot (including wake-boot from deepsleep)
-# import esp
-# esp.osdebug(None)
-# import webrepl
-# webrepl.start()
-
-# import main
-
-from machine import WDT
-from machine import Timer
-from os import listdir, remove, rename
-from time import sleep, time
-
-import machine
-
-
-# config
-maxboots = 2
-sleeptime = 5 * 1000  # milliseconds
-
-# Set watchdog timer
-wdt = WDT(timeout=60000)  # milliseconds
-
-# start processing
-# unhold the pin.  Is this necessary?
-# p16 = machine.Pin(16, machine.Pin.OUT, None)
-# led = machine.Signal(16, machine.Pin.OUT, invert=True)
-# led.on()
+def hashFile(fname):
+    hash_sha256 = sha256()
+    with open(fname, "rb") as f:
+        chunk = f.read(4096)
+        while chunk != b"":
+            hash_sha256.update(chunk)
+            chunk = f.read(4096)
+    hashString = hexlify(hash_sha256.digest()).decode("utf-8")
+    if fname == canaryFile:
+        with open(fname, 'r') as f:
+            print(f.read(4096))
+        print("Hash {}: {}".format(fname, hashString))
+    return hashString
 
 
-def now():
-    return time() + 946684800
+def alterCanary():
+    print("Altering canary")
+
+    # no cheating!  make sure it's actually gone and force the updater to re-fetch
+    if canaryFile + '.new' in listdir():
+        remove(canaryFile + '.new')
+
+    # write random data to the existing canary file
+    with open(canaryFile, 'w') as f:
+        f.write(hexlify(urandom(10)).decode('utf-8'))
 
 
-doConnectWifi = False
+def copyFile(oldFile, newFile):
+    print('Copying {} to {}'.format(oldFile, newFile))
+    with open(oldFile, 'rb') as old:
+        with open(newFile, 'wb') as new:
+            chunk = old.read(4096)
+            while chunk != b"":
+                new.write(chunk)
+                chunk = old.read(4096)
+    oldHash = hashFile(oldFile)
+    newHash = hashFile(newFile)
+    return oldHash == newHash
 
 
-# check if the device woke from a deep sleep
-if machine.reset_cause() == machine.DEEPSLEEP_RESET:
-    print('woke from a deep sleep')
-else:
-    doConnectWifi = True
+def upgradeSuccessful():
+    print('upgrade sucessful')
+    if upgradeFile in listdir():
+        remove(upgradeFile)
+    if upgradeSuccessFile in listdir():
+        remove(upgradeSuccessFile)
 
 
-# check for new files downloaded last boot
-for filename in listdir():
-    if filename[-4:] == ".new":
-        print("renaming file from {} to {}".format(filename, filename[:-4]))
-        rename(filename, filename[:-4])
-        doConnectWifi = True
+def upgradeFailed():
+    print('upgrade failed')
+    for fname in criticalFiles:
+        copyFile(fname + '.bak', fname)
+    remove(upgradeFile)
+    # sync()
+    reset()
+
+    # now we'll go on to boot, sync with the server, and run everything to test
+    # Hopefully the reverted files can resync and download new copies and we'll try again next time
 
 
-try:
-    from config import Config
-    config = Config()
+# State actions
 
-    p16 = machine.Pin(config.get('ledPin'), machine.Pin.OUT, None)
-    led = machine.Signal(config.get('ledPin'),
-                         machine.Pin.OUT, invert=True)
-    if config.get('LIGHT') == 1:
-        print('turning on LED')
-        led.on()
+
+def startUpgrade():
+    print('start upgrade')
+    alterCanary()
+
+    copiesSuccessful = True
+    for fname in criticalFiles:
+        copiesSuccessful = copiesSuccessful and copyFile(
+            fname, fname + '.baktmp')
+    if copiesSuccessful:
+        print("All file copies successful")
+        with open(upgradeFile, 'w') as f:
+            f.write("zzz")
+        for fname in criticalFiles:
+            rename(fname+'.baktmp', fname+'.bak')
+            if fname + '.new' in listdir():
+                rename(fname + '.new', fname)
+        print("All files configured for test run")
     else:
-        print('turning off LED')
-        led.off()
+        # try again...
+        print("File copies failed.  Restarting and trying again.")
+        reset()
 
-    if config.get('bootNum') == 0 or now() >= config.get('NEXT_INIT_TIME') or not config.get('runningWithoutError'):
-        doConnectWifi = True
-except:
-    doConnectWifi = True
+        # sync()
+        # now we'll go on to boot, sync with the server, and run everything to test
 
 
-if doConnectWifi:
-    from wifi import WifiConnection
-    from updater import Updater
+def continueOldUpgrade():
+    print('continue old upgrade')
+    alterCanary()
+    for fname in criticalFiles:
+        if fname + '.new' in listdir():
+            rename(fname + '.new', fname)
+    # sync()
+    # now we'll go on to boot, sync with the server, and run everything to test
 
-    wifiConnection = WifiConnection()
 
-    wifiConnection.connect_wifi()
+def evaluateCompletedUpgrade():
+    print('evaluate completed upgrade')
 
-    wifiConnection.monitor_connection()
+    canaryHash = hashFile(canaryFile+'.new')
+    canaryGood = canaryHash == "52b5ba36d63e92afe01175a4c43a8fc1c577db7937d5447702bb0817032ae074"
+    runGood = upgradeSuccessFile in listdir()
+    succeeded = canaryGood and runGood
+    print("===========================================")
+    print("Canary passed check: {}".format(canaryGood))
+    print("Upgrade success file present: {}".format(runGood))
+    print("All upgrade checks passed: {}".format(succeeded))
+    print("===========================================")
 
-    # Try
-    try:
-        from config import Config
-        config = Config()
-        config.put('runningWithoutError', False)
-        config.updateFromServer()
-        config.put('LAST_INIT_TIME', now())
-        config.put('NEXT_INIT_TIME', now() +
-                   config.get('INIT_INTERVAL'))
-        sleep(1)  # Why is this here?
-    except:
-        pass
+    if succeeded:
+        upgradeSuccessful()
+    else:
+        upgradeFailed()
 
-    updater = Updater()
-    if updater.update_all_files():
-        # Reboot if any files were downloaded
-        machine.reset()
+
+# Find state
+currentFiles = listdir()
+upgradeInProgress = upgradeFile in currentFiles
+
+foundNewFiles = False
+for fname in criticalFiles:
+    if fname+".new" in currentFiles:
+        foundNewFiles = True
+
+# Dispatch state
+if foundNewFiles and not upgradeInProgress:
+    startUpgrade()
+elif foundNewFiles and upgradeInProgress:
+    continueOldUpgrade()
+elif (not foundNewFiles) and upgradeInProgress:
+    evaluateCompletedUpgrade()
+elif (not foundNewFiles) and (not upgradeInProgress):
+    pass
+
+
+if upgradeSuccessFile in listdir():
+    remove(upgradeSuccessFile)
+
+
+print(listdir())
+# CG    canary good
+# UIP   upgradeinprogress exists
+# US    upgradesuccessful exists
+# .new  .new critical file exists
+
+# .new  UIP CG  US  actions
+#   N   N   N   N   -          normal operation, no upgrade available
+#   Y   N   N   N   BCUT       start of normal upgrade cycle.
+#   N   Y   N   N   RHD        upgrade cycle failed.  revert critical files.  hard restart so we connect to wifi next boot
+#   Y   Y   N   N   TC         upgrade in progress, got more files to try to update.  don't overwrite the backups.
+#   N   N   Y   N   -
+#   Y   N   Y   N   BCUT       start of normal upgrade cycle
+#   N   Y   Y   N   RHD        upgrade failed after canary rewrite but still failed.  revert
+#   Y   Y   Y   N   TC         upgrade in progress, got more files. don't overwrite backups
+#   N   N?  N   Y   RHD        upgrade "succeeded" but canary failed.  revert
+#   Y   N   N   Y   TC         upgrade in progress, got more files
+#   N   Y   N   Y   RHD        upgrade failed.  revert
+#   Y   Y   N   Y   TC         upgrade in progress, got more files
+#   N   N?  Y   Y   D          lingering upgradesuccessful
+#   Y   N   Y   Y   BCUT       start of normal upgrade cycle
+#   N   Y   Y   Y   D          successful upgrade cycle
+#   Y   Y   Y   Y   TC         upgrade in progress, got more files.
+
+# - normal operation, no upgrade available.  delete upgradesuccessful and upgradeingprogress if present, for cleanup
+# BHUT - start normal upgrade cycle
+# TC - upgrade in progress, got more files
+# RHD - upgrade cycle failed, revert
+
+#   N   nothing
+#   C   modify Canary
+#   B   backup criticalFile.py to criticalFile.bak
+#   U   create upgradeinprogressfile
+#   D   delete upgradesuccessful and upgradeinprogress
+#   R   revert .bak files to .py files
+#   T   try renaming .new files to .py files
+#   H   hard restart
+
+# if criticalFile.new exists
+#   create upgradeinprogress file
+#   copy criticalFile.py to criticalFile.bak
+#   modify canary.py
+
+# if upgradeinprogress file exists, then we're back after an upgrade cycle
+#   is canary.py back to what it should be?  (verify sha256 match)
+#   does upgradesuccessfile exist?
+#   if yes:
+#       remove upgradesuccessfile and upgradeinprogress file (leave the upgrade cycle).  remove .bak files?
+#   if no: upgrade cycle failed
+#       copy .bak files back to .py files
+
+# modifications to other files:
+#   should always connect to wifi if upgradeinprogress exists
+#   can write upgradesuccessfile at end of main.py (don't need to go all the way to the end)
+#   main.py should call masterActions.py
+#   Should main.py now put it back to sleep?  why not?
