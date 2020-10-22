@@ -1,31 +1,19 @@
-# boot.py can handle checking for a new boot.py (really, main.py), ensuring that it runs ok, and if not then falling back to the old one!
-# To implement that, all this stuff should be moved to main.py
-
-
-# This file is executed on every boot (including wake-boot from deepsleep)
 # import esp
 # esp.osdebug(None)
-# import webrepl
-# webrepl.start()
 
-# import main
 
-from config import Config
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer, WDT
 from os import listdir, remove, rename
 from time import sleep, time
 
 
+# file imports
+from config import Config
+
 config = Config()
 
 # Set watchdog timer
 wdt = WDT(timeout=60000)  # milliseconds
-
-# start processing
-# unhold the pin.  Is this necessary?
-# p16 = machine.Pin(16, machine.Pin.OUT, None)
-# led = machine.Signal(16, machine.Pin.OUT, invert=True)
-# led.on()
 
 
 def now():
@@ -41,10 +29,8 @@ else:
     print("turning off LED")
     led.off()
 
-# sensorVPin = machine.Pin(35, machine.Pin.OUT, None)
-# sensorVPin.on()
-# sensorGPin = machine.Pin(34, machine.Pin.OUT, None)
-# sensorGPin.off()
+
+###################### Wifi connection checks ######################
 
 
 upgradeSuccessFile = "__UPGRADE_SUCCESSFUL"
@@ -77,21 +63,14 @@ if (
     doConnectWifi = True
 
 
-# sensorVPin = machine.Pin(25, machine.Pin.OUT, None)
-# sensorVPin.on()
-# sensorGPin = machine.Pin(26, machine.Pin.OUT, None)
-# sensorGPin.off()
-
-# sensorReadPin = machine.Pin(33, machine.Pin.IN, None)
-# adc = machine.ADC(sensorReadPin)
-# adc.atten(machine.ADC.ATTN_11DB)
+###################### Wifi connection ######################
 
 
 if doConnectWifi:
     from wifi import WifiConnection
     from updater import Updater
 
-    wifiConnection = WifiConnection()
+    wifiConnection = WifiConnection(config)
 
     wifiConnection.connect_wifi()
 
@@ -103,7 +82,7 @@ if doConnectWifi:
     config.updateFromServer()
     sleep(1)  # Why is this here?
 
-    updater = Updater()
+    updater = Updater(config)
     if updater.update_all_files():
         print("Updater found new files")
         if upgradeFile in listdir():
@@ -116,8 +95,14 @@ if doConnectWifi:
         reset()
 
 
+###################### Main actions ######################
+
+
 try:
-    import masterActions
+    from masterActions import MasterActions
+
+    masterActions = MasterActions(config)
+    masterActions.run()
 except:
     print("MasterActions failed import.  Rebooting.")
     reset()

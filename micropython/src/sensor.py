@@ -6,19 +6,13 @@ import urequests
 from time import sleep
 from os import listdir, remove
 
-from credentials import credentials
-from config import Config
-from utilities import now
-
-
-config = Config()
-
 
 class Sensor:
     # dhtPin = machine.Pin(22, mode=machine.Pin.IN)
     # moisturePin = machine.Pin(32, mode=machine.Pin.IN)
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.pin = machine.Pin(32)
         self.adc = machine.ADC(self.pin)
         self.adc.atten(machine.ADC.ATTN_11DB)
@@ -29,7 +23,7 @@ class Sensor:
     def storeReading(self):
         sensorString = '[{}, {}, 0, "soil"]'.format(now(), self.read())
 
-        fname = config.get("sensorFile")
+        fname = self.config.get("sensorFile")
         if fname not in listdir():
             with open(fname, "w") as f:
                 f.write("[\n")
@@ -39,12 +33,12 @@ class Sensor:
                 f.write(",\n{}".format(sensorString))
 
     def printFile(self):
-        fname = config.get("sensorFile")
+        fname = self.config.get("sensorFile")
         with open(fname, "r") as f:
             print(f.read())
 
     def sendReadings(self):
-        fname = config.get("sensorFile")
+        fname = self.config.get("sensorFile")
         # remove(fname)
 
         success = False
@@ -53,10 +47,10 @@ class Sensor:
                 with open(fname, "r") as f:
                     data = "{}]".format(f.read())
                     print(data)
-                    url = "{}/readings".format(credentials["server_url"])
+                    url = "{}/readings".format(self.config.get("server_url"))
                     headers = {
-                        "mac": str(config.get("mac")),
-                        "device-next-init": str(config.get("next_init_expected")),
+                        "mac": str(self.config.get("mac")),
+                        "device-next-init": str(self.config.get("next_init_expected")),
                         "Content-Type": "application/json",
                     }
 
@@ -75,7 +69,7 @@ class Sensor:
                 print(err)
                 # print(traceback.format_exc())
 
-                config.put("runningWithoutError", False)
+                self.config.put("runningWithoutError", False)
                 remove(fname)
         else:
             print("sensor file not found")

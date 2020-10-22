@@ -1,17 +1,12 @@
-import urequests
-
 from os import listdir
 from ubinascii import hexlify
 from uhashlib import sha256
-
-
-# local file imports
-from credentials import credentials
+from urequests import get
 
 
 class Updater:
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.config = config
 
     # def md5_file(fname):
     #     hash_md5 = md5()
@@ -41,29 +36,28 @@ class Updater:
 
     def get_file(self, fname):
         print("Updating file {}".format(fname))
-        url = "{}/getfile_python/{}".format(credentials["server_url"], fname)
-        request = urequests.get(url=url)
+        url = "{}/getfile_python/{}".format(self.config.get("server_url"), fname)
+        request = get(url=url)
         if request.status_code == 200:
             with open("{}.new".format(fname), "wb") as f:
                 f.write(request.content)
             print("Download successful: {}".format(fname))
 
     def get_filelist(self):
-        url = "{}/listfiles_python".format(credentials["server_url"])
-        request = urequests.get(url=url)
+        url = "{}/listfiles_python".format(self.config.get("server_url"))
+        request = get(url=url)
         # request.close()
         return request.json()
-
-    def put_data(self, data):
-        request = urequests.put(json=data)
-        # request.close()
 
 
 if __name__ == "__main__":
     from wifi import WifiConnection
+    from config import Config
 
-    wifiConnection = WifiConnection()
+    config = Config()
+
+    wifiConnection = WifiConnection(config)
     wifiConnection.connect_wifi()
 
-    updater = Updater()
+    updater = Updater(config)
     updater.update_all_files()

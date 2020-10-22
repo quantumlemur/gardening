@@ -92,7 +92,10 @@ def startUpgrade():
         with open(upgradeFile, "w") as f:
             f.write("zzz")
         for fname in criticalFiles:
+            print("Moving .baktmp to .bak and .new to .py: {}".format(fname))
+            # print("Renaming .baktmp files to .bak")
             rename("{}.baktmp".format(fname), "{}.bak".format(fname))
+            # print("Renaming .new files to .py")
             if "{}.new".format(fname) in listdir():
                 rename("{}.new".format(fname), fname)
         print("All files configured for test run")

@@ -5,11 +5,9 @@ from time import sleep, time
 from ubinascii import hexlify
 
 
-from credentials import credentials
-
-
 class WifiConnection:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.wifi = WLAN(STA_IF)
         # Try to store the mac if the config module is working
         # print("mac address: " + hexlify(self.wifi.config('mac'), ':'))
@@ -31,7 +29,9 @@ class WifiConnection:
         self.wifi.active(True)
         if not self.wifi.isconnected():
             print("Connecting to wifi...")
-            self.wifi.connect(credentials["wifi_ssid"], credentials["wifi_password"])
+            self.wifi.connect(
+                self.config.get("wifi_ssid"), self.config.get("wifi_password")
+            )
             wifiConnectStartTime = time()
             while not self.wifi.isconnected():
                 sleep(0.1)

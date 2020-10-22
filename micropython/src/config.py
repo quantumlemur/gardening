@@ -1,7 +1,7 @@
-import json
+from json import loads, dumps
 from time import time
-import urequests
 from ubinascii import hexlify
+from urequests import get
 
 from os import listdir, remove
 from machine import unique_id
@@ -43,10 +43,10 @@ class Config:
             try:
                 originalConfigLength = len(self.config)
                 with open(CONFIGFILE, "r") as f:
-                    configFromFile = json.loads(f.read())
+                    configFromFile = loads(f.read())
                     self.config.update(configFromFile)
-                if len(self.config) != originalConfigLength:
-                    self.save()
+                self.config.update(credentials)
+                self.save()
             except ValueError:
                 print("========= config file corrupt; removing")
                 remove(CONFIGFILE)
@@ -56,7 +56,7 @@ class Config:
 
     def save(self):
         with open(CONFIGFILE, "w") as f:
-            f.write(json.dumps(self.config))
+            f.write(dumps(self.config))
 
     def get(self, item):
         return self.config[item]
@@ -75,7 +75,7 @@ class Config:
             "device-next-init": str(self.config["next_init_expected"]),
             "Content-Type": "application/json",
         }
-        request = urequests.get(url=url, headers=headers)
+        request = get(url=url, headers=headers)
         if request.status_code == 200:
             print("Server config update successful")
             configFromServer = request.json()
