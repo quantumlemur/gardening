@@ -1,5 +1,6 @@
 import machine
 import urequests
+
 # import traceback
 
 from time import sleep
@@ -26,21 +27,20 @@ class Sensor:
         return self.adc.read()
 
     def storeReading(self):
-        sensorString = '[{}, {}, 0, "soil"]'.format(
-            now(), self.read())
+        sensorString = '[{}, {}, 0, "soil"]'.format(now(), self.read())
 
         fname = config.get("sensorFile")
         if fname not in listdir():
-            with open(fname, 'w') as f:
+            with open(fname, "w") as f:
                 f.write("[\n")
                 f.write(sensorString)
         else:
-            with open(fname, 'a') as f:
+            with open(fname, "a") as f:
                 f.write(",\n{}".format(sensorString))
 
     def printFile(self):
         fname = config.get("sensorFile")
-        with open(fname, 'r') as f:
+        with open(fname, "r") as f:
             print(f.read())
 
     def sendReadings(self):
@@ -50,18 +50,17 @@ class Sensor:
         success = False
         if fname in listdir():
             try:
-                with open(fname, 'r') as f:
-                    data = f.read() + ']'
+                with open(fname, "r") as f:
+                    data = "{}]".format(f.read())
                     print(data)
-                    url = "{}/readings".format(credentials['server_url'])
+                    url = "{}/readings".format(credentials["server_url"])
                     headers = {
                         "mac": str(config.get("mac")),
                         "device-next-init": str(config.get("next_init_expected")),
                         "Content-Type": "application/json",
                     }
 
-                    request = urequests.post(
-                        url=url, headers=headers, data=data)
+                    request = urequests.post(url=url, headers=headers, data=data)
                     if request.status_code == 200:
                         success = True
                 if success:
@@ -72,14 +71,14 @@ class Sensor:
                     remove(fname)
                     # print(f.read())
             except Exception as err:
-                print('========= Error during sensor send!  Trying deleting sensorfile')
+                print("========= Error during sensor send!  Trying deleting sensorfile")
                 print(err)
                 # print(traceback.format_exc())
 
-                config.put('runningWithoutError', False)
+                config.put("runningWithoutError", False)
                 remove(fname)
         else:
-            print('sensor file not found')
+            print("sensor file not found")
 
 
 if __name__ == "__main__":

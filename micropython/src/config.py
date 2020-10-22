@@ -28,7 +28,7 @@ class Config:
         "DHT_PIN": 0,
         "bootNum": 0,
         "next_init_expected": 0,
-        "mac": str(hexlify(unique_id(), ':').decode()),
+        "mac": str(hexlify(unique_id(), ":").decode()),
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
@@ -42,7 +42,7 @@ class Config:
         if CONFIGFILE in listdir():
             try:
                 originalConfigLength = len(self.config)
-                with open(CONFIGFILE, 'r') as f:
+                with open(CONFIGFILE, "r") as f:
                     configFromFile = json.loads(f.read())
                     self.config.update(configFromFile)
                 if len(self.config) != originalConfigLength:
@@ -55,7 +55,7 @@ class Config:
             self.save()
 
     def save(self):
-        with open(CONFIGFILE, 'w') as f:
+        with open(CONFIGFILE, "w") as f:
             f.write(json.dumps(self.config))
 
     def get(self, item):
@@ -68,16 +68,16 @@ class Config:
 
     def updateFromServer(self):
         self.calcNextInitExpected()
-        url = "{}/config".format(credentials['server_url'])
+        url = "{}/config".format(credentials["server_url"])
         print("Checking for server config updates from {}".format(url))
         headers = {
-            "mac": str(self.config['mac']),
-            "device-next-init": str(self.config['next_init_expected']),
+            "mac": str(self.config["mac"]),
+            "device-next-init": str(self.config["next_init_expected"]),
             "Content-Type": "application/json",
         }
         request = urequests.get(url=url, headers=headers)
         if request.status_code == 200:
-            print('Server config update successful')
+            print("Server config update successful")
             configFromServer = request.json()
             self.config.update(configFromServer)
             self.save()
@@ -87,12 +87,14 @@ class Config:
         # request.close()
 
     def calcNextInitExpected(self):
-        nextInitByTime = self.config['NEXT_INIT_TIME']
-        nextInitByCount = now() + \
-            (self.config['MAX_ENTRYS_WITHOUT_INIT'] -
-             self.config['bootNum']) * self.config['SLEEP_DURATION']
+        nextInitByTime = self.config["NEXT_INIT_TIME"]
+        nextInitByCount = (
+            now()
+            + (self.config["MAX_ENTRYS_WITHOUT_INIT"] - self.config["bootNum"])
+            * self.config["SLEEP_DURATION"]
+        )
         nextInitExpected = min(nextInitByTime, nextInitByCount)
-        self.put('next_init_expected', nextInitExpected)
+        self.put("next_init_expected", nextInitExpected)
 
 
 if __name__ == "__main__":

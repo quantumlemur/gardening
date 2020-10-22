@@ -3,11 +3,16 @@ from os import listdir, remove, rename, urandom
 from ubinascii import hexlify
 from uhashlib import sha256
 
-criticalFiles = ["main.py", "wifi.py", "config.py",
-                 "updater.py"]  # does config need to be in here?
-upgradeSuccessFile = '__UPGRADE_SUCCESSFUL'
-upgradeFile = '__UPGRADE_IN_PROGRESS'
-canaryFile = '__canary.py'
+criticalFiles = [
+    "main.py",
+    "wifi.py",
+    "config.py",
+    "updater.py",
+    "credentials.py",
+]
+upgradeSuccessFile = "__UPGRADE_SUCCESSFUL"
+upgradeFile = "__UPGRADE_IN_PROGRESS"
+canaryFile = "__canary.py"
 
 
 def hashFile(fname):
@@ -19,7 +24,7 @@ def hashFile(fname):
             chunk = f.read(4096)
     hashString = hexlify(hash_sha256.digest()).decode("utf-8")
     if fname == canaryFile:
-        with open(fname, 'r') as f:
+        with open(fname, "r") as f:
             print(f.read(4096))
         print("Hash {}: {}".format(fname, hashString))
     return hashString
@@ -29,18 +34,18 @@ def alterCanary():
     print("Altering canary")
 
     # no cheating!  make sure it's actually gone and force the updater to re-fetch
-    if canaryFile + '.new' in listdir():
-        remove(canaryFile + '.new')
+    if "{}.new".format(canaryFile) in listdir():
+        remove("{}.new".format(canaryFile))
 
     # write random data to the existing canary file
-    with open(canaryFile, 'w') as f:
-        f.write(hexlify(urandom(10)).decode('utf-8'))
+    with open(canaryFile, "w") as f:
+        f.write(hexlify(urandom(10)).decode("utf-8"))
 
 
 def copyFile(oldFile, newFile):
-    print('Copying {} to {}'.format(oldFile, newFile))
-    with open(oldFile, 'rb') as old:
-        with open(newFile, 'wb') as new:
+    print("Copying {} to {}".format(oldFile, newFile))
+    with open(oldFile, "rb") as old:
+        with open(newFile, "wb") as new:
             chunk = old.read(4096)
             while chunk != b"":
                 new.write(chunk)
@@ -51,7 +56,7 @@ def copyFile(oldFile, newFile):
 
 
 def upgradeSuccessful():
-    print('upgrade sucessful')
+    print("upgrade sucessful")
     if upgradeFile in listdir():
         remove(upgradeFile)
     if upgradeSuccessFile in listdir():
@@ -59,9 +64,9 @@ def upgradeSuccessful():
 
 
 def upgradeFailed():
-    print('upgrade failed')
+    print("upgrade failed")
     for fname in criticalFiles:
-        copyFile(fname + '.bak', fname)
+        copyFile("{}.bak".format(fname), fname)
     remove(upgradeFile)
     # sync()
     reset()
@@ -74,21 +79,22 @@ def upgradeFailed():
 
 
 def startUpgrade():
-    print('start upgrade')
+    print("start upgrade")
     alterCanary()
 
     copiesSuccessful = True
     for fname in criticalFiles:
         copiesSuccessful = copiesSuccessful and copyFile(
-            fname, fname + '.baktmp')
+            fname, "{}.baktmp".format(fname)
+        )
     if copiesSuccessful:
         print("All file copies successful")
-        with open(upgradeFile, 'w') as f:
+        with open(upgradeFile, "w") as f:
             f.write("zzz")
         for fname in criticalFiles:
-            rename(fname+'.baktmp', fname+'.bak')
-            if fname + '.new' in listdir():
-                rename(fname + '.new', fname)
+            rename("{}.baktmp".format(fname), "{}.bak".format(fname))
+            if "{}.new".format(fname) in listdir():
+                rename("{}.new".format(fname), fname)
         print("All files configured for test run")
     else:
         # try again...
@@ -100,20 +106,22 @@ def startUpgrade():
 
 
 def continueOldUpgrade():
-    print('continue old upgrade')
+    print("continue old upgrade")
     alterCanary()
     for fname in criticalFiles:
-        if fname + '.new' in listdir():
-            rename(fname + '.new', fname)
+        if "{}.new".format(fname) in listdir():
+            rename("{}.new".format(fname), fname)
     # sync()
     # now we'll go on to boot, sync with the server, and run everything to test
 
 
 def evaluateCompletedUpgrade():
-    print('evaluate completed upgrade')
+    print("evaluate completed upgrade")
 
-    canaryHash = hashFile(canaryFile+'.new')
-    canaryGood = canaryHash == "52b5ba36d63e92afe01175a4c43a8fc1c577db7937d5447702bb0817032ae074"
+    canaryHash = hashFile("{}.new".format(canaryFile))
+    canaryGood = (
+        canaryHash == "52b5ba36d63e92afe01175a4c43a8fc1c577db7937d5447702bb0817032ae074"
+    )
     runGood = upgradeSuccessFile in listdir()
     succeeded = canaryGood and runGood
     print("===========================================")
@@ -134,7 +142,7 @@ upgradeInProgress = upgradeFile in currentFiles
 
 foundNewFiles = False
 for fname in criticalFiles:
-    if fname+".new" in currentFiles:
+    if "{}.new".format(fname) in currentFiles:
         foundNewFiles = True
 
 # Dispatch state

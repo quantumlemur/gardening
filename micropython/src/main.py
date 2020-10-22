@@ -10,14 +10,11 @@
 
 # import main
 
-from machine import WDT
-from machine import Timer
+from config import Config
+from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer, WDT
 from os import listdir, remove, rename
 from time import sleep, time
 
-import machine
-
-from config import Config
 
 config = Config()
 
@@ -35,25 +32,29 @@ def now():
     return time() + 946684800
 
 
-p16 = machine.Pin(config.get('ledPin'), machine.Pin.OUT, None)
-led = machine.Signal(config.get('ledPin'),
-                     machine.Pin.OUT, invert=True)
-if config.get('LIGHT') == 1:
-    print('turning on LED')
+p16 = Pin(config.get("ledPin"), Pin.OUT, None)
+led = Signal(config.get("ledPin"), Pin.OUT, invert=True)
+if config.get("LIGHT") == 1:
+    print("turning on LED")
     led.on()
 else:
-    print('turning off LED')
+    print("turning off LED")
     led.off()
 
+# sensorVPin = machine.Pin(35, machine.Pin.OUT, None)
+# sensorVPin.on()
+# sensorGPin = machine.Pin(34, machine.Pin.OUT, None)
+# sensorGPin.off()
 
-upgradeSuccessFile = '__UPGRADE_SUCCESSFUL'
-upgradeFile = '__UPGRADE_IN_PROGRESS'
+
+upgradeSuccessFile = "__UPGRADE_SUCCESSFUL"
+upgradeFile = "__UPGRADE_IN_PROGRESS"
 doConnectWifi = False
 
 
 # check if the device woke from a deep sleep
-if machine.reset_cause() == machine.DEEPSLEEP_RESET:
-    print('woke from a deep sleep')
+if reset_cause() == DEEPSLEEP_RESET:
+    print("woke from a deep sleep")
 else:
     doConnectWifi = True
 
@@ -68,7 +69,11 @@ for filename in listdir():
         rename(filename, filename[:-4])
         doConnectWifi = True
 
-if config.get('bootNum') == 0 or now() >= config.get('NEXT_INIT_TIME') or not config.get('runningWithoutError'):
+if (
+    config.get("bootNum") == 0
+    or now() >= config.get("NEXT_INIT_TIME")
+    or not config.get("runningWithoutError")
+):
     doConnectWifi = True
 
 
@@ -92,28 +97,27 @@ if doConnectWifi:
 
     wifiConnection.monitor_connection()
 
-    config.put('runningWithoutError', False)
-    config.put('LAST_INIT_TIME', now())
-    config.put('NEXT_INIT_TIME', now() +
-               config.get('INIT_INTERVAL'))
+    config.put("runningWithoutError", False)
+    config.put("LAST_INIT_TIME", now())
+    config.put("NEXT_INIT_TIME", now() + config.get("INIT_INTERVAL"))
     config.updateFromServer()
     sleep(1)  # Why is this here?
 
     updater = Updater()
     if updater.update_all_files():
-        print('Updater found new files')
+        print("Updater found new files")
         if upgradeFile in listdir():
-            print('Upgrade in progress, updater succeeded.  Writing success file.')
+            print("Upgrade in progress, updater succeeded.  Writing success file.")
             # if we're in an update, we should've at least downloaded the canary, so we're guaranteed to be here if all is well
-            with open(upgradeSuccessFile, 'w') as f:
-                f.write('zzz')
+            with open(upgradeSuccessFile, "w") as f:
+                f.write("zzz")
 
         # Reboot if any files were downloaded
-        machine.reset()
+        reset()
 
 
 try:
     import masterActions
 except:
-    print('MasterActions failed import.  Rebooting.')
-    machine.reset()
+    print("MasterActions failed import.  Rebooting.")
+    reset()

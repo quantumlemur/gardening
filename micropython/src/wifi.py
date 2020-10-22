@@ -9,7 +9,6 @@ from credentials import credentials
 
 
 class WifiConnection:
-
     def __init__(self):
         self.wifi = WLAN(STA_IF)
         # Try to store the mac if the config module is working
@@ -32,11 +31,10 @@ class WifiConnection:
         self.wifi.active(True)
         if not self.wifi.isconnected():
             print("Connecting to wifi...")
-            self.wifi.connect(
-                credentials["wifi_ssid"], credentials["wifi_password"])
+            self.wifi.connect(credentials["wifi_ssid"], credentials["wifi_password"])
             wifiConnectStartTime = time()
             while not self.wifi.isconnected():
-                sleep(.1)
+                sleep(0.1)
                 if time() > wifiConnectStartTime + 20:
                     print("Wifi connect timed out.  restarting...")
                     reset()
@@ -50,7 +48,7 @@ class WifiConnection:
         if self.wifi.isconnected():
             # cloud.set_asset_state("counter", counter)
             # print("Counter sent: {}".format(counter))
-            print('Network config:', self.wifi.ifconfig())
+            print("Network config:", self.wifi.ifconfig())
             # counter += 1
         else:
             self.connect_wifi()

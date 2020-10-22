@@ -10,7 +10,6 @@ from credentials import credentials
 
 
 class Updater:
-
     def __init__(self):
         pass
 
@@ -41,19 +40,19 @@ class Updater:
         return newFilesAvailable
 
     def get_file(self, fname):
-        print("Updating file " + fname)
-        url = credentials['server_url'] + '/getfile_python/' + fname
+        print("Updating file {}".format(fname))
+        url = "{}/getfile_python/{}".format(credentials["server_url"], fname)
         request = urequests.get(url=url)
         if request.status_code == 200:
-            with open(fname + ".new", 'wb') as f:
+            with open("{}.new".format(fname), "wb") as f:
                 f.write(request.content)
-            print('Download successful: ' + fname)
+            print("Download successful: {}".format(fname))
 
     def get_filelist(self):
-        url = credentials['server_url'] + '/listfiles_python'
+        url = "{}/listfiles_python".format(credentials["server_url"])
         request = urequests.get(url=url)
         # request.close()
-        return (request.json())
+        return request.json()
 
     def put_data(self, data):
         request = urequests.put(json=data)
