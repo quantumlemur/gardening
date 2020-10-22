@@ -8,21 +8,33 @@ from os import scandir
 
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, send_from_directory, current_app
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    jsonify,
+    send_from_directory,
+    current_app,
 )
+
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 from api.db import get_db, get_db_dicts
 
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+bp = Blueprint("api", __name__, url_prefix="/api")
 
 
-@bp.route('/get_devices', methods=('GET',))
+@bp.route("/get_devices", methods=("GET",))
 def get_devices():
     db = get_db_dicts()
     error = None
-    devices = db.execute("""
+    devices = db.execute(
+        """
         SELECT
             devices.id,
             mac,
@@ -65,16 +77,18 @@ def get_devices():
             ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
-            """).fetchall()
+            """
+    ).fetchall()
     return jsonify(devices)
 
 
-@bp.route('/submit_config', methods=('POST',))
+@bp.route("/submit_config", methods=("POST",))
 def submit_config():
     db = get_db()
     error = None
 
-    db.execute("""
+    db.execute(
+        """
         UPDATE
             device_config
         SET
@@ -90,29 +104,31 @@ def submit_config():
             location_x = ?,
             location_y = ?
         WHERE device_id = ?""",
-               (
-                   request.json['name'],
-                   request.json['INIT_INTERVAL'],
-                   request.json['SLEEP_DURATION'],
-                   request.json['MAX_ENTRYS_WITHOUT_INIT'],
-                   request.json['LIGHT'],
-                   request.json['calibration_min'],
-                   request.json['calibration_max'],
-                   request.json['trigger_min'],
-                   request.json['location_zone'],
-                   request.json['location_x'],
-                   request.json['location_y'],
-                   request.json['id']
-               ))
+        (
+            request.json["name"],
+            request.json["INIT_INTERVAL"],
+            request.json["SLEEP_DURATION"],
+            request.json["MAX_ENTRYS_WITHOUT_INIT"],
+            request.json["LIGHT"],
+            request.json["calibration_min"],
+            request.json["calibration_max"],
+            request.json["trigger_min"],
+            request.json["location_zone"],
+            request.json["location_x"],
+            request.json["location_y"],
+            request.json["id"],
+        ),
+    )
     db.commit()
     return request.json
 
 
-@bp.route('/get_sensor_data')
+@bp.route("/get_sensor_data")
 def get_sensor_data():
     db = get_db_dicts()
     error = None
-    data = db.execute("""
+    data = db.execute(
+        """
         SELECT
             timestamp,
             value,
@@ -126,18 +142,19 @@ def get_sensor_data():
             readings.name = "soil" AND
             zscore < 2 AND
             timestamp > ?
+        ORDER BY timestamp ASC
         """,
-                      (
-                          int(time()) - 14 * 24 * 60 * 60,
-                      )).fetchall()
+        (int(time()) - 14 * 24 * 60 * 60,),
+    ).fetchall()
     return jsonify(data)
 
 
-@bp.route('/get_raw_sensor_data/<path:deviceid>')
+@bp.route("/get_raw_sensor_data/<path:deviceid>")
 def get_raw_sensor_data(deviceid):
     db = get_db_dicts()
     error = None
-    data = db.execute("""
+    data = db.execute(
+        """
         SELECT
             timestamp,
             value,
@@ -152,13 +169,11 @@ def get_raw_sensor_data(deviceid):
             timestamp > ? AND
             readings.device_id = ?
         """,
-                      (
-                          int(time()) - 14 * 24 * 60 * 60,
-                          deviceid
-                      )).fetchall()
+        (int(time()) - 14 * 24 * 60 * 60, deviceid),
+    ).fetchall()
     return jsonify(data)
 
 
-@bp.route('/time')
+@bp.route("/time")
 def return_time():
     return {"time": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")}

@@ -11,14 +11,17 @@ function Legend({ width, height, data }) {
     right: 10,
   };
 
-  var legendItems = [];
-  var legendIDs = [];
-  data.forEach((element) => {
-    if (!legendIDs.includes(element.device_id)) {
-      legendIDs.push(element.device_id);
-      legendItems.push(element);
-    }
-  });
+  var legendItems = data.reduce(
+    (accumulator, currentValue, currentIndex, sourceArray) =>
+      accumulator.includes(
+        [currentValue.device_id, currentValue.name].join("||")
+      )
+        ? accumulator
+        : accumulator.concat(
+            [currentValue.device_id, currentValue.name].join("||")
+          ),
+    []
+  );
 
   const yScale = scaleLinear()
     .domain([0, legendItems.length])
@@ -28,9 +31,9 @@ function Legend({ width, height, data }) {
 
   const labels = legendItems.map((d, i) => (
     <g key={i} transform={`translate(0, ${yScale(i)})`}>
-      <circle r="10" fill={colorScale(d.device_id)} />
+      <circle r="10" fill={colorScale(d.split("||")[0])} />
       <text x="20" fontSize="12">
-        {d.name}
+        {d.split("||")[1]}
       </text>
     </g>
   ));
