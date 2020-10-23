@@ -1,27 +1,33 @@
-import machine
-import urequests
-
-# import traceback
-
 from time import sleep
 from os import listdir, remove
+from urequests import post
+
+from machine import ADC, Pin
+
+from utilities import now
 
 
 class Sensor:
     # dhtPin = machine.Pin(22, mode=machine.Pin.IN)
     # moisturePin = machine.Pin(32, mode=machine.Pin.IN)
 
-    def __init__(self, config):
+    def __init__(self, config, pin, sensorName, multiplier=1):
         self.config = config
-        self.pin = machine.Pin(32)
-        self.adc = machine.ADC(self.pin)
-        self.adc.atten(machine.ADC.ATTN_11DB)
+        self.pin = Pin(pin)
+        self.sensorName = sensorName
+        self.multiplier = multiplier
+
+        self.adc = ADC(self.pin)
+        self.adc.atten(ADC.ATTN_11DB)
 
     def read(self):
         return self.adc.read()
 
-    def storeReading(self):
-        sensorString = '[{}, {}, 0, "soil"]'.format(now(), self.read())
+    def takeReading(self):
+        print(now(), self.read())
+        sensorString = "[{}, {}, 0, {}]".format(
+            now(), self.read() * self.multiplier, self.sensorName
+        )
 
         fname = self.config.get("sensorFile")
         if fname not in listdir():
@@ -54,7 +60,7 @@ class Sensor:
                         "Content-Type": "application/json",
                     }
 
-                    request = urequests.post(url=url, headers=headers, data=data)
+                    request = post(url=url, headers=headers, data=data)
                     if request.status_code == 200:
                         success = True
                 if success:
@@ -76,10 +82,17 @@ class Sensor:
 
 
 if __name__ == "__main__":
-    sensor = Sensor()
+
+    from config import Config
+
+    config = Config()
+
+    sensor = Sensor(config)
+    sensor.storeReading()
+
     sensor.sendReadings()
 
-    # print(sensor.read())
+    print(sensor.read())
 
     # adc = machine.ADC(machine.Pin(32))
     # # set 11dB input attenuation (voltage range roughly 0.0v - 3.6v)

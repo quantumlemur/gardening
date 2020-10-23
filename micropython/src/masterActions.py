@@ -15,8 +15,11 @@ class MasterActions:
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
 
-        moistureSensor = Sensor()
-        moistureSensor.storeReading()
+        moistureSensor = Sensor(self.config, 32, "soil")
+        moistureSensor.takeReading()
+
+        voltageSensor = Sensor(self.config, 33, "volt", multiplier=5)
+        voltageSensor.takeReading()
 
         if wifiIsConnected:
             moistureSensor.sendReadings()
@@ -28,10 +31,6 @@ class MasterActions:
         # adc = ADC(sensorReadPin)
         # adc.atten(ADC.ATTN_11DB)
 
-        # for i in range(50):
-        #     print(adc.read())
-        #     sleep(.1)
-
         self.goToSleep()
 
     def setPins(self):
@@ -40,28 +39,43 @@ class MasterActions:
         # machine.Pin(35, machine.Pin.OUT, None).on()
         # machine.Pin(34, machine.Pin.OUT, None).off()
 
-        # These pins are fine to use as the power supply
-        # machine.Pin(25, machine.Pin.OUT, None).on()
-        # machine.Pin(26, machine.Pin.OUT, None).off()
+        # Pin(35, Pin.IN, Pin.PULL_HOLD)
+        # Pin(34, Pin.IN, Pin.PULL_HOLD)
 
-        # sensorReadPin = machine.Pin(33, machine.Pin.IN, None)
-        # adc = machine.ADC(sensorReadPin)
-        # adc.atten(machine.ADC.ATTN_11DB)
+        # # These pins are fine to use as the power supply
+        # print("==================================")
+        # for i in [32, 33, 34, 35]:
+        #     print(i)
+        #     pin = ADC(Pin(i, Pin.IN, None))
+        #     pin.atten(ADC.ATTN_11DB)
+        #     print("pin {}: {}".format(i, pin.read()))
+        #     Pin(i, Pin.IN, Pin.PULL_HOLD)
+        #     Pin(i, Pin.OUT, None)
+
+        Pin(25, Pin.OUT, None).on()
+        Pin(26, Pin.OUT, None).off()
+
+        # soil = ADC(Pin(32, Pin.IN, None))
+        # soil.atten(ADC.ATTN_11DB)
+        # print("soil reading: {}".format(soil.read()))
+
+        # volt = ADC(Pin(33, Pin.IN, None))
+        # volt.atten(ADC.ATTN_11DB)
+        # reading = volt.read()
+        # print("volt reading: {} x5: {}".format(reading, reading * 5))
 
     def holdPins(self):
         """Hold the pins before sleep to prevent current leakage"""
         print("Holding pins")
-        p16 = machine.Pin(
-            self.config.get("ledPin"), machine.Pin.IN, machine.Pin.PULL_HOLD
-        )
+        p16 = Pin(self.config.get("ledPin"), Pin.IN, Pin.PULL_HOLD)
 
         # These pins can't be used as output for the power supply
         # machine.Pin(35, machine.Pin.IN, machine.Pin.PULL_HOLD)
         # machine.Pin(34, machine.Pin.IN, machine.Pin.PULL_HOLD)
 
         # These pins are fine to use as the power supply
-        # machine.Pin(25, machine.Pin.IN, machine.Pin.PULL_HOLD)
-        # machine.Pin(26, machine.Pin.IN, machine.Pin.PULL_HOLD)
+        Pin(25, Pin.IN, Pin.PULL_HOLD)
+        Pin(26, Pin.IN, Pin.PULL_HOLD)
 
     def goToSleep(self, quickSleep=False):
         sleep_duration = max(
@@ -119,3 +133,13 @@ class MasterActions:
             deepsleep(1000)
         else:
             deepsleep(sleep_duration * 1000)
+
+
+if __name__ == "__main__":
+
+    from config import Config
+
+    config = Config()
+
+    masterActions = MasterActions(config)
+    masterActions.run()

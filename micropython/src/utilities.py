@@ -1,5 +1,5 @@
 from time import time
 
 
-def now(self):
+def now():
     return time() + 946684800

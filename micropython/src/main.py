@@ -103,6 +103,7 @@ try:
 
     masterActions = MasterActions(config)
     masterActions.run()
-except:
+except Exception as err:
     print("MasterActions failed import.  Rebooting.")
+    print(err)
     reset()
