@@ -272,3 +272,8 @@ https://docs.gunicorn.org/en/stable/deploy.html?highlight=unix%20socket#monitori
 Micropython: https://github.com/micropython/micropython/wiki/Getting-Started
 https://lemariva.com/blog/2019/08/micropython-vsc-ide-intellisense
 https://lemariva.com/blog/2018/12/micropython-visual-studio-code-as-ide
+https://blog.horan.hk/micropythonesp32.html
+
+
+18:00 esp32 ] export ESPIDF=/home/mike/gardening/micropython/firmware/esp-idf
+18:00 esp32 ] export PATH=/home/mike/gardening/micropython/firmware/xtensa-esp32-elf/bin:/home/mike/gardening/venv/bin:/home/mike/.local/bin:/home/mike/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/mike/phone/android-sdk-linux/platform-tools

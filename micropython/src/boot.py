@@ -1,5 +1,6 @@
 from machine import reset
-from os import listdir, remove, rename, urandom
+from os import listdir, mount, remove, rename, umount, urandom
+from time import time
 from ubinascii import hexlify
 from uhashlib import sha256
 
@@ -13,6 +14,13 @@ criticalFiles = [
 upgradeSuccessFile = "__UPGRADE_SUCCESSFUL"
 upgradeFile = "__UPGRADE_IN_PROGRESS"
 canaryFile = "__canary.py"
+
+print("==============================")
+print(time())
+print("==============================")
+
+# umount("/")
+# mount(bdev, "/")
 
 
 def hashFile(fname):
@@ -164,6 +172,7 @@ if upgradeSuccessFile in listdir():
 
 
 print(listdir())
+
 # CG    canary good
 # UIP   upgradeinprogress exists
 # US    upgradesuccessful exists

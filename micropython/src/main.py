@@ -3,9 +3,10 @@
 
 
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer, WDT
-from os import listdir, remove, rename
+from os import listdir, mount, remove, rename
 from time import sleep, time
 
+# mount(bdev, "/")
 
 # file imports
 from config import Config

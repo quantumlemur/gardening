@@ -1,6 +1,7 @@
 from machine import ADC, deepsleep, Pin, RTC, Signal
 from network import WLAN, STA_IF
 from time import sleep, time
+from esp32 import Partition
 
 # file imports
 from sensor import Sensor
@@ -11,6 +12,10 @@ class MasterActions:
     def __init__(self, config):
         self.config = config
         self.setPins()
+        print("=========================")
+        running = Partition(Partition.RUNNING)
+        print(running.info())
+        print("=========================")
 
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
@@ -52,7 +57,7 @@ class MasterActions:
         #     Pin(i, Pin.IN, Pin.PULL_HOLD)
         #     Pin(i, Pin.OUT, None)
 
-        Pin(25, Pin.OUT, None).on()
+        # Pin(25, Pin.OUT, None).on()
         Pin(26, Pin.OUT, None).off()
 
         # soil = ADC(Pin(32, Pin.IN, None))
@@ -67,15 +72,20 @@ class MasterActions:
     def holdPins(self):
         """Hold the pins before sleep to prevent current leakage"""
         print("Holding pins")
-        p16 = Pin(self.config.get("ledPin"), Pin.IN, Pin.PULL_HOLD)
+
+        p16 = Pin(self.config.get("ledPin"), Pin.OUT, None)
+        led = Signal(self.config.get("ledPin"), Pin.OUT, invert=True)
+        led.off()
+
+        # p16 = Pin(self.config.get("ledPin"), Pin.IN, Pin.PULL_HOLD)
 
         # These pins can't be used as output for the power supply
         # machine.Pin(35, machine.Pin.IN, machine.Pin.PULL_HOLD)
         # machine.Pin(34, machine.Pin.IN, machine.Pin.PULL_HOLD)
 
         # These pins are fine to use as the power supply
-        Pin(25, Pin.IN, Pin.PULL_HOLD)
-        Pin(26, Pin.IN, Pin.PULL_HOLD)
+        # Pin(25, Pin.IN, Pin.PULL_HOLD)
+        # Pin(26, Pin.IN, Pin.PULL_HOLD)
 
     def goToSleep(self, quickSleep=False):
         sleep_duration = max(

@@ -4,21 +4,36 @@ import { Box, Heading } from "gestalt";
 import { scaleLinear } from "d3-scale";
 
 import PlantSymbol from "./PlantSymbol";
+import SettingsModal from "../ManageDevices/SettingsModal";
 
 function Map({ devices, initialActiveDevice, setLocation }) {
   const [data, setData] = useState(devices);
   const [activeDevice, setActiveDevice] = useState(
     initialActiveDevice ? initialActiveDevice : {}
   );
+  const [showSettings, setShowSettings] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  function handleSubmit(data) {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+    fetch("/api/submit_config", requestOptions);
+  }
 
   const width = 640,
     height = 400;
 
   const handleClick = (device) => {
     setActiveDevice(device);
-    setIsModalOpen(!!isModalOpen);
+    setShowSettings(!showSettings);
   };
+
+  function handleDismiss() {
+    setShowSettings(!showSettings);
+  }
 
   const activeDeviceId = activeDevice.id || "No device active";
   const activeHeader = "Active device: ";
@@ -50,6 +65,14 @@ function Map({ devices, initialActiveDevice, setLocation }) {
         <image href="/zone0.png" x="0" y="0" width={width} height={height} />
         <g>{plants}</g>
       </svg>
+      {showSettings && (
+        <SettingsModal
+          currDevice={activeDevice}
+          onDismiss={handleDismiss}
+          // updateValue={updateValue}
+          onSubmit={handleSubmit}
+        />
+      )}
     </Box>
   );
 }

@@ -21,11 +21,15 @@ class Sensor:
         self.adc.atten(ADC.ATTN_11DB)
 
     def read(self):
-        return self.adc.read()
+        reading = self.adc.read()
+        print(
+            "Sensor {} reading: {}".format(self.sensorName, reading * self.multiplier)
+        )
+        return reading
 
     def takeReading(self):
         print(now(), self.read())
-        sensorString = "[{}, {}, 0, {}]".format(
+        sensorString = '[{}, {}, 0, "{}"]'.format(
             now(), self.read() * self.multiplier, self.sensorName
         )
 
