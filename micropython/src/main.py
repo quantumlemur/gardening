@@ -1,7 +1,7 @@
 # import esp
 # esp.osdebug(None)
 
-
+from esp32 import Partition
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer, WDT
 from os import listdir, mount, remove, rename
 from time import sleep, time
@@ -14,7 +14,7 @@ from config import Config
 config = Config()
 
 # Set watchdog timer
-wdt = WDT(timeout=60000)  # milliseconds
+wdt = WDT(timeout=120000 * 10)  # milliseconds
 
 
 def now():
@@ -91,6 +91,9 @@ if doConnectWifi:
             # if we're in an update, we should've at least downloaded the canary, so we're guaranteed to be here if all is well
             with open(upgradeSuccessFile, "w") as f:
                 f.write("zzz")
+        part = Partition(Partition.RUNNING)
+        print(part.info())
+        part.mark_app_valid_cancel_rollback()
 
         # Reboot if any files were downloaded
         reset()

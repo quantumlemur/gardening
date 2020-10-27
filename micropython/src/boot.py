@@ -1,3 +1,4 @@
+from esp32 import Partition
 from machine import reset
 from os import listdir, mount, remove, rename, umount, urandom
 from time import time
@@ -16,7 +17,9 @@ upgradeFile = "__UPGRADE_IN_PROGRESS"
 canaryFile = "__canary.py"
 
 print("==============================")
-print(time())
+print("Time: {}".format(time()))
+part = Partition(Partition.RUNNING)
+print(part.info())
 print("==============================")
 
 # umount("/")

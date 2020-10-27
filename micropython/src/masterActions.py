@@ -28,6 +28,7 @@ class MasterActions:
 
         if wifiIsConnected:
             moistureSensor.sendReadings()
+            # import test
 
         # blinker = BlinkMessage()
         # blinker.genericBlink()
@@ -36,7 +37,7 @@ class MasterActions:
         # adc = ADC(sensorReadPin)
         # adc.atten(ADC.ATTN_11DB)
 
-        self.goToSleep()
+        # self.goToSleep()
 
     def setPins(self):
         print("Setting pins")

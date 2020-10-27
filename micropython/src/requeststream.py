@@ -28,16 +28,20 @@ class URLOpener:
         self.headers = {}
         self.text = ""
         self.url = url
+        print(self.url)
         [scheme, host, port, path, query_string] = urlparse(self.url)
+        print("urlopener", scheme, host, port, path, query_string)
         if auth and isinstance(auth, tuple) and len(auth) == 2:
             headers["Authorization"] = "Basic %s" % (
                 b64encode("%s:%s" % (auth[0], auth[1]))
             )
         if scheme == "http":
             addr = socket.getaddrinfo(host, int(port))[0][-1]
+            print("urlopener scheme http", addr)
             s = socket.socket()
             s.settimeout(5)
             s.connect(addr)
+
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_SEC)
             sock.settimeout(5)
@@ -66,8 +70,10 @@ class URLOpener:
             else:
                 request += "Content-Length: %s\r\n\r\n%s\r\n" % (len(data), data)
         request += "\r\n"
+        print("REQUEST", request)
         s.send(request)
         while 1:
+            print("urlopener inside loop")
             recv = s.recv(1024)
             if len(recv) == 0:
                 break
@@ -155,7 +161,9 @@ def urlopen(
 ):
     orig_url = url
     attempts = 0
+    print(url, method, params, data, headers, cookies, auth, timeout)
     result = URLOpener(url, method, params, data, headers, cookies, auth, timeout)
+    print(result)
     ## Maximum of 4 redirects
     while attempts < 4:
         attempts += 1

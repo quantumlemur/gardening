@@ -48,21 +48,35 @@ from time import sleep
 #             f.write(chunk)
 
 
-addr = socket.getaddrinfo("192.168.86.20", 5000)[0][-1]
-method = "GET"
-path = "/static/firmware.bin"
-header_string = "Host: %s\r\n" % "http://192.168.86.20:5000"
-request = b"%s %s HTTP/1.0\r\n%s" % (method, path, header_string)
-print(request)
-s = socket.socket()
-s.settimeout(10)
-s.connect(("192.168.86.20", 5000))
-request = "GET /device/listfiles_python HTTP/1.0"
-s.send(request)
-with open("firmware.bin", "w") as f:
-    while 1:
-        recv = s.recv(1024)
-        if len(recv) == 0:
-            break
-        f.write(recv)
-s.close()
+# import requeststream
+
+# url = "http://192.168.86.20:5000/static/firmware.bin"
+# r = requeststream.get(url=url)
+# print(r.status_code)
+
+
+# addr = socket.getaddrinfo("192.168.86.20", 5000)[0][-1]
+# method = "GET"
+# path = "/static/firmware.bin"
+# header_string = "Host: %s\r\n" % "http://192.168.86.20:5000"
+# request = b"%s %s HTTP/1.0\r\n%s" % (method, path, header_string)
+# # print(request)
+# addr = (b"192.168.86.20", 5000)
+# s = socket.socket()
+# s.settimeout(10)
+# s.connect(addr)
+# request = b"GET /static/firmware.bin HTTP/1.0\r\nHost: 192.168.86.20\r\n\r\n"
+# s.send(request)
+# with open("firmware.bin", "w") as f:
+#     while 1:
+#         print("inside loop")
+#         recv = s.recv(1024)
+#         if len(recv) == 0:
+#             break
+#         f.write(recv)
+# s.close()
+
+
+from currentCommitHash import CurrentCommitHash
+
+print(CurrentCommitHash.currentCommitHash)
