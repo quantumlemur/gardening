@@ -2,10 +2,23 @@ from machine import ADC, deepsleep, Pin, RTC, Signal
 from network import WLAN, STA_IF
 from time import sleep, time
 from esp32 import Partition
+from ujson import loads
 
 # file imports
-from sensor import Sensor
+from sensor import sendReadings, Sensor
 from utilities import now
+
+pinModes = {
+    "OUT": Pin.OUT,
+    "IN": Pin.IN,
+    "OPEN_DRAIN": Pin.OPEN_DRAIN,
+}
+pinPulls = {
+    "UP": Pin.PULL_UP,
+    "DOWN": Pin.PULL_DOWN,
+    "HOLD": Pin.PULL_HOLD,
+    "NONE": None,
+}
 
 
 class MasterActions:
@@ -20,14 +33,15 @@ class MasterActions:
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
 
-        moistureSensor = Sensor(self.config, 32, "soil")
-        moistureSensor.takeReading()
+        sensorList = loads(self.config.get("SENSORS"))
 
-        voltageSensor = Sensor(self.config, 33, "volt", multiplier=5)
-        voltageSensor.takeReading()
+        for s in sensorList:
+            print("Defining sensor on pin {}".format(s["pin"]))
+            sensor = Sensor(self.config, s["pin"], s["sensorName"], s["multiplier"])
+            sensor.takeReading()
 
         if wifiIsConnected:
-            moistureSensor.sendReadings()
+            sendReadings(self.config)
             # import test
 
         # blinker = BlinkMessage()
@@ -37,10 +51,19 @@ class MasterActions:
         # adc = ADC(sensorReadPin)
         # adc.atten(ADC.ATTN_11DB)
 
-        # self.goToSleep()
+        self.goToSleep()
 
     def setPins(self):
         print("Setting pins")
+
+        print(self.config.get("PIN_SETTINGS"))
+        pinSettings = loads(self.config.get("PIN_SETTINGS"))
+        for p in pinSettings:
+            pin = Pin(p["pin"], mode=pinModes[p["mode"]], pull=pinPulls[p["pull"]])
+
+            if p["mode"] == "OUT":
+                pin.value(p["value"])
+
         # These pins can't be used as output for the power supply
         # machine.Pin(35, machine.Pin.OUT, None).on()
         # machine.Pin(34, machine.Pin.OUT, None).off()
@@ -74,19 +97,20 @@ class MasterActions:
         """Hold the pins before sleep to prevent current leakage"""
         print("Holding pins")
 
-        p16 = Pin(self.config.get("ledPin"), Pin.OUT, None)
-        led = Signal(self.config.get("ledPin"), Pin.OUT, invert=True)
-        led.off()
+        # First get the misc pins set in the config
+        pinSettings = loads(self.config.get("PIN_SETTINGS"))
+        pins = [p["pin"] for p in pinSettings]
 
-        # p16 = Pin(self.config.get("ledPin"), Pin.IN, Pin.PULL_HOLD)
+        # Then add the LED pins
+        for c in ["BOARD_LED_PIN", "R_LED_PIN", "G_LED_PIN", "B_LED_PIN"]:
+            pin = self.config.get(c)
+            if pin and pin > 0:
+                pins.append(pin)
 
-        # These pins can't be used as output for the power supply
-        # machine.Pin(35, machine.Pin.IN, machine.Pin.PULL_HOLD)
-        # machine.Pin(34, machine.Pin.IN, machine.Pin.PULL_HOLD)
-
-        # These pins are fine to use as the power supply
-        # Pin(25, Pin.IN, Pin.PULL_HOLD)
-        # Pin(26, Pin.IN, Pin.PULL_HOLD)
+        # Then hold all the collected pins
+        for pin in pins:
+            print("Holding pin {}".format(pin))
+            Pin(pin, mode=Pin.IN, pull=Pin.PULL_HOLD)
 
     def goToSleep(self, quickSleep=False):
         sleep_duration = max(

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "gestalt/dist/gestalt.css";
 import { useSpring, animated } from "react-spring";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -8,13 +8,38 @@ import AxisBottom from "./AxisBottom";
 
 import { Box, Heading, Text } from "gestalt";
 
-function ScatterGraph({ width, height, data }) {
+// data input format: array of arrays of x/y pairs
+// data will be colored according to the array index
+// data = [
+//   [
+//     { x: 1, y: 1 },
+//     { x: 2, y: 2 },
+//   ],
+//   [
+//     { x: 1, y: 5 },
+//     { x: 2, y: 6 },
+//     { x: 3, y: 5 },
+//   ],
+// ];
+
+function LineGraph({ graphData, xExtent, yExtent, invert }) {
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(0);
+
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipText, setTooltipText] = useState([]);
   const [tooltipTransform, setTooltipTransform] = useState("translate(0,0)");
   const [tooltipProps, setTooltipProps, stopTooltipProps] = useSpring(() => ({
     opacity: 0,
   }));
+
+  const ref = useRef(null);
+
+  console.log(graphData);
+  useEffect(() => {
+    setHeight(ref.current.clientHeight);
+    setWidth(ref.current.clientWidth);
+  });
 
   //   div.transition()
   //       .duration(200)
@@ -28,21 +53,37 @@ function ScatterGraph({ width, height, data }) {
   //       .duration(500)
   //       .style("opacity", 0);
   //   }
+
+  // margins as percentage of svg size
   const margin = {
-    top: 40,
-    bottom: 40,
-    left: 40,
-    right: 40,
+    top: 0.05,
+    bottom: 0.08,
+    left: 0.1,
+    right: 0.05,
   };
 
-  const innerWidth = width - margin.right - margin.left;
-  const innerHeight = height - margin.top - margin.bottom;
+  const coords = {
+    x: {
+      left: width * margin.left,
+      right: width * (1 - margin.right),
+    },
+    y: {
+      bottom: height * (1 - margin.bottom),
+      top: height * margin.top,
+    },
+  };
 
+  // console.log(graphData);
   var xScale = scaleTime()
-    .domain(extent(data, (d) => d.timestamp))
-    .range([0, innerWidth]);
+    .domain(xExtent)
+    .range([coords.x.left, coords.x.right]);
+  // .nice();
 
-  const yAxisScale = scaleLinear().domain([0, 1]).range([0, innerHeight]);
+  const yScale = scaleLinear()
+    .domain(yExtent)
+    .range(
+      invert ? [coords.y.top, coords.y.bottom] : [coords.y.bottom, coords.y.top]
+    );
 
   var colorScale = scaleOrdinal(schemeCategory10);
 
@@ -79,31 +120,34 @@ function ScatterGraph({ width, height, data }) {
   //     />
   //   ));
 
-  const lineData = data.reduce((accumulator, currentValue) => {
-    if (accumulator[currentValue.device_id] == null) {
-      accumulator[currentValue.device_id] = [];
-    }
-    accumulator[currentValue.device_id].push([
-      currentValue.timestamp,
-      currentValue.calibrated_value,
-    ]);
-    return accumulator;
-  }, []);
+  // const lineData = data.reduce((accumulator, currentValue) => {
+  //   if (accumulator[currentValue.device_id] == null) {
+  //     accumulator[currentValue.device_id] = [];
+  //   }
+  //   accumulator[currentValue.device_id].push([
+  //     currentValue.timestamp,
+  //     currentValue.value,
+  //   ]);
+  //   return accumulator;
+  // }, []);
 
   const d3line = line();
 
-  const lines = lineData.map((points, i) => {
-    const yScale = scaleLinear()
-      .range([0, innerHeight])
-      .domain(extent(points, (d) => d[1]));
-    const scaledPoints = points.map((d, i) => [xScale(d[0]), yScale(d[1])]);
+  const lines = graphData.map((graphSeries, i) => {
+    // const yScale = scaleLinear()
+    //   .domain(extent(points, (d) => d.y))
+    //   .range([coords.y.bottom, coords.y.top]);
+    const scaledPoints = graphSeries.data.map((d, i) => [
+      xScale(d.x),
+      yScale(d.y),
+    ]);
     const pathLine = d3line(scaledPoints);
     return (
       <path
-        key={i}
+        key={graphSeries.key}
         d={pathLine}
-        stroke={colorScale(i)}
-        strokeWidth="3"
+        stroke={colorScale(graphSeries.key)}
+        strokeWidth="2"
         className="line"
         fill="none"
       />
@@ -111,25 +155,31 @@ function ScatterGraph({ width, height, data }) {
   });
 
   return (
-    <svg width={width} height={height}>
-      <g transform={`translate(${margin.left},${margin.top})`}>
-        <AxisLeft yScale={yAxisScale} width={innerWidth} />
-        <AxisBottom xScale={xScale} height={innerHeight} />
-        {lines}
-        <text transform={tooltipTransform}>
-          <tspan x="10" y="45">
-            {tooltipText[0]}
-          </tspan>
-          <tspan x="10" y="70">
-            {tooltipText[1]}
-          </tspan>
-          <tspan x="10" y="95">
-            {tooltipText[2]}
-          </tspan>
-        </text>
-      </g>
+    <svg width="100%" height="auto" ref={ref}>
+      <AxisBottom
+        xScale={xScale}
+        yScale={yScale}
+        height={margin.bottom * 0.5}
+      />
+      <AxisLeft
+        xScale={xScale}
+        yScale={yScale}
+        width={width * margin.left * 0.5}
+      />
+      {lines}
+      <text transform={tooltipTransform}>
+        <tspan x="10" y="45">
+          {tooltipText[0]}
+        </tspan>
+        <tspan x="10" y="70">
+          {tooltipText[1]}
+        </tspan>
+        <tspan x="10" y="95">
+          {tooltipText[2]}
+        </tspan>
+      </text>
     </svg>
   );
 }
 
-export default ScatterGraph;
+export default LineGraph;

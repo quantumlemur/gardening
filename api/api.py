@@ -77,6 +77,7 @@ def get_devices():
             ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
+        ORDER BY devices.id
             """
     ).fetchall()
     return jsonify(devices)
@@ -123,8 +124,8 @@ def submit_config():
     return request.json
 
 
-@bp.route("/get_sensor_data")
-def get_sensor_data():
+@bp.route("/get_all_sensor_data")
+def get_all_sensor_data():
     db = get_db_dicts()
     error = None
     data = db.execute(
@@ -145,6 +146,36 @@ def get_sensor_data():
         ORDER BY timestamp ASC
         """,
         (int(time()) - 14 * 24 * 60 * 60,),
+    ).fetchall()
+    return jsonify(data)
+
+
+@bp.route("/get_sensor_data/<deviceId>/<sensorName>")
+def get_sensor_data(deviceId, sensorName):
+    assert deviceId == request.view_args["deviceId"]
+    assert sensorName == request.view_args["sensorName"]
+    db = get_db_dicts()
+    error = None
+    data = db.execute(
+        """
+        SELECT
+            timestamp,
+            value,
+            device_id,
+            name
+        FROM readings
+        WHERE
+            device_id = ? AND
+            name = ? AND
+            zscore < 2 AND
+            timestamp > ?
+        ORDER BY timestamp ASC
+        """,
+        (
+            deviceId,
+            sensorName,
+            int(time()) - 14 * 24 * 60 * 60,
+        ),
     ).fetchall()
     return jsonify(data)
 

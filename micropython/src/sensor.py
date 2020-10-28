@@ -7,15 +7,59 @@ from machine import ADC, Pin
 from utilities import now
 
 
+def printFile(self):
+    fname = self.config.get("sensorFile")
+    with open(fname, "r") as f:
+        print(f.read())
+
+
+def sendReadings(self):
+    fname = self.config.get("sensorFile")
+    # remove(fname)
+
+    success = False
+    if fname in listdir():
+        try:
+            with open(fname, "r") as f:
+                data = "{}]".format(f.read())
+                print(data)
+                url = "{}/readings".format(self.config.get("server_url"))
+                headers = {
+                    "mac": str(self.config.get("mac")),
+                    "device-next-init": str(self.config.get("next_init_expected")),
+                    "Content-Type": "application/json",
+                }
+
+                request = post(url=url, headers=headers, data=data)
+                if request.status_code == 200:
+                    success = True
+            if success:
+                print("Sensor upload successful")
+                remove(fname)
+            else:
+                print("Sensor upload unsuccessful.  Deleting old readings.")
+                remove(fname)
+                # print(f.read())
+        except Exception as err:
+            print("========= Error during sensor send!  Trying deleting sensorfile")
+            print(err)
+            # print(traceback.format_exc())
+
+            self.config.put("runningWithoutError", False)
+            remove(fname)
+    else:
+        print("sensor file not found")
+
+
 class Sensor:
     # dhtPin = machine.Pin(22, mode=machine.Pin.IN)
     # moisturePin = machine.Pin(32, mode=machine.Pin.IN)
 
     def __init__(self, config, pin, sensorName, multiplier=1):
         self.config = config
-        self.pin = Pin(pin)
+        self.pin = Pin(int(pin))
         self.sensorName = sensorName
-        self.multiplier = multiplier
+        self.multiplier = float(multiplier)
 
         self.adc = ADC(self.pin)
         self.adc.atten(ADC.ATTN_11DB)
@@ -28,9 +72,8 @@ class Sensor:
         return reading
 
     def takeReading(self):
-        print(now(), self.read())
         sensorString = '[{}, {}, 0, "{}"]'.format(
-            now(), self.read() * self.multiplier, self.sensorName
+            now(), int(self.read() * self.multiplier), self.sensorName
         )
 
         fname = self.config.get("sensorFile")
@@ -41,48 +84,6 @@ class Sensor:
         else:
             with open(fname, "a") as f:
                 f.write(",\n{}".format(sensorString))
-
-    def printFile(self):
-        fname = self.config.get("sensorFile")
-        with open(fname, "r") as f:
-            print(f.read())
-
-    def sendReadings(self):
-        fname = self.config.get("sensorFile")
-        # remove(fname)
-
-        success = False
-        if fname in listdir():
-            try:
-                with open(fname, "r") as f:
-                    data = "{}]".format(f.read())
-                    print(data)
-                    url = "{}/readings".format(self.config.get("server_url"))
-                    headers = {
-                        "mac": str(self.config.get("mac")),
-                        "device-next-init": str(self.config.get("next_init_expected")),
-                        "Content-Type": "application/json",
-                    }
-
-                    request = post(url=url, headers=headers, data=data)
-                    if request.status_code == 200:
-                        success = True
-                if success:
-                    print("Sensor upload successful")
-                    remove(fname)
-                else:
-                    print("Sensor upload unsuccessful.  Deleting old readings.")
-                    remove(fname)
-                    # print(f.read())
-            except Exception as err:
-                print("========= Error during sensor send!  Trying deleting sensorfile")
-                print(err)
-                # print(traceback.format_exc())
-
-                self.config.put("runningWithoutError", False)
-                remove(fname)
-        else:
-            print("sensor file not found")
 
 
 if __name__ == "__main__":

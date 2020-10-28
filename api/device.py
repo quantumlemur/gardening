@@ -221,104 +221,89 @@ def readings():
     device_id = db.execute(
         "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
     ).fetchone()[0]
+    calibrationTimeMin = int(time()) - calibration_time_window * 24 * 60 * 60
+    pastReadings = {}  # Cached values of past readings
 
-    # select data from last time period and calculate mean and stddev
-    data = db.execute(
-        """
-		SELECT
-			value
-		FROM
-			readings
-		WHERE
-			device_id = ? AND
-			readings.name = "soil" AND
-			timestamp > ?
-		""",
-        (
-            device_id,
-            int(time()) - calibration_time_window * 24 * 60 * 60,
-        ),
-    ).fetchall()
-    values = [row[0] for row in data]
-    values.extend([reading[1] for reading in request.json])
-    avg = mean(values)
+    for reading in request.json:
+        timestamp, value, offset, sensorName = reading
+        # select data from last time period and calculate mean and stddev
+        if sensorName not in pastReadings:
+            data = db.execute(
+                """
+                SELECT
+                    value
+                FROM
+                    readings
+                WHERE
+                    device_id = ? AND
+                    readings.name = ? AND
+                    timestamp > ?
+                """,
+                (device_id, sensorName, calibrationTimeMin),
+            ).fetchall()
+            pastReadings[sensorName] = [row[0] for row in data]
 
-    if len(values) > 1:
-        stddev = stdev(values)
-        # insert values into table
-        for reading in request.json:
-            zscore = abs(reading[1] - avg) / stddev
-            db.execute(
-                """INSERT INTO readings
-                (
-                    device_id,
-                    timestamp,
-                    value,
-                    offset,
-                    name,
-                    zscore
-                )
-                VALUES (?, ?, ?, ?, ?, ?)""",
-                (device_id, reading[0], reading[1], reading[2], reading[3], zscore),
-            )
+        pastReadings[sensorName].append(value)
+        avg = mean(pastReadings[sensorName])
+        stddev = 1
+        if len(pastReadings[sensorName]) > 1:
+            stddev = stdev(pastReadings[sensorName])
 
-        # recalibrate sensors
+        # insert value into table
+        zscore = abs(value - avg) / stddev
         db.execute(
-            """
-            UPDATE
-                device_config
-            SET
-                calibration_max = (
-                    SELECT
-                        MAX(value)
-                    FROM
-                        readings
-                    WHERE
-                        name = "soil" AND
-                        zscore < 2 AND
-                        device_id = ? AND
-                        timestamp > ?
-                    ),
-                calibration_min = (
-                    SELECT
-                        MIN(value)
-                    FROM
-                        readings
-                    WHERE
-                        name = "soil" AND
-                        zscore < 2 AND
-                        device_id = ? AND
-                        timestamp > ?
-                    )
-            WHERE
-                device_id = ?
-            """,
+            """INSERT INTO readings
             (
                 device_id,
-                int(time()) - calibration_time_window * 24 * 60 * 60,
-                device_id,
-                int(time()) - calibration_time_window * 24 * 60 * 60,
-                device_id,
-            ),
-        )
-    else:
-        stddev = 1
-        # insert values into table
-        for reading in request.json:
-            zscore = abs(reading[1] - avg) / stddev
-            db.execute(
-                """INSERT INTO readings
-                (
-                    device_id,
-                    timestamp,
-                    value,
-                    offset,
-                    name,
-                    zscore
-                )
-                VALUES (?, ?, ?, ?, ?, ?)""",
-                (device_id, reading[0], reading[1], reading[2], reading[3], zscore),
+                timestamp,
+                value,
+                offset,
+                name,
+                zscore
             )
+            VALUES (?, ?, ?, ?, ?, ?)""",
+            (device_id, timestamp, value, offset, sensorName, zscore),
+        )
+
+        # # recalibrate sensors
+        # db.execute(
+        #     """
+        #     UPDATE
+        #         device_config
+        #     SET
+        #         calibration_max = (
+        #             SELECT
+        #                 MAX(value)
+        #             FROM
+        #                 readings
+        #             WHERE
+        #                 name = "soil" AND
+        #                 zscore < 2 AND
+        #                 device_id = ? AND
+        #                 timestamp > ?
+        #             ),
+        #         calibration_min = (
+        #             SELECT
+        #                 MIN(value)
+        #             FROM
+        #                 readings
+        #             WHERE
+        #                 name = "soil" AND
+        #                 zscore < 2 AND
+        #                 device_id = ? AND
+        #                 timestamp > ?
+        #             )
+        #     WHERE
+        #         device_id = ?
+        #     """,
+        #     (
+        #         device_id,
+        #         int(time()) - calibration_time_window * 24 * 60 * 60,
+        #         device_id,
+        #         int(time()) - calibration_time_window * 24 * 60 * 60,
+        #         device_id,
+        #     ),
+        # )
 
     db.commit()
     return '{"status": "ok"}'
@@ -328,25 +313,18 @@ def readings():
 @registration_required
 @update_checkin
 def config():
-    db = get_db()
+    db = get_db_dicts()
     error = None
-    config = db.execute(
-        """SELECT
-			mac,
-			INIT_INTERVAL,
-			SLEEP_DURATION,
-			MAX_ENTRYS_WITHOUT_INIT,
-			LIGHT
-			from device_config
-			JOIN devices ON devices.id = device_config.device_id
-			WHERE mac = ?""",
+    deviceConfig = db.execute(
+        """
+        SELECT
+			*
+        FROM device_config
+        JOIN devices ON devices.id = device_config.device_id
+        LEFT JOIN board_types ON device_config.board_type = board_types.board_type
+        WHERE mac = ?
+        """,
         (request.headers.get("mac"),),
     ).fetchone()
-    json = {
-        "mac": config[0],
-        "INIT_INTERVAL": config[1],
-        "SLEEP_DURATION": config[2],
-        "MAX_ENTRYS_WITHOUT_INIT": config[3],
-        "LIGHT": config[4],
-    }
-    return json
+    print(deviceConfig)
+    return jsonify(deviceConfig)

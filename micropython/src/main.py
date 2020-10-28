@@ -14,21 +14,25 @@ from config import Config
 config = Config()
 
 # Set watchdog timer
-wdt = WDT(timeout=120000 * 10)  # milliseconds
+wdt = WDT(timeout=60000)  # milliseconds
 
 
 def now():
     return time() + 946684800
 
 
-p16 = Pin(config.get("ledPin"), Pin.OUT, None)
-led = Signal(config.get("ledPin"), Pin.OUT, invert=True)
-if config.get("LIGHT") == 1:
-    print("turning on LED")
-    led.on()
-else:
-    print("turning off LED")
-    led.off()
+ledPin = config.get("BOARD_LED_PIN")
+if ledPin and ledPin > 0:
+    invert = config.get("BOARD_LED_PIN_INVERT") == 1
+    on = config.get("LIGHT") == 1
+
+    led = Signal(ledPin, Pin.OUT, invert=invert)
+    if on:
+        print("turning on LED")
+        led.on()
+    else:
+        print("turning off LED")
+        led.off()
 
 
 ###################### Wifi connection checks ######################

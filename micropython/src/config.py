@@ -6,8 +6,6 @@ from urequests import get
 from os import listdir, remove
 from machine import unique_id
 
-from credentials import credentials
-
 CONFIGFILE = "config.json"
 
 
@@ -32,6 +30,9 @@ class Config:
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
+        "server_url": "http://192.168.86.20:5000/device",
+        "wifi_ssid": "julia&mike-guest",
+        "wifi_password": "welcometothebarnyard",
     }
 
     def __init__(self):
@@ -45,21 +46,24 @@ class Config:
                 with open(CONFIGFILE, "r") as f:
                     configFromFile = loads(f.read())
                     self.config.update(configFromFile)
-                self.config.update(credentials)
-                self.save()
             except ValueError:
                 print("========= config file corrupt; removing")
                 remove(CONFIGFILE)
         else:
             print("No config file found.  Saving defaults")
-            self.save()
+        # Reload the onboard config details
+        self.config["mac"] = str(hexlify(unique_id(), ":").decode())
+        self.save()
 
     def save(self):
         with open(CONFIGFILE, "w") as f:
             f.write(dumps(self.config))
 
     def get(self, item):
-        return self.config[item]
+        if item in self.config:
+            return self.config[item]
+        else:
+            return None
 
     def put(self, item, value):
         self.load()
@@ -68,7 +72,7 @@ class Config:
 
     def updateFromServer(self):
         self.calcNextInitExpected()
-        url = "{}/config".format(credentials["server_url"])
+        url = "{}/config".format(self.config["server_url"])
         print("Checking for server config updates from {}".format(url))
         headers = {
             "mac": str(self.config["mac"]),
@@ -79,9 +83,13 @@ class Config:
         if request.status_code == 200:
             print("Server config update successful")
             configFromServer = request.json()
-            self.config.update(configFromServer)
-            self.save()
-            self.calcNextInitExpected()
+            print(configFromServer)
+            if configFromServer:
+                self.config.update(configFromServer)
+                self.save()
+                self.calcNextInitExpected()
+            else:
+                print("Error: server returned no config")
         else:
             print("Error: server update fetch unsuccessful")
         # request.close()
