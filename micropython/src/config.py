@@ -30,7 +30,7 @@ class Config:
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
-        "server_url": "http://192.168.86.20:5000/device",
+        "server_url": "http://nuc/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
     }
@@ -52,6 +52,7 @@ class Config:
         else:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
+        self.config["server_url"] = "http://nuc/device"
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
         self.save()
 

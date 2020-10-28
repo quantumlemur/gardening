@@ -28,6 +28,8 @@ from api.db import get_db, get_db_dicts
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
+calibration_time_window = 28  # days
+
 
 @bp.route("/get_devices", methods=("GET",))
 def get_devices():
@@ -48,13 +50,12 @@ def get_devices():
             SLEEP_DURATION,
             MAX_ENTRYS_WITHOUT_INIT,
             LIGHT,
-            calibration_min,
-            calibration_max,
-            trigger_min,
             timestamp,
             latest_soil_readings.value AS soil,
             latest_volt_readings.value AS volt,
-            CAST(latest_soil_readings.value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
+            calibration.min,
+            calibration.max,
+            CAST(latest_soil_readings.value - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS calibrated_value
         FROM
             devices
         LEFT JOIN (
@@ -75,10 +76,24 @@ def get_devices():
             WHERE name="volt"
             GROUP BY device_id
             ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MAX(value) AS max,
+                MIN(value) AS min,
+                device_id
+            FROM
+                readings
+            WHERE
+                name = "soil" AND
+                zscore < 2 AND
+                timestamp > ?
+            GROUP BY device_id
+            ) AS calibration ON calibration.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
         ORDER BY devices.id
-            """
+            """,
+        (int(time()) - calibration_time_window * 24 * 60 * 60,),
     ).fetchall()
     return jsonify(devices)
 
@@ -98,9 +113,6 @@ def submit_config():
             SLEEP_DURATION = ?,
             MAX_ENTRYS_WITHOUT_INIT = ?,
             LIGHT = ?,
-            calibration_min = ?,
-            calibration_max = ?,
-            trigger_min = ?,
             location_zone = ?,
             location_x = ?,
             location_y = ?
@@ -111,9 +123,6 @@ def submit_config():
             request.json["SLEEP_DURATION"],
             request.json["MAX_ENTRYS_WITHOUT_INIT"],
             request.json["LIGHT"],
-            request.json["calibration_min"],
-            request.json["calibration_max"],
-            request.json["trigger_min"],
             request.json["location_zone"],
             request.json["location_x"],
             request.json["location_y"],
@@ -133,7 +142,6 @@ def get_all_sensor_data():
         SELECT
             timestamp,
             value,
-            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
             readings.device_id,
             device_config.name
         FROM readings
