@@ -50,9 +50,9 @@ from time import sleep
 
 # import requeststream
 
-# url = "http://192.168.86.20:5000/static/firmware.bin"
-# r = requeststream.get(url=url)
-# print(r.status_code)
+url = "http://192.168.86.120:5000/api/get_deslkdalskdjasvices"
+r = get(url=url)
+print(r.status_code)
 
 
 # addr = socket.getaddrinfo("192.168.86.20", 5000)[0][-1]

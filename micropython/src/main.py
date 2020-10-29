@@ -2,7 +2,7 @@
 # esp.osdebug(None)
 
 from esp32 import Partition
-from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer, WDT
+from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, Timer
 from os import listdir, mount, remove, rename
 from time import sleep, time
 
@@ -14,7 +14,7 @@ from config import Config
 config = Config()
 
 # Set watchdog timer
-wdt = WDT(timeout=60000)  # milliseconds
+# wdt = WDT(timeout=120000)  # milliseconds
 
 
 def now():

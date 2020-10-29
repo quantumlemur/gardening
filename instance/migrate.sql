@@ -127,6 +127,7 @@ CREATE TABLE device_config_temp (
   MAX_ENTRYS_WITHOUT_INIT INTEGER NOT NULL DEFAULT 3,
   LIGHT INTEGER NOT NULL DEFAULT 1,
   board_type INTEGER NOT NULL DEFAULT 2,
+  server_url TEXT NOT NULL DEFAULT "http://192.168.86.20:5000/device",
   FOREIGN KEY(device_id) REFERENCES devices(id),
   FOREIGN KEY(board_type) REFERENCES board_types(board_type)
 );
@@ -143,7 +144,8 @@ SLEEP_DURATION,
 SLEEP_DELAY,
 MAX_ENTRYS_WITHOUT_INIT,
 LIGHT,
-1
+1,
+"http://192.168.86.20:5000/device"
 FROM device_config;
 
 DROP TABLE IF EXISTS device_config;
@@ -160,6 +162,7 @@ CREATE TABLE device_config (
   MAX_ENTRYS_WITHOUT_INIT INTEGER NOT NULL DEFAULT 3,
   LIGHT INTEGER NOT NULL DEFAULT 1,
   board_type INTEGER NOT NULL DEFAULT 1,
+  server_url TEXT NOT NULL DEFAULT "http://192.168.86.20:5000/device",
   FOREIGN KEY(device_id) REFERENCES devices(id),
   FOREIGN KEY(board_type) REFERENCES board_types(board_type)
 );

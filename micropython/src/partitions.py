@@ -203,7 +203,7 @@ class OTAUpdater:
     # print("reading firmware file")
     # with open("firmware.bin", "r") as f:
     #     while True:
-    #         block = f.read(4096)
+    #         block = f.read(4WDT096)
     #         if len(block) == 0:
     #             break
     #         print(len(block))

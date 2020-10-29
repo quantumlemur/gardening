@@ -4,7 +4,7 @@ from ubinascii import hexlify
 from urequests import get
 
 from os import listdir, remove
-from machine import unique_id
+from machine import unique_id, WDT
 
 CONFIGFILE = "config.json"
 
@@ -14,6 +14,8 @@ def now():
 
 
 class Config:
+    wdt = WDT(timeout=120000)  # milliseconds
+
     config = {
         "LAST_ENTRY_TIME": 0,
         "LAST_INIT_TIME": 0,
@@ -30,7 +32,7 @@ class Config:
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
-        "server_url": "http://nuc/device",
+        "server_url": "http://192.168.86.20:5000/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
     }
@@ -52,7 +54,6 @@ class Config:
         else:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
-        self.config["server_url"] = "http://nuc/device"
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
         self.save()
 
@@ -86,6 +87,21 @@ class Config:
             configFromServer = request.json()
             print(configFromServer)
             if configFromServer:
+                # Validate new server URL before storing it...
+                previousServerUrl = self.config["server_url"]
+                if self.config["server_url"] != configFromServer["server_url"]:
+                    print("New server URL found.  Validating...")
+                    newUrl = "{}/config".format(configFromServer["server_url"])
+                    try:
+                        request = get(url=newUrl, headers=headers)
+                        if request.status_code == 200:
+                            print("New server URL validated successfully.  Saving!")
+                        else:
+                            print("New server URL failed validation.  Reverting.")
+                            configFromServer["server_url"] = previousServerUrl
+                    except OSError:
+                        print("New server URL failed validation.  Reverting.")
+                        configFromServer["server_url"] = previousServerUrl
                 self.config.update(configFromServer)
                 self.save()
                 self.calcNextInitExpected()
