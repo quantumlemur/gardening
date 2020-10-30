@@ -13,6 +13,19 @@ from config import Config
 
 config = Config()
 
+led = None
+if (
+    config.get("LIGHT") == 1
+    and config.get("R_LED_PIN") > 0
+    and config.get("G_LED_PIN") > 0
+    and config.get("B_LED_PIN") > 0
+):
+    from led import LED
+
+    led = LED(config)
+    led.start_fader()
+
+
 # Set watchdog timer
 # wdt = WDT(timeout=120000)  # milliseconds
 
@@ -26,13 +39,13 @@ if ledPin and ledPin > 0:
     invert = config.get("BOARD_LED_PIN_INVERT") == 1
     on = config.get("LIGHT") == 1
 
-    led = Signal(ledPin, Pin.OUT, invert=invert)
+    board_led = Signal(ledPin, Pin.OUT, invert=invert)
     if on:
         print("turning on LED")
-        led.on()
+        board_led.on()
     else:
         print("turning off LED")
-        led.off()
+        board_led.off()
 
 
 ###################### Wifi connection checks ######################
@@ -75,7 +88,7 @@ if doConnectWifi:
     from wifi import WifiConnection
     from updater import Updater
 
-    wifiConnection = WifiConnection(config)
+    wifiConnection = WifiConnection(config, led=led)
 
     wifiConnection.connect_wifi()
 

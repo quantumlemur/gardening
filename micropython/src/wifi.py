@@ -6,8 +6,9 @@ from ubinascii import hexlify
 
 
 class WifiConnection:
-    def __init__(self, config):
+    def __init__(self, config, led=None):
         self.config = config
+        self.led = led
         self.wifi = WLAN(STA_IF)
         # Try to store the mac if the config module is working
         # print("mac address: " + hexlify(self.wifi.config('mac'), ':'))
@@ -40,6 +41,16 @@ class WifiConnection:
                     reset()
 
             try:
+                if self.led:
+                    self.led.set_rgb_cycle(
+                        [
+                            (1, 0, 1, 0),
+                            (1, 0, 1, 1),
+                            (1, 0, 0, 1),
+                            (1, 0, 1, 1),
+                            (1, 0, 0, 0),
+                        ]
+                    )
                 settime()
             except OSError:
                 print("NTP sync failed")

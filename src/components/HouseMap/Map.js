@@ -5,14 +5,15 @@ import { scaleLinear } from "d3-scale";
 
 import PlantSymbol from "./PlantSymbol";
 import SettingsModal from "../ManageDevices/SettingsModal";
+import StatusModal from "../ManageDevices/StatusModal";
 
 function Map({ devices, initialActiveDevice, setLocation }) {
   const [data, setData] = useState(devices);
   const [activeDevice, setActiveDevice] = useState(
     initialActiveDevice ? initialActiveDevice : {}
   );
+  const [showStatus, setShowStatus] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function handleSubmit(data) {
     const requestOptions = {
@@ -26,13 +27,19 @@ function Map({ devices, initialActiveDevice, setLocation }) {
   const width = 640,
     height = 400;
 
-  const handleClick = (device) => {
+  const handlePlantClick = (device) => {
     setActiveDevice(device);
+    setShowStatus(!showStatus);
+    // setShowSettings(!showSettings);
+  };
+
+  const handleSettingsButtonClick = (device) => {
     setShowSettings(!showSettings);
   };
 
   function handleDismiss() {
-    setShowSettings(!showSettings);
+    setShowStatus(false);
+    setShowSettings(false);
   }
 
   const activeDeviceId = activeDevice.id || "No device active";
@@ -45,7 +52,7 @@ function Map({ devices, initialActiveDevice, setLocation }) {
       key={d.id}
       data={d}
       index={i}
-      onClick={handleClick}
+      onClick={handlePlantClick}
       pulse={d.id === activeDeviceId}
       color={colorScale(d.calibrated_value)}
       needCharge={d.volt < 3000}
@@ -65,6 +72,14 @@ function Map({ devices, initialActiveDevice, setLocation }) {
         <image href="/zone0.png" x="0" y="0" width={width} height={height} />
         <g>{plants}</g>
       </svg>
+
+      {showStatus && (
+        <StatusModal
+          currDevice={activeDevice}
+          onSettingsButtonClick={handleSettingsButtonClick}
+          onDismiss={handleDismiss}
+        />
+      )}
       {showSettings && (
         <SettingsModal
           currDevice={activeDevice}

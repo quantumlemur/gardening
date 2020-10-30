@@ -112,7 +112,7 @@ CREATE TABLE board_types (
 INSERT INTO board_types (board_type, board_name, PIN_SETTINGS, SENSORS, BOARD_LED_PIN, BOARD_LED_PIN_INVERT, R_LED_PIN, G_LED_PIN, B_LED_PIN)
 VALUES
 (1, "Spike", "[]", '[{"sensorName": "soil", "pin": 32, "multiplier": 1}]', 16, 1, -1, -1, -1),
-(2, "EzSBC Feather", '[{"pin":2, "mode":"OUT", "value":1, "pull":"NONE"},{"pin":15, "mode":"OUT", "value":1, "pull":"NONE"}]', '[{"sensorName": "volt", "pin": 35, "multiplier": 1.77289377289377}, {"sensorName": "soil", "pin": 33, "multiplier": 1}]', 13, 0, -1, -1, -1);
+(2, "EzSBC Feather", '[{"pin":2, "mode":"OUT", "value":1, "pull":"NONE"},{"pin":15, "mode":"OUT", "value":1, "pull":"NONE"}]', '[{"sensorName": "volt", "pin": 35, "multiplier": 1.77289377289377}, {"sensorName": "soil", "pin": 33, "multiplier": 1}]', 13, 1, -1, -1, -1);
 
 
 CREATE TABLE device_config_temp (
@@ -173,3 +173,4 @@ SELECT * FROM device_config_temp;
 DROP TABLE IF EXISTS device_config_temp;
 
 UPDATE device_config SET board_type=2 WHERE device_id=22;
+
