@@ -5,7 +5,7 @@ import { timeFormat } from "d3";
 function AxisBottom({ xScale, yScale, height }) {
   const textPadding = 1;
 
-  var formatTime = timeFormat("%a %e");
+  var formatTime = timeFormat("%e");
 
   const axis = xScale.ticks().map((d, i) => (
     <g className="x-tick" key={i}>
