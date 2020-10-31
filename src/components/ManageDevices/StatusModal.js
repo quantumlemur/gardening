@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { scaleLinear } from "d3-scale";
-import { extent } from "d3";
+import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "../Graph/LineGraph";
 
@@ -13,15 +13,13 @@ function processData(data) {
   const xExtent = extent(data, (d) => d.timestamp);
   const yExtent = extent(data, (d) => d.value);
 
-  const yScale = scaleLinear().domain(yExtent).range([1, 0]);
-
   const mappedData = data.map((d, i) => {
     return {
       x: d.timestamp,
-      y: yScale(d.value),
+      y: d.value,
     };
   });
-  return { data: mappedData, xExtent: xExtent, yExtent: [1, 0] };
+  return { data: mappedData, xExtent: xExtent, yExtent: yExtent };
 }
 
 function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
@@ -55,6 +53,8 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
     }
   }
 
+  var colorScale = scaleOrdinal(schemeCategory10);
+
   return (
     <Layer>
       <Modal
@@ -72,9 +72,10 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
           paddingX={3}
           paddingY={3}
         >
-          <Box flex="grow" width="100%">
+          <Box flex="grow" width="100%" padding={3}>
             <LineGraph
               graphData={graphData}
+              colorScale={colorScale}
               xExtent={xExtent}
               yExtent={yExtent}
               invert={true}

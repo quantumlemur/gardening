@@ -6,6 +6,7 @@ function AxisBottom({ xScale, yScale, height }) {
   const textPadding = 1;
 
   var formatTime = timeFormat("%e");
+  console.log(yScale.range());
 
   const axis = xScale.ticks().map((d, i) => (
     <g className="x-tick" key={i}>
@@ -25,7 +26,7 @@ function AxisBottom({ xScale, yScale, height }) {
         }}
         dy=".71em"
         x={xScale(d)}
-        y={Math.max(yScale.range()) + height}
+        y={Math.max(...yScale.range())}
       >
         {formatTime(d * 1000)}
       </text>
