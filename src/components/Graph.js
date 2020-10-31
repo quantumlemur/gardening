@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
-import { scaleLinear } from "d3-scale";
-import { extent } from "d3";
+import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "./Graph/LineGraph";
 import Legend from "./Graph/Legend";
@@ -23,7 +23,11 @@ function processData(data) {
       y: yScale(d.value),
     };
   });
-  return { data: mappedData, xExtent: xExtent, yExtent: [1, 0] };
+  return {
+    data: mappedData,
+    xExtent: xExtent,
+    yExtent: [1, 0],
+  };
 }
 
 // Format data for legend display.
@@ -38,7 +42,8 @@ function processLegendData(devices) {
 
 function Graph() {
   const [legendData, setLegendData] = useState([]);
-  const [graphData, setGraphData] = useState([]);
+  const [allGraphData, setAllGraphData] = useState([]);
+  const [selectedGraphData, setSelectedGraphData] = useState([]);
   const [xExtent, setxExtent] = useState([]);
   const [yExtent, setyExtent] = useState([]);
 
@@ -64,29 +69,85 @@ function Graph() {
 
       setxExtent((xExtent) => extent(xExtent.concat(mappedData.xExtent)));
       setyExtent((yExtent) => extent(yExtent.concat(mappedData.yExtent)));
-      setGraphData((graphData) =>
-        graphData.concat([
+      setAllGraphData((allGraphData) =>
+        allGraphData.concat([
           {
             key: device_data[0].device_id,
             data: mappedData.data,
           },
         ])
       );
+      setSelectedGraphData((selectedGraphData) =>
+        selectedGraphData.concat([
+          {
+            key: device_data[0].device_id,
+            data: mappedData.data,
+          },
+        ])
+      );
+      // setLegendData((legendData) =>
+      //   legendData.concat([
+      //     {
+      //       key: mappedData.key,
+      //       text: mappedData.text,
+      //     },
+      //   ])
+      // );
     }
   }
+
+  // Toggles a data item in the selectedGraphData list
+  const handleClick = (device) => {
+    const key = device.key;
+    var index = -1;
+    // First check for removal
+    selectedGraphData.some((d, i) => {
+      if (d.key === key) {
+        index = i;
+        return true;
+      } else {
+        return false;
+      }
+    });
+    // If you don't find it, add it back in
+    if (index > -1) {
+      setSelectedGraphData((selectedGraphData) => [
+        ...selectedGraphData.slice(0, index),
+        ...selectedGraphData.slice(index + 1),
+      ]);
+    } else {
+      allGraphData.some((d, i) => {
+        if (d.key === key) {
+          setSelectedGraphData((selectedGraphData) =>
+            selectedGraphData.concat(d)
+          );
+          return true;
+        }
+      });
+    }
+  };
+
+  var colorScale = scaleOrdinal(schemeCategory10).domain(
+    legendData.map((d) => d.key)
+  );
 
   return (
     <Box display="flex" width="100%" maxHeight={800}>
       <Box flex="grow" width="90%">
         <LineGraph
-          graphData={graphData}
+          graphData={selectedGraphData}
+          colorScale={colorScale}
           xExtent={xExtent}
           yExtent={yExtent}
           invert={true}
         />
       </Box>
       <Box flex="grow" width="10%">
-        <Legend legendData={legendData} />
+        <Legend
+          legendData={legendData}
+          handleClick={handleClick}
+          colorScale={colorScale}
+        />
       </Box>
       {/* <animated.div
           position="absolute"

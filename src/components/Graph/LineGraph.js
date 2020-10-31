@@ -22,7 +22,7 @@ import { Box, Heading, Text } from "gestalt";
 //   ],
 // ];
 
-function LineGraph({ graphData, xExtent, yExtent, invert }) {
+function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
@@ -35,7 +35,6 @@ function LineGraph({ graphData, xExtent, yExtent, invert }) {
 
   const ref = useRef(null);
 
-  console.log(graphData);
   useEffect(() => {
     setHeight(ref.current.clientHeight);
     setWidth(ref.current.clientWidth);
@@ -84,8 +83,6 @@ function LineGraph({ graphData, xExtent, yExtent, invert }) {
     .range(
       invert ? [coords.y.top, coords.y.bottom] : [coords.y.bottom, coords.y.top]
     );
-
-  var colorScale = scaleOrdinal(schemeCategory10);
 
   //   function mouseEnter(e, d) {
   //     console.log(e.nativeEvent.offsetX);

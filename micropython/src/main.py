@@ -14,16 +14,16 @@ from config import Config
 config = Config()
 
 led = None
-if (
-    config.get("LIGHT") == 1
-    and config.get("R_LED_PIN") > 0
-    and config.get("G_LED_PIN") > 0
-    and config.get("B_LED_PIN") > 0
-):
-    from led import LED
+# if (
+#     config.get("LIGHT") == 1
+#     and config.get("R_LED_PIN") > 0
+#     and config.get("G_LED_PIN") > 0
+#     and config.get("B_LED_PIN") > 0
+# ):
+#     from led import LED
 
-    led = LED(config)
-    led.start_fader()
+#     led = LED(config)
+#     led.start_fader()
 
 
 # Set watchdog timer

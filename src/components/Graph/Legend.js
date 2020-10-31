@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-import { schemeCategory10 } from "d3";
-import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { scaleLinear } from "d3-scale";
 
 // LegendData format:
 // legendData = [
@@ -14,7 +13,7 @@ import { scaleLinear, scaleOrdinal } from "d3-scale";
 //     text: "another item",
 //   },
 // ];
-function Legend({ legendData }) {
+function Legend({ legendData, handleClick, colorScale }) {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
@@ -59,10 +58,12 @@ function Legend({ legendData }) {
     .domain([0, legendData.length])
     .range([coords.y.bottom, coords.y.top]);
 
-  var colorScale = scaleOrdinal(schemeCategory10);
-
   const labels = legendData.map((d, i) => (
-    <g key={d.key} transform={`translate(0,${yScale(i)})`}>
+    <g
+      key={d.key}
+      transform={`translate(0,${yScale(i)})`}
+      onClick={() => handleClick(d)}
+    >
       <circle r="10" fill={colorScale(d.key)} />
       <text x="20" fontSize="12">
         {d.text}

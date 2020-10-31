@@ -15,9 +15,7 @@ class LED:
 
     def start_fader(self):
         """Starts the RGB LED PWM fader cycle loop"""
-        print("start")
         _thread.start_new_thread(self._fade_loop, ())
-        print("after")
 
     def _interpolate_state(self, last_state, next_state):
         """Interpolates and returns a new state between the last and the next one"""
@@ -64,6 +62,7 @@ class LED:
         rgb_state = (0, 0, 0, 0)
         next_rgb_state = (ticks_ms(), 0, 0, 0)
         while True:
+            ticks_since_last = ticks_diff(ticks_ms(), rgb_state[0])
             ticks_remaining = ticks_diff(next_rgb_state[0], ticks_ms())
             # print(
             #     "next: {} now: {} remaining: {}".format(
@@ -79,7 +78,7 @@ class LED:
             r_pwm.duty(int(rgb_state[1] * 1023))
             g_pwm.duty(int(rgb_state[2] * 1023))
             b_pwm.duty(int(rgb_state[3] * 1023))
-            sleep_ms(50)
+            sleep_ms(max(10, 100 - ticks_since_last))
 
     def set_rgb_cycle(self, cycle, instant=False):
         """Sets the LED RGB cycle"""
