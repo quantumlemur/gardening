@@ -144,7 +144,7 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
         key={graphSeries.key}
         d={pathLine}
         stroke={colorScale(graphSeries.key)}
-        strokeWidth="2"
+        strokeWidth={graphSeries.highlight ? "8" : "2"}
         className="line"
         fill="none"
       />

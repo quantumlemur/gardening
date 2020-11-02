@@ -32,9 +32,11 @@ class Config:
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
-        "server_url": "http://nuc/device",
+        "server_url": "http://192.168.86.20:5000/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
+        "github_url": "https://raw.githubusercontent.com/quantumlemur/gardening/19bf0c6bcb7e13b29e65a1ca163f1393b99c61b7/api/auth.py",
+        "github_token": "fec0ca29254694a0496317d96710a560f178c847",
     }
 
     def __init__(self):

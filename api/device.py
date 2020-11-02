@@ -166,6 +166,11 @@ def listfiles():
     return jsonify(file_list)
 
 
+@bp.route("/getfile/<path:filename>", methods=("GET", "POST"))
+def getfile(filename):
+    return send_from_directory(current_app.config["NODEMCU_FILE_PATH"], filename)
+
+
 @bp.route("/getfile_python/<path:filename>", methods=("GET", "POST"))
 def getfile_python(filename):
     return send_from_directory(current_app.config["MICROPYTHON_FILE_PATH"], filename)
@@ -181,9 +186,19 @@ def listfiles_python():
     return jsonify(file_list)
 
 
-@bp.route("/getfile/<path:filename>", methods=("GET", "POST"))
-def getfile(filename):
-    return send_from_directory(current_app.config["NODEMCU_FILE_PATH"], filename)
+@bp.route("/getfile_python_v2/<path:filename>", methods=("GET", "POST"))
+def getfile_python_v2(filename):
+    return send_from_directory("../firmware/main", filename)
+
+
+@bp.route("/listfiles_python_v2", methods=("GET", "POST"))
+def listfiles_python_v2():
+    file_list = []
+    with scandir("firmware/main") as files:
+        for f in files:
+            if f.is_file() and (f.name[-3:] == ".py" or f.name[-4:] == ".cfg"):
+                file_list.append([f.name, sha256_file("firmware/main/" + f.name)])
+    return jsonify(file_list)
 
 
 @bp.route("/status", methods=("GET", "POST"))

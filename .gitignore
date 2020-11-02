@@ -1,4 +1,6 @@
 node_modules/
+firmware/xtensa-esp32-elf*
+micropython/
 
 .DS_Store
 ._.DS_Store

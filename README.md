@@ -18,7 +18,7 @@ sudo apt-get update && sudo apt-get install yarn
 ### Download code, create python venv, initialize db, install yarn packages:
 
 ```bash
-git clone git@github.com:quantumlemur/gardening.git
+git clone --recursive git@github.com:quantumlemur/gardening.git
 cd gardening
 
 python3 -m venv venv
@@ -29,6 +29,32 @@ flask init-db
 
 yarn install
 ```
+
+### Firmware development
+
+Download the latest xtensa toolchain from https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/api-guides/tools/idf-tools.html
+At the time of writing, the latest version was: https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz
+
+```bash
+cd firmware
+wget https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz
+tar -xzf xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz
+```
+
+Note: update-firmware.sh sets the xtensa path as an environment variable. You should set it manually (or add to \$PATH in .bashrc) if you'd like to manually build.
+
+### Micropython build setup
+
+Build cross-compiler support:
+
+```bash
+cd micropython
+make -C mpy-cross
+```
+
+`git submodule update --init --recursive`
+
+curl --header 'Authorization: token fec0ca29254694a0496317d96710a560f178c847' --header 'Accept: application/vnd.github.v3.raw' --remote-name --location https://api.github.com/repos/quantumlemur/gardening/contents/api/static/application.bin
 
 ## Device side
 
@@ -273,7 +299,6 @@ Micropython: https://github.com/micropython/micropython/wiki/Getting-Started
 https://lemariva.com/blog/2019/08/micropython-vsc-ide-intellisense
 https://lemariva.com/blog/2018/12/micropython-visual-studio-code-as-ide
 https://blog.horan.hk/micropythonesp32.html
-
 
 18:00 esp32 ] export ESPIDF=/home/mike/gardening/micropython/firmware/esp-idf
 18:00 esp32 ] export PATH=/home/mike/gardening/micropython/firmware/xtensa-esp32-elf/bin:/home/mike/gardening/venv/bin:/home/mike/.local/bin:/home/mike/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/mike/phone/android-sdk-linux/platform-tools

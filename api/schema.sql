@@ -26,6 +26,7 @@ CREATE TABLE device_config (
   MAX_ENTRYS_WITHOUT_INIT INTEGER NOT NULL DEFAULT 3,
   LIGHT INTEGER NOT NULL DEFAULT 1,
   board_id INTEGER NOT NULL DEFAULT 1,
+  requested_version_hash TEXT,
   FOREIGN KEY(device_id) REFERENCES devices(id),
   FOREIGN KEY(board_id) REFERENCES board_types(board_id)
 );
@@ -38,6 +39,9 @@ CREATE TABLE device_status (
   device_next_init INTEGER,
   voltage INTEGER, -- not used
   log TEXT, -- not used
+  update_status TEXT,
+  last_update_time INTEGER,
+  current_version_hash TEXT,
   FOREIGN KEY(device_id) REFERENCES devices(id)
 );
 
