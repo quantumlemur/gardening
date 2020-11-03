@@ -59,25 +59,6 @@ class OTAUpdater:
         }
         return headers
 
-    def get_available_versions_github(self):
-        print("Getting list of available versions..")
-        url = "https://api.github.com/repos/quantumlemur/gardening/releases"
-        headers = {
-            "Authorization": "token fec0ca29254694a0496317d96710a560f178c847",
-            "Accept": "application/vnd.github.v3.raw",
-            "User-Agent": "gardening-esp32",
-        }
-        request = urequests.get(url=url, headers=headers)
-        release_info = request.json()
-        request.close()
-        tag_name = release_info[0]["tag_name"]
-        for asset in release_info[0]["assets"]:
-            if asset["name"] == "application.bin":
-                asset_id = asset["id"]
-                size = asset["size"]
-        print("Version {} found.".format(tag_name))
-        return tag_name, asset_id, size
-
     def get_available_versions(self):
         url = "{}/list_versions".format(self.config.get("server_url"))
         headers = {"mac": str(self.config.get("mac"))}
