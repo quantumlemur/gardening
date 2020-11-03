@@ -3,7 +3,7 @@ from machine import DEEPSLEEP_RESET, reset_cause
 from time import time
 
 
-from boot import config, otaUpdater, wifi
+from boot import *
 from currentVersionInfo import currentCommitHash, currentCommitTag
 
 
