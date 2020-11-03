@@ -1,14 +1,34 @@
 from boot import config, otaUpdater, wifi
 
-config = config.Config()
 
-config.test()
+def printBootInfo():
+    print("==============================")
+    print("Time: {}".format(time()))
+    part = Partition(Partition.RUNNING)
+    print(part.info())
+    from currentCommitHash import currentCommitHash, currentCommitTag
 
-wifiConnection = wifi.WifiConnection(config)
-wifiConnection.connect_wifi()
+    print(
+        "Current version: {}.  Commit hash: {}".format(
+            currentCommitTag, currentCommitHash
+        )
+    )
+    print("==============================")
 
-ota = otaUpdater.OTAUpdater(config)
-ota.checkAndUpdate()
+
+if __name__ == "__main__":
+
+    printBootInfo()
+
+    config = config.Config()
+
+    config.test()
+
+    wifiConnection = wifi.WifiConnection(config)
+    wifiConnection.connect_wifi()
+
+    ota = otaUpdater.OTAUpdater(config)
+    ota.checkAndUpdate()
 
 # set defaults
 #
