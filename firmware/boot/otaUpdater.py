@@ -72,7 +72,8 @@ class OTAUpdater:
             version = self.get_available_versions()[0]
 
         filename = version["filename"]
-        self.firmwareSize = version["size"]
+        bytesExpected = version["size"]
+        self.firmwareSize = bytesExpected
 
         print("Downloading new firmware {}".format(filename))
 
@@ -101,30 +102,22 @@ class OTAUpdater:
             self.nextPartition.ioctl(6, 0)  # Erase first block
 
             blockNum = 0
-            buf = b""
-            chunk = request.raw.read(4096)
-            while len(chunk) > 0:
-                buf += chunk
-
-                while len(buf) >= self.blockSize:
-
-                    # Write out a block once we have enough data
-                    print(
-                        "Writing block {} of {}.  Buffer length: {}".format(
-                            blockNum, expectedBlocks, len(buf)
-                        ),
-                        end="\r",
-                    )
-                    self.nextPartition.ioctl(6, blockNum)  # Erase block
-                    blockToWrite = buf[: self.blockSize]
-                    self.nextPartition.writeblocks(blockNum, blockToWrite, 0)
-                    self.hash.update(blockToWrite)
-                    if blockNum == 0:
-                        self.hashStart.update(blockToWrite)
-                    blockNum += 1
-                    buf = buf[self.blockSize :]
-
+            bytesRead = 0
+            while bytesRead > bytesExpected:
                 chunk = request.raw.read(4096)
+
+                print(
+                    "Writing block {} of {}.  Buffer length: {}".format(
+                        blockNum, expectedBlocks, len(buf)
+                    ),
+                    end="\r",
+                )
+                self.nextPartition.ioctl(6, blockNum)  # Erase block
+                self.nextPartition.writeblocks(blockNum, chunk, 0)
+                self.hash.update(chunk)
+
+                blockNum += 1
+                bytesRead += len(chunk)
 
             print("")
 

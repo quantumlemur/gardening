@@ -3,7 +3,7 @@ from machine import DEEPSLEEP_RESET, reset_cause
 from time import time
 
 
-from boot import *
+from boot import printBootInfo
 from currentVersionInfo import currentCommitHash, currentCommitTag
 
 
