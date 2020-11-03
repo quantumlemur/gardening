@@ -12,7 +12,7 @@ cd firmware/micropython/ports/esp32
 
 
 echo "currentCommitHash = \"$HASH\"
-currentCommitTag = \"$TAG\"" > modules/currentCommitHash.py
+currentCommitTag = \"$TAG\"" > modules/currentVersionInfo.py
 
 
 make

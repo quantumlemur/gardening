@@ -121,19 +121,40 @@ def update_checkin(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         db = get_db()
+        mac = request.headers["mac"]
         device_id = db.execute(
-            "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
+            "SELECT id FROM devices WHERE mac = ?", (mac,)
         ).fetchone()
         if device_id is not None:
+            device_id = device_id[0]
+            # Update check-in time
             db.execute(
                 """UPDATE device_status
 				SET
 					checkin_time = ?,
-					device_next_init = ?
 				WHERE
 					device_id = ?""",
-                (int(time()), request.headers["device_next_init"], device_id[0]),
+                (int(time()), device_id),
             )
+            # Iterate through the other optional parameters
+            optional_params = [
+                "current_version_hash",
+                "current_version_tag",
+                "device_next_init",
+                "device_time",
+            ]
+            for param in optional_params:
+                if param in request.headers:
+                    db.execute(
+                        """UPDATE device_status
+                        SET
+                            {} = ?,
+                        WHERE
+                            device_id = ?""".format(
+                            param
+                        ),
+                        (request.headers[param], device_id),
+                    )
             db.commit()
         return view(**kwargs)
 
@@ -208,7 +229,7 @@ def list_versions():
         for f in files:
             if f.is_file() and f.name[-4:] == ".bin":
                 file_list.append(
-                {
+                    {
                         "filename": f.name,
                         "sha256": sha256_file("firmware/versions/{}".format(f.name)),
                         "size": path.getsize("firmware/versions/{}".format(f.name)),
@@ -218,7 +239,24 @@ def list_versions():
 
 
 @bp.route("/get_firmware/<path:filename>", methods=("GET", "POST"))
-def getfile_firmware(filename):
+@registration_required
+@update_checkin
+def get_firmware(filename):
+    db = get_db()
+    mac = request.headers["mac"]
+    db.execute(
+        """
+        UPDATE
+            device_status
+        SET
+            last_update_attempt_time=?,
+            last_update_attempt_tag=?
+        WHERE
+            mac=?
+        JOIN devices ON devices.id=device_status.device_id""",
+        (int(time()), filename[:-4], mac),
+    )
+    db.commit()
     return send_from_directory("../firmware/versions", filename)
 
 

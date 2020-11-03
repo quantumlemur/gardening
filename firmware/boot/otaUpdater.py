@@ -24,7 +24,7 @@ class OTAUpdater:
         version = versions[0]
         currentCommitTag = "0"
         try:
-            from currentCommitHash import currentCommitTag
+            from currentVersionInfo import currentCommitTag
         except ImportError:
             pass
 
@@ -35,7 +35,7 @@ class OTAUpdater:
             )
             self.updateFirmware(version)
             self.setNextBoot()
-            print('Download successful.  Restarting...')
+            print("Download successful.  Restarting...")
             reset()
 
     def eraseNextPartition(self):

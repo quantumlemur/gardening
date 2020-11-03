@@ -13,6 +13,14 @@ def now():
     return time() + 946684800
 
 
+currentCommitTag = ""
+currentCommitHash = ""
+try:
+    from currentVersionInfo import currentCommitTag, currentCommitHash
+except ImportError:
+    pass
+
+
 class Config:
     wdt = WDT(timeout=120000)  # milliseconds
 
@@ -35,8 +43,9 @@ class Config:
         "server_url": "http://192.168.86.20:5000/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
-        "github_url": "https://raw.githubusercontent.com/quantumlemur/gardening/19bf0c6bcb7e13b29e65a1ca163f1393b99c61b7/api/auth.py",
-        "github_token": "fec0ca29254694a0496317d96710a560f178c847",
+        "requested_version_tag": "",
+        "current_commit_tag": currentCommitTag,
+        "current_commit_hash": currentCommitHash,
     }
 
     def __init__(self):
@@ -57,6 +66,8 @@ class Config:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
+        self.config["current_commit_tag"] = currentCommitTag
+        self.config["current_commit_hash"] = currentCommitHash
         self.save()
 
     def save(self):
@@ -80,7 +91,9 @@ class Config:
         print("Checking for server config updates from {}".format(url))
         headers = {
             "mac": str(self.config["mac"]),
-            "device-next-init": str(self.config["next_init_expected"]),
+            "device_next_init": str(self.config["next_init_expected"]),
+            "current_commit_tag": str(self.config["current_commit_tag"]),
+            "current_commit_hash": str(self.config["current_commit_hash"]),
             "Content-Type": "application/json",
         }
         request = get(url=url, headers=headers)

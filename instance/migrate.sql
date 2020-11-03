@@ -189,10 +189,12 @@
 -- Add OTA update info
 --------------------------------------
 
-ALTER TABLE device_status ADD COLUMN update_status TEXT;
-ALTER TABLE device_status ADD COLUMN last_update_time INTEGER;
-ALTER TABLE device_status ADD COLUMN current_version_hash TEXT;
-ALTER TABLE device_config ADD COLUMN requested_version_hash TEXT;
+-- ALTER TABLE device_status ADD COLUMN update_status TEXT;
+ALTER TABLE device_status ADD COLUMN last_update_attempt_time;
+ALTER TABLE device_status ADD COLUMN last_update_attempt_tag;
+ALTER TABLE device_status ADD COLUMN current_version_tag;
+ALTER TABLE device_status ADD COLUMN current_version_hash;
+ALTER TABLE device_config ADD COLUMN requested_version_tag TEXT DEFAULT "";
 
 
 
