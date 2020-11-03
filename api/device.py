@@ -131,7 +131,7 @@ def update_checkin(view):
             db.execute(
                 """UPDATE device_status
 				SET
-					checkin_time = ?,
+					checkin_time = ?
 				WHERE
 					device_id = ?""",
                 (int(time()), device_id),
@@ -148,7 +148,7 @@ def update_checkin(view):
                     db.execute(
                         """UPDATE device_status
                         SET
-                            {} = ?,
+                            {} = ?
                         WHERE
                             device_id = ?""".format(
                             param

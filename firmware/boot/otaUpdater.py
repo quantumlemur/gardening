@@ -80,7 +80,8 @@ class OTAUpdater:
 
     def get_available_versions(self):
         url = "{}/list_versions".format(self.config.get("server_url"))
-        request = urequests.get(url=url)
+        headers = {"mac": str(self.config.get("mac"))}
+        request = urequests.get(url=url, headers=headers)
         versions = request.json()
         request.close()
         return versions
