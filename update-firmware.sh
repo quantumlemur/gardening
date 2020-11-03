@@ -5,15 +5,17 @@
 export ESPIDF=/home/mike/gardening/firmware/esp-idf
 export PATH=/home/mike/gardening/firmware/xtensa-esp32-elf/bin:$PATH
 
+HASH=$(git rev-parse HEAD)
+TAG=$(git describe --tags)
+
 cd firmware/micropython/ports/esp32
 
 
-echo "class CurrentCommitHash:
-    currentCommitHash = \"$(git rev-parse HEAD)\"
-    currentCommitTag = \"$(git describe --tags)\"" > modules/currentCommitHash.py
+echo "currentCommitHash = \"$HASH\"
+currentCommitTag = \"$TAG\"" > modules/currentCommitHash.py
 
 
 make
 
-cp build-GENERIC_OTA/application.bin ../../../../api/static/
+cp build-GENERIC_OTA/application.bin ../../../versions/$HASH.bin
     

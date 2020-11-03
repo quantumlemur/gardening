@@ -5,6 +5,7 @@ from time import time
 from ubinascii import hexlify
 from uhashlib import sha256
 
+
 criticalFiles = [
     "main.py",
     "wifi.py",

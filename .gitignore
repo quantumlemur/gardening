@@ -1,5 +1,6 @@
 node_modules/
 firmware/xtensa-esp32-elf*
+firmware/versions/
 micropython/
 
 .DS_Store

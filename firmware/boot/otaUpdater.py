@@ -1,20 +1,42 @@
 from esp32 import Partition
 from math import ceil, floor
 from os import remove
-import socket
 from ubinascii import hexlify
 from uhashlib import sha256
+import ujson
+from machine import reset
 
+import urequests
 
 
 class OTAUpdater:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.nextPartition = Partition(Partition.RUNNING).get_next_update()
         self.numBlocks = self.nextPartition.ioctl(4, None)
         self.blockSize = self.nextPartition.ioctl(5, None)
         self.hash = sha256()
         self.hashStart = sha256()
         self.firmwareSize = 1427840
+
+    def checkAndUpdate(self):
+        versions = self.get_available_versions()
+        version = versions[0]
+        currentCommitTag = "0"
+        try:
+            from currentCommitHash import currentCommitTag
+        except ImportError:
+            pass
+
+        newCommitTag = version["filename"][:-4]
+        if newCommitTag > currentCommitTag:
+            print(
+                "New firmware found!  {} => {}".format(currentCommitTag, newCommitTag)
+            )
+            self.updateFirmware(version)
+            self.setNextBoot()
+            print('Download successful.  Restarting...')
+            reset()
 
     def eraseNextPartition(self):
         print("Erasing partition...")
@@ -37,37 +59,50 @@ class OTAUpdater:
         }
         return headers
 
-    def updateFirmware(self):
-        print("Downloading new firmware")
-        addr = (b"192.168.86.20", 5000)
-        s = socket.socket()
-        s.settimeout(10)
-        s.connect(addr)
-        request = b"GET /static/application.bin HTTP/1.0\r\nHost: 192.168.86.20\r\n\r\n"
-        s.send(request)
+    def get_available_versions_github(self):
+        print("Getting list of available versions..")
+        url = "https://api.github.com/repos/quantumlemur/gardening/releases"
+        headers = {
+            "Authorization": "token fec0ca29254694a0496317d96710a560f178c847",
+            "Accept": "application/vnd.github.v3.raw",
+            "User-Agent": "gardening-esp32",
+        }
+        request = urequests.get(url=url, headers=headers)
+        release_info = request.json()
+        request.close()
+        tag_name = release_info[0]["tag_name"]
+        for asset in release_info[0]["assets"]:
+            if asset["name"] == "application.bin":
+                asset_id = asset["id"]
+                size = asset["size"]
+        print("Version {} found.".format(tag_name))
+        return tag_name, asset_id, size
 
-        response = s.recv(4096)
-        if response == b"HTTP/1.0 200 OK\r\n":
-            headerBuf = b""
+    def get_available_versions(self):
+        url = "{}/list_versions".format(self.config.get("server_url"))
+        request = urequests.get(url=url)
+        versions = request.json()
+        request.close()
+        return versions
 
-            chunk = s.recv(4096)
-            while chunk.find(b"\xe9") == -1:
-                headerBuf += chunk
+    def updateFirmware(self, version=None):
+        if not version:
+            version = self.get_available_versions()[0]
 
-                # loop and discard data until we get a chunk that includes the magic start byte
-                # to indicate the start of the firmware image
-                chunk = s.recv(4096)
-            headerBuf += chunk
+        filename = version["filename"]
+        self.firmwareSize = version["size"]
 
-            # Parse headers
-            headerBuf = headerBuf[: headerBuf.find(b"\xe9")]
-            headers = self.parseHeaders(headerBuf)
-            bytesToDownload = int(headers["Content-Length"])
-            self.firmwareSize = bytesToDownload
-            expectedBlocks = ceil(bytesToDownload / self.blockSize)
+        print("Downloading new firmware {}".format(filename))
+
+        url = "{}/get_firmware/{}".format(self.config.get("server_url"), filename)
+        request = urequests.get(url=url)
+
+        if request.status_code == 200:
+
+            expectedBlocks = ceil(self.firmwareSize / self.blockSize)
 
             # discard the contents before the magic start byte
-            chunk = chunk[chunk.find(b"\xe9") :]
+            # chunk = chunk[chunk.find(b"\xe9") :]
 
             ##### Continuous writing
             # offset = 0
@@ -85,6 +120,7 @@ class OTAUpdater:
 
             blockNum = 0
             buf = b""
+            chunk = request.raw.read(4096)
             while len(chunk) > 0:
                 buf += chunk
 
@@ -106,7 +142,7 @@ class OTAUpdater:
                     blockNum += 1
                     buf = buf[self.blockSize :]
 
-                chunk = s.recv(4096)
+                chunk = request.raw.read(4096)
 
             print("")
 
@@ -134,14 +170,14 @@ class OTAUpdater:
 
             print(
                 "Firmware download+write finished.  Written {} of {} bytes.".format(
-                    bytesWritten, bytesToDownload
+                    bytesWritten, self.firmwareSize
                 )
             )
 
         else:
             print("Error from server")
 
-        s.close()
+        request.close()
 
     def verifyHash(self):
         # firstHash = sha256()
@@ -198,7 +234,10 @@ class OTAUpdater:
         success = self.verifyHash()
         if success:
             self.nextPartition.set_boot()
-            remove("__canary.py")
+            try:
+                remove("__canary.py")
+            except OSError:
+                pass
 
     # print("reading firmware file")
     # with open("firmware.bin", "r") as f:
@@ -210,7 +249,12 @@ class OTAUpdater:
 
 
 if __name__ == "__main__":
-    ota = OTAUpdater()
+    from config import Config
+
+    config = Config()
+    ota = OTAUpdater(config)
+    # print(ota.get_available_versions())
     # ota.eraseNextPartition()
-    ota.updateFirmware()
-    ota.setNextBoot()
+    ota.checkAndUpdate()
+    # ota.updateFirmware()
+    # ota.setNextBoot()

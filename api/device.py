@@ -3,7 +3,7 @@ from hashlib import md5, sha256
 
 from statistics import mean, stdev
 from time import time
-from os import scandir
+from os import path, scandir
 
 from flask import (
     Blueprint,
@@ -199,6 +199,27 @@ def listfiles_python_v2():
             if f.is_file() and (f.name[-3:] == ".py" or f.name[-4:] == ".cfg"):
                 file_list.append([f.name, sha256_file("firmware/main/" + f.name)])
     return jsonify(file_list)
+
+
+@bp.route("/list_versions", methods=("GET",))
+def list_versions():
+    file_list = []
+    with scandir("firmware/versions") as files:
+        for f in files:
+            if f.is_file() and f.name[-4:] == ".bin":
+                file_list.append(
+                {
+                        "filename": f.name,
+                        "sha256": sha256_file("firmware/versions/{}".format(f.name)),
+                        "size": path.getsize("firmware/versions/{}".format(f.name)),
+                    }
+                )
+    return jsonify(sorted(file_list, key=lambda x: x["filename"], reverse=True))
+
+
+@bp.route("/get_firmware/<path:filename>", methods=("GET", "POST"))
+def getfile_firmware(filename):
+    return send_from_directory("../firmware/versions", filename)
 
 
 @bp.route("/status", methods=("GET", "POST"))

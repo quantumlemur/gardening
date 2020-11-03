@@ -100,6 +100,11 @@ if doConnectWifi:
     config.updateFromServer()
     sleep(1)  # Why is this here?
 
+    from otaUpdater import OTAUpdater
+
+    ota = OTAUpdater(config)
+    ota.checkAndUpdate()
+
     updater = Updater(config)
     if updater.update_all_files():
         print("Updater found new files")
