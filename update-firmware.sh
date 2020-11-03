@@ -17,5 +17,5 @@ currentCommitTag = \"$TAG\"" > modules/currentCommitHash.py
 
 make
 
-cp build-GENERIC_OTA/application.bin ../../../versions/$HASH.bin
+cp build-GENERIC_OTA/application.bin ../../../versions/$TAG.bin
     
