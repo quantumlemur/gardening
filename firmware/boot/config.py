@@ -51,6 +51,9 @@ class Config:
     def __init__(self):
         self.load()
 
+    def test(self):
+        print("config test: {}".format(currentCommitTag))
+
     def load(self):
         """Loads config from disk"""
         if CONFIGFILE in listdir():
