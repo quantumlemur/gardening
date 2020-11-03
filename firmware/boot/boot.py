@@ -1,19 +1,17 @@
+from esp32 import Partition
+from machine import DEEPSLEEP_RESET, reset_cause
+from time import time
+
+
 from boot import config, otaUpdater, wifi
+from currentCommitHash import currentCommitHash, currentCommitTag
 
 
-def printBootInfo():
-    print("==============================")
-    print("Time: {}".format(time()))
-    part = Partition(Partition.RUNNING)
-    print(part.info())
-    from currentCommitHash import currentCommitHash, currentCommitTag
 
-    print(
-        "Current version: {}.  Commit hash: {}".format(
-            currentCommitTag, currentCommitHash
-        )
-    )
-    print("==============================")
+
+
+def shouldConnectWifi():
+    pass
 
 
 if __name__ == "__main__":
