@@ -4,10 +4,7 @@ from time import time
 
 
 from boot import config, otaUpdater, wifi
-from currentCommitHash import currentCommitHash, currentCommitTag
-
-
-
+from currentVersionInfo import currentCommitHash, currentCommitTag
 
 
 def shouldConnectWifi():
