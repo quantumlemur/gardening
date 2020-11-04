@@ -226,13 +226,14 @@ class OTAUpdater:
         return success
 
     def setNextBoot(self):
-        success = self.verifyHash()
-        if success:
-            self.nextPartition.set_boot()
-            try:
-                remove("__canary.py")
-            except OSError:
-                pass
+        self.nextPartition.set_boot()
+
+        # success = self.verifyHash()
+        # if success:
+        #     try:
+        #         remove("__canary.py")
+        #     except OSError:
+        #         pass
 
     # print("reading firmware file")
     # with open("firmware.bin", "r") as f:
