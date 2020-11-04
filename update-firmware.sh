@@ -1,9 +1,10 @@
 #!/bin/sh
+set -e
 
 . venv/bin/activate
 
-export ESPIDF=/home/mike/gardening/firmware/esp-idf
-export PATH=/home/mike/gardening/firmware/xtensa-esp32-elf/bin:$PATH
+export ESPIDF=$(pwd)/firmware/esp-idf
+export PATH=$(pwd)/firmware/xtensa-esp32-elf/bin:$PATH
 
 HASH=$(git rev-parse HEAD)
 TAG=$(git describe --tags)
