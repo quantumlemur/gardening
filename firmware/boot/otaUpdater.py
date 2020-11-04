@@ -126,7 +126,7 @@ class OTAUpdater:
 
             blockNum = 0
             bytesRead = 0
-            while bytesRead > bytesExpected:
+            while bytesRead < bytesExpected:
                 chunk = request.raw.read(4096)
                 if blockNum == 0:
                     print(chunk)
