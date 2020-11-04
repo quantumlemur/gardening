@@ -48,8 +48,8 @@ class Boot:
                         ota.setNextBoot()
                         if canaryFile in listdir():
                             remove(canaryFile)
-                            print("Firmware download successful.  Rebooting...")
-                            reset()
+                        print("Firmware download successful.  Rebooting...")
+                        reset()
 
             updater = updater.Updater(self.config)
             if updater.update_all_files():
