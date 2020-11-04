@@ -149,7 +149,7 @@ class OTAUpdater:
 
                 blockNum += 1
                 bytesRead += len(chunk)
-
+            print("")
             # Erase the remainder of the blocks
             for i in range(blockNum + 1, self.numBlocks):
                 print(
