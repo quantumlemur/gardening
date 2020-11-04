@@ -5,8 +5,9 @@ from ubinascii import hexlify
 from uhashlib import sha256
 import ujson
 from machine import reset
-
 import urequests
+
+from currentVersionInfo import currentCommitHash, currentCommitTag
 
 
 class OTAUpdater:
@@ -19,47 +20,47 @@ class OTAUpdater:
         self.hashStart = sha256()
         self.firmwareSize = 1427840
 
-    def checkAndUpdate(self):
-        versions = self.get_available_versions()
-        version = versions[0]
-        currentCommitTag = "0"
-        try:
-            from currentVersionInfo import currentCommitTag
-        except ImportError:
-            pass
+    # def checkAndUpdate(self):
+    #     versions = self.get_available_versions()
+    #     version = versions[0]
+    #     currentCommitTag = "0"
+    #     try:
+    #         from currentVersionInfo import currentCommitTag
+    #     except ImportError:
+    #         pass
 
-        newCommitTag = version["filename"][:-4]
-        if newCommitTag > currentCommitTag:
-            print(
-                "New firmware found!  {} => {}".format(currentCommitTag, newCommitTag)
-            )
-            self.updateFirmware(version)
-            self.setNextBoot()
-            print("Download successful.  Restarting...")
-            reset()
+    #     newCommitTag = version["filename"][:-4]
+    #     if newCommitTag > currentCommitTag:
+    #         print(
+    #             "New firmware found!  {} => {}".format(currentCommitTag, newCommitTag)
+    #         )
+    #         self.updateFirmware(version)
+    #         self.setNextBoot()
+    #         print("Download successful.  Restarting...")
+    #         reset()
 
-    def eraseNextPartition(self):
-        print("Erasing partition...")
-        for i in range(self.numBlocks):
-            print("erasing block {} of {}".format(i, self.numBlocks), end="\r")
-            self.nextPartition.ioctl(6, i)
-        print("Partition erased!")
+    # def eraseNextPartition(self):
+    #     print("Erasing partition...")
+    #     for i in range(self.numBlocks):
+    #         print("erasing block {} of {}".format(i, self.numBlocks), end="\r")
+    #         self.nextPartition.ioctl(6, i)
+    #     print("Partition erased!")
 
-    def parseHeaders(self, headerString):
-        """Parse header string and return dictionary of headers"""
-        headerStrings = headerString.split(b"\r\n")
-        headers = {
-            row.split(b":")[0]
-            .decode("utf-8")
-            .strip(): row.split(b":")[1]
-            .decode("utf-8")
-            .strip()
-            for row in headerStrings
-            if row.find(b":") != -1
-        }
-        return headers
+    # def parseHeaders(self, headerString):
+    #     """Parse header string and return dictionary of headers"""
+    #     headerStrings = headerString.split(b"\r\n")
+    #     headers = {
+    #         row.split(b":")[0]
+    #         .decode("utf-8")
+    #         .strip(): row.split(b":")[1]
+    #         .decode("utf-8")
+    #         .strip()
+    #         for row in headerStrings
+    #         if row.find(b":") != -1
+    #     }
+    #     return headers
 
-    def get_available_versions(self):
+    def getAvailableVersions(self):
         url = "{}/list_versions".format(self.config.get("server_url"))
         headers = {"mac": str(self.config.get("mac"))}
         request = urequests.get(url=url, headers=headers)
@@ -67,9 +68,31 @@ class OTAUpdater:
         request.close()
         return versions
 
+    def getDesiredVersion(self):
+        firmwareVersions = self.getAvailableVersions()
+        firmwareRequest = self.config.get("requested_version_tag")
+        chosenVersion = None
+        if len(firmwareRequest) > 0:
+            # if there's an existing request
+            for v in firmwareVersions:
+                tag = v["filename"][:-4]
+                if firmwareRequest == tag:
+                    chosenVersion = v
+        else:
+            # no existing request, get the latest
+            chosenVersion = sorted(
+                firmwareVersions, key=lambda x: x["filename"], reverse=True
+            )[0]
+            if chosenVersion["filename"][:-4] < currentCommitTag:
+                chosenVersion = None
+        if chosenVersion and chosenVersion["filename"][:-4] == currentCommitTag:
+            # don't try to update if we're already on the right version
+            chosenVersion = None
+        return chosenVersion
+
     def updateFirmware(self, version=None):
         if not version:
-            version = self.get_available_versions()[0]
+            version = self.getAvailableVersions()[0]
 
         filename = version["filename"]
         bytesExpected = version["size"]
@@ -82,7 +105,7 @@ class OTAUpdater:
 
         if request.status_code == 200:
 
-            expectedBlocks = ceil(self.firmwareSize / self.blockSize)
+            # expectedBlocks = ceil(self.firmwareSize / self.blockSize)
 
             # discard the contents before the magic start byte
             # chunk = chunk[chunk.find(b"\xe9") :]
@@ -105,10 +128,15 @@ class OTAUpdater:
             bytesRead = 0
             while bytesRead > bytesExpected:
                 chunk = request.raw.read(4096)
+                if len(chunk) == 0:
+                    # connection closed
+                    print("Download error!")
+                    request.close()
+                    return False
 
                 print(
-                    "Writing block {} of {}.  Buffer length: {}".format(
-                        blockNum, expectedBlocks, len(buf)
+                    "Writing block {} of {}.  {} of {} bytes written".format(
+                        blockNum, self.numBlocks, bytesRead, bytesExpected
                     ),
                     end="\r",
                 )
@@ -119,40 +147,29 @@ class OTAUpdater:
                 blockNum += 1
                 bytesRead += len(chunk)
 
-            print("")
-
-            # Write out the last bit of the buffer to a full block
-            # print(buf)
-            print("=======================================")
-            blockToWrite = bytearray(self.blockSize)
-            blockToWrite[: len(buf)] = buf
-            self.nextPartition.ioctl(6, blockNum)  # erase
-            self.nextPartition.writeblocks(blockNum, buf, 0)  # write
-            self.hash.update(buf)
-            bytesWritten = blockNum * self.blockSize + len(buf)
-
             # Erase the remainder of the blocks
-            # zeros = bytearray(self.blockSize)
             for i in range(blockNum + 1, self.numBlocks):
                 print(
-                    "Erasing remainder of flash... block {} of {}".format(
-                        i, self.numBlocks
+                    "Writing block {} of {}.  {} of {} bytes written".format(
+                        blockNum, self.numBlocks, bytesRead, bytesExpected
                     ),
                     end="\r",
                 )
                 self.nextPartition.ioctl(6, i)
-                # self.nextPartition.writeblocks(i, zeros, 0)
 
             print(
                 "Firmware download+write finished.  Written {} of {} bytes.".format(
-                    bytesWritten, self.firmwareSize
+                    bytesRead, self.firmwareSize
                 )
             )
 
         else:
             print("Error from server")
+            request.close()
+            return False
 
         request.close()
+        return True
 
     def verifyHash(self):
         # firstHash = sha256()

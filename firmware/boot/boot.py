@@ -1,11 +1,14 @@
 from esp32 import Partition
 from machine import DEEPSLEEP_RESET, reset_cause, Pin, Signal
-from os import listdir
+from os import listdir, remove
 from time import time
 
 
-from boot import config, otaUpdater, wifi
+from boot import config
 from currentVersionInfo import currentCommitHash, currentCommitTag
+
+
+## Add in error checking around all config values
 
 
 def now():
@@ -23,6 +26,7 @@ class Boot:
         self.printBootInfo()
 
         if self.shouldConnectWifi():
+            from boot import otaUpdater, updater, wifi
 
             wifiConnection = wifi.WifiConnection(self.config)
             wifiConnection.connect_wifi()
@@ -32,8 +36,18 @@ class Boot:
             self.config.updateFromServer()
 
             ota = otaUpdater.OTAUpdater(self.config)
-            # move the logic here as to whether to update, then delete the canary file, set update_in_progress, etc.
-            ota.checkAndUpdate()
+            desiredVersion = ota.getDesiredVersion()
+            if desiredVersion:
+                print(
+                    "New firmware found!  {} => {}".format(
+                        currentCommitTag, desiredVersion["filename"][:-4]
+                    )
+                )
+                if ota.updateFirmware(version=desiredVersion):
+                    if ota.verifyHash():
+                        ota.setNextBoot()
+                        if canaryFile in listdir():
+                            remove(canaryFile)
 
             updater = updater.Updater(self.config)
             if updater.update_all_files():
@@ -45,7 +59,7 @@ class Boot:
     def printBootInfo(self):
         print("==============================")
         print("Booting at time: {}".format(time()))
-        part = Partition(Partition.RUNNING).info()
+        part = Partition(Partition.RUNNING)
         print(part.info())
 
         print(
@@ -79,7 +93,8 @@ class Boot:
 
 
 if __name__ == "__main__":
-    Boot()
+    boot = Boot()
+    boot.main()
 
 # set defaults
 #

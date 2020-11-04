@@ -49,7 +49,7 @@ class Config:
         "current_commit_hash": currentCommitHash,
     }
 
-    def __init__(self, watchdogTimeout):
+    def __init__(self):
         self.load()
 
     def test(self):
