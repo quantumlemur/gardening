@@ -172,9 +172,9 @@ class MasterActions:
 
 if __name__ == "__main__":
 
-    from config import Config
+    from boot import config
 
-    config = Config()
+    config = config.Config()
 
     masterActions = MasterActions(config)
     masterActions.run()

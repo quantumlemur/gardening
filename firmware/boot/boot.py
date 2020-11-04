@@ -1,5 +1,5 @@
 from esp32 import Partition
-from machine import DEEPSLEEP_RESET, reset_cause, Pin, Signal
+from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal
 from os import listdir, remove
 from time import time
 
@@ -48,6 +48,8 @@ class Boot:
                         ota.setNextBoot()
                         if canaryFile in listdir():
                             remove(canaryFile)
+                            print("Firmware download successful.  Rebooting...")
+                            reset()
 
             updater = updater.Updater(self.config)
             if updater.update_all_files():
