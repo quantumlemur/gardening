@@ -39,6 +39,7 @@ class Config:
         "mac": str(hexlify(unique_id(), ":").decode()),
         "ledPin": 16,
         "runningWithoutError": False,
+        "firmware_update_in_progress": False,
         "sensorFile": "sensorfile",
         "server_url": "http://192.168.86.20:5000/device",
         "wifi_ssid": "julia&mike-guest",
@@ -48,7 +49,7 @@ class Config:
         "current_commit_hash": currentCommitHash,
     }
 
-    def __init__(self):
+    def __init__(self, watchdogTimeout):
         self.load()
 
     def test(self):
