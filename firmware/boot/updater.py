@@ -39,7 +39,7 @@ class Updater:
         url = "{}/getfile_python_v2/{}".format(self.config.get("server_url"), fname)
         request = get(url=url)
         if request.status_code == 200:
-            with open("{}.new".format(fname), "wb") as f:
+            with open(fname, "wb") as f:
                 f.write(request.content)
             print("Download successful: {}".format(fname))
 

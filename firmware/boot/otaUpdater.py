@@ -128,6 +128,8 @@ class OTAUpdater:
             bytesRead = 0
             while bytesRead > bytesExpected:
                 chunk = request.raw.read(4096)
+                if blockNum == 0:
+                    print(chunk)
                 if len(chunk) == 0:
                     # connection closed
                     print("Download error!")
