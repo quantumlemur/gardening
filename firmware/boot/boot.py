@@ -5,7 +5,7 @@ from time import time
 
 
 from boot import config
-from currentVersionInfo import currentCommitHash, currentCommitTag
+from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 ## Add in error checking around all config values
@@ -40,7 +40,7 @@ class Boot:
             if desiredVersion:
                 print(
                     "New firmware found!  {} => {}".format(
-                        currentCommitTag, desiredVersion["filename"][:-4]
+                        currentVersionTag, desiredVersion["filename"][:-4]
                     )
                 )
                 if ota.updateFirmware(version=desiredVersion):
@@ -66,7 +66,7 @@ class Boot:
 
         print(
             "Current version: {}.  Commit hash: {}".format(
-                currentCommitTag, currentCommitHash
+                currentVersionTag, currentVersionHash
             )
         )
         print("==============================")

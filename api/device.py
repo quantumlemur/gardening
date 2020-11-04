@@ -242,21 +242,22 @@ def list_versions():
 # @registration_required
 # @update_checkin
 def get_firmware(filename):
-    # db = get_db()
-    # mac = request.headers["mac"]
-    # db.execute(
-    #     """
-    #     UPDATE
-    #         device_status
-    #     SET
-    #         last_update_attempt_time=?,
-    #         last_update_attempt_tag=?
-    #     WHERE[]
-    #         mac=?
-    #     JOIN devices ON devices.id=device_status.device_id""",
-    #     (int(time()), filename[:-4], mac),
-    # )
-    # db.commit()
+    if "mac" in request.headers:
+        db = get_db()
+        mac = request.headers["mac"]
+        db.execute(
+            """
+            UPDATE
+                device_status
+            SET
+                last_update_attempt_time=?,
+                last_update_attempt_tag=?
+            WHERE[]
+                mac=?
+            JOIN devices ON devices.id=device_status.device_id""",
+            (int(time()), filename[:-4], mac),
+        )
+        db.commit()
     return send_from_directory("../firmware/versions", filename)
 
 

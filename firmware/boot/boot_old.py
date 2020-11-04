@@ -6,8 +6,6 @@ from ubinascii import hexlify
 from uhashlib import sha256
 
 
-
-
 criticalFiles = [
     "main.py",
     "wifi.py",
@@ -24,8 +22,13 @@ print("Time: {}".format(time()))
 part = Partition(Partition.RUNNING)
 print(part.info())
 try:
-    from currentCommitHash import currentCommitHash, currentCommitTag
-    print("Current version: {}.  Commit hash: {}".format(currentCommitTag, currentCommitHash))
+    from currentVersionHash import currentVersionHash, currentVersionTag
+
+    print(
+        "Current version: {}.  Commit hash: {}".format(
+            currentVersionTag, currentVersionHash
+        )
+    )
 except ImportError:
     pass
 print("==============================")

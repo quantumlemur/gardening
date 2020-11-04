@@ -12,8 +12,8 @@ TAG=$(git describe --tags)
 cd firmware/micropython/ports/esp32
 
 
-echo "currentCommitHash = \"$HASH\"
-currentCommitTag = \"$TAG\"" > modules/currentVersionInfo.py
+echo "currentVersionHash = \"$HASH\"
+currentVersionTag = \"$TAG\"" > modules/currentVersionInfo.py
 
 
 make

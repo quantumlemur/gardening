@@ -13,10 +13,10 @@ def now():
     return time() + 946684800
 
 
-currentCommitTag = ""
-currentCommitHash = ""
+currentVersionTag = ""
+currentVersionHash = ""
 try:
-    from currentVersionInfo import currentCommitTag, currentCommitHash
+    from currentVersionInfo import currentVersionTag, currentVersionHash
 except ImportError:
     pass
 
@@ -45,15 +45,15 @@ class Config:
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
         "requested_version_tag": "",
-        "current_commit_tag": currentCommitTag,
-        "current_commit_hash": currentCommitHash,
+        "current_commit_tag": currentVersionTag,
+        "current_commit_hash": currentVersionHash,
     }
 
     def __init__(self):
         self.load()
 
     def test(self):
-        print("config test: {}".format(currentCommitTag))
+        print("config test: {}".format(currentVersionTag))
 
     def load(self):
         """Loads config from disk"""
@@ -70,8 +70,8 @@ class Config:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
-        self.config["current_commit_tag"] = currentCommitTag
-        self.config["current_commit_hash"] = currentCommitHash
+        self.config["current_commit_tag"] = currentVersionTag
+        self.config["current_commit_hash"] = currentVersionHash
         self.save()
 
     def save(self):

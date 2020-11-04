@@ -7,7 +7,7 @@ import ujson
 from machine import reset
 import urequests
 
-from currentVersionInfo import currentCommitHash, currentCommitTag
+from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 class OTAUpdater:
@@ -23,16 +23,16 @@ class OTAUpdater:
     # def checkAndUpdate(self):
     #     versions = self.get_available_versions()
     #     version = versions[0]
-    #     currentCommitTag = "0"
+    #     currentVersionTag = "0"
     #     try:
-    #         from currentVersionInfo import currentCommitTag
+    #         from currentVersionInfo import currentVersionTag
     #     except ImportError:
     #         pass
 
     #     newCommitTag = version["filename"][:-4]
-    #     if newCommitTag > currentCommitTag:
+    #     if newCommitTag > currentVersionTag:
     #         print(
-    #             "New firmware found!  {} => {}".format(currentCommitTag, newCommitTag)
+    #             "New firmware found!  {} => {}".format(currentVersionTag, newCommitTag)
     #         )
     #         self.updateFirmware(version)
     #         self.setNextBoot()
@@ -83,9 +83,9 @@ class OTAUpdater:
             chosenVersion = sorted(
                 firmwareVersions, key=lambda x: x["filename"], reverse=True
             )[0]
-            if chosenVersion["filename"][:-4] < currentCommitTag:
+            if chosenVersion["filename"][:-4] < currentVersionTag:
                 chosenVersion = None
-        if chosenVersion and chosenVersion["filename"][:-4] == currentCommitTag:
+        if chosenVersion and chosenVersion["filename"][:-4] == currentVersionTag:
             # don't try to update if we're already on the right version
             chosenVersion = None
         return chosenVersion
@@ -101,7 +101,9 @@ class OTAUpdater:
         print("Downloading new firmware {}".format(filename))
 
         url = "{}/get_firmware/{}".format(self.config.get("server_url"), filename)
-        request = urequests.get(url=url)
+        headers = {"mac": str(self.config.get("mac"))}
+
+        request = urequests.get(url=url, headers=headers)
 
         if request.status_code == 200:
 
@@ -154,7 +156,7 @@ class OTAUpdater:
             for i in range(blockNum + 1, self.numBlocks):
                 print(
                     "Writing block {} of {}.  {} of {} bytes written".format(
-                        blockNum, self.numBlocks, bytesRead, bytesExpected
+                        i, self.numBlocks, bytesRead, bytesExpected
                     ),
                     end="\r",
                 )
