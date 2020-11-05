@@ -88,7 +88,9 @@ class OTAUpdater:
             stripRe = compile("((\d+[\.\-])+)")
             splitRe = compile("[\.\-]")
             strippedVersion = stripRe.search(currentVersionTag).group(0).strip("-.")
+            print("strippedVersion")
             splitVersion = splitRe.split(strippedVersion)
+            print(splitVersion)
             parsedVersion = [int(s) for s in splitVersion]
             print("split version:")
             print(chosenVersion["parsed_version"], parsedVersion)

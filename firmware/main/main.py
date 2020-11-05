@@ -25,10 +25,7 @@ class MasterActions:
     def __init__(self, config):
         self.config = config
         self.setPins()
-        print("=========================")
-        running = Partition(Partition.RUNNING)
-        print(running.info())
-        print("=========================")
+
 
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
