@@ -86,12 +86,13 @@ class Config:
         print("Checking for server config updates from {}".format(url))
         headers = {
             "mac": str(self.config["mac"]),
-            "device_next_init": str(self.config["next_init_expected"]),
-            "current_version_tag": str(currentVersionTag),
-            "current_version_hash": str(currentVersionHash),
-            "device_time": str(now()),
+            "device-next-init": str(self.config["next_init_expected"]),
+            "current-version-tag": str(currentVersionTag),
+            "current-version-hash": str(currentVersionHash),
+            "device-time": str(now()),
             "Content-Type": "application/json",
         }
+        print(headers)
         request = get(url=url, headers=headers)
         if request.status_code == 200:
             print("Server config update successful")
