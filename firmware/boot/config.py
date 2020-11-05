@@ -1,12 +1,14 @@
-from json import loads, dumps
-from time import time
 from ubinascii import hexlify
+import btree
+from ujson import loads, dumps
+from uos import listdir, remove
 from urequests import get
+from utime import time
 
-from os import listdir, remove
 from machine import unique_id, WDT
 
-CONFIGFILE = "config.json"
+
+DBFILE = "btree.db"
 
 
 def now():
@@ -19,31 +21,47 @@ from currentVersionInfo import currentVersionHash, currentVersionTag
 class Config:
     wdt = WDT(timeout=120000)  # milliseconds
 
-    config = {
-        "LAST_ENTRY_TIME": 0,
-        "LAST_INIT_TIME": 0,
-        "NEXT_INIT_TIME": 0,
-        "MAX_ENTRYS_WITHOUT_INIT": 2,
-        "ENTRYS_SINCE_INIT": 0,
-        "INIT_INTERVAL": 10,
-        "SLEEP_DURATION": 1,
-        "LIGHT": 1,
-        "DHT_PIN": 0,
-        "bootNum": 0,
-        "next_init_expected": 0,
-        "mac": str(hexlify(unique_id(), ":").decode()),
-        "ledPin": 16,
-        "runningWithoutError": False,
-        "firmware_update_in_progress": False,
-        "sensorFile": "sensorfile",
-        "server_url": "http://nuc/device",
-        "wifi_ssid": "julia&mike-guest",
-        "wifi_password": "welcometothebarnyard",
-        "requested_version_tag": "",
-    }
-
     def __init__(self):
-        self.load()
+        self.db = None
+        try:
+            f = open(DBFILE, "r+b")
+            self.db = btree.open(f)
+
+        except OSError:
+            print("{} not found.  Reinitializing database.".format(DBFILE))
+            f = open(DBFILE, "w+b")
+            self.db = btree.open(f)
+            self.reinitialize()
+
+        print(self.get("server_url"))
+
+    def reinitialize(self):
+        defaults = {
+            b"LAST_ENTRY_TIME": b"0",
+            b"LAST_INIT_TIME": b"0",
+            b"NEXT_INIT_TIME": b"0",
+            b"MAX_ENTRYS_WITHOUT_INIT": b"2",
+            b"ENTRYS_SINCE_INIT": b"0",
+            b"INIT_INTERVAL": b"10",
+            b"SLEEP_DURATION": b"1",
+            b"LIGHT": b"1",
+            b"DHT_PIN": b"0",
+            b"bootNum": b"0",
+            b"next_init_expected": b"0",
+            b"mac": str(hexlify(unique_id(), ":")),
+            b"ledPin": b"16",
+            b"runningWithoutError": b"false",
+            b"firmware_update_in_progress": b"false",
+            b"sensorFile": b'"sensorfile"',
+            b"server_url": b'"http://nuc/device"',
+            b"wifi_ssid": b'"julia&mike-guest"',
+            b"wifi_password": b'"welcometothebarnyard"',
+            b"requested_version_tag": b"null",
+        }
+        for key, value in defaults.items():
+            self.db[key] = value
+            print(key, self.db[key])
+        self.db.flush()
 
     def test(self):
         print("config test: {}".format(currentVersionTag))
@@ -66,19 +84,16 @@ class Config:
         self.save()
 
     def save(self):
-        with open(CONFIGFILE, "w") as f:
-            f.write(dumps(self.config))
+        self.db.flush()
 
-    def get(self, item):
-        if item in self.config:
-            return self.config[item]
+    def get(self, key):
+        if key in self.db:
+            return loads(self.db[key])
         else:
             return None
 
-    def put(self, item, value):
-        self.load()
-        self.config[item] = value
-        self.save()
+    def put(self, key, value):
+        self.db[key.encode()] = dumps(value).encode()
 
     def updateFromServer(self):
         self.calcNextInitExpected()

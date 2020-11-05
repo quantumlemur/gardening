@@ -1,8 +1,8 @@
+from uos import listdir, remove
+from utime import time
+
 from esp32 import Partition
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal
-from os import listdir, remove
-from time import time
-
 
 from boot import config
 from currentVersionInfo import currentVersionHash, currentVersionTag

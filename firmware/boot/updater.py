@@ -1,6 +1,6 @@
-from os import listdir
 from ubinascii import hexlify
 from uhashlib import sha256
+from uos import listdir
 from urequests import get
 
 
