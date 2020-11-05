@@ -85,10 +85,10 @@ class OTAUpdater:
             #  = sorted(
             #     firmwareVersions, key=lambda x: x["parsed_version"], reverse=True
             # )[0]
-            stripRe = compile("((\d+[\.\-])+)")
+            stripRe = compile("((\d+[\.\-]?)+)")
             splitRe = compile("[\.\-]")
             strippedVersion = stripRe.search(currentVersionTag).group(0).strip("-.")
-            print("strippedVersion")
+            print(strippedVersion)
             splitVersion = splitRe.split(strippedVersion)
             print(splitVersion)
             parsedVersion = [int(s) for s in splitVersion]
