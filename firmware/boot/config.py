@@ -88,12 +88,20 @@ class Config:
         self.db.flush()
 
     def get(self, key):
+        print("getting {} from {}".format(self.db[key.encode()], key))
         if key in self.db:
-            return loads(self.db[key])
+            return loads(self.db[key.encode()])
         else:
             return None
 
     def put(self, key, value):
+        res = dumps(value).encode()
+
+        print(
+            "putting {} {} in {} {}: {} {}.  encoded: {} {}".format(
+                type(value), value, type(key), key, type(res), res
+            )
+        )
         self.db[key.encode()] = dumps(value).encode()
 
     def updateFromServer(self):
