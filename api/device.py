@@ -278,7 +278,6 @@ def status():
     db.execute(
         "INSERT INTO device_status (voltage) VALUES (?)", (request.json.voltage,)
     )
-    print("{}".format(request.json.voltage))
     db.commit()
     return '{"status": "ok"}'
 
@@ -411,5 +410,4 @@ def config():
         """,
         (request.headers.get("mac"),),
     ).fetchone()
-    print(deviceConfig)
     return jsonify(deviceConfig)

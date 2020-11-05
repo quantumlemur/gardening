@@ -1,9 +1,9 @@
 from ubinascii import hexlify
 from uhashlib import sha256
 from uos import listdir
-from urequests import get
 
 from core.config import config
+from core.utilities import get
 
 
 # def md5_file(fname):
@@ -37,8 +37,8 @@ def update_all_files():
 
 def get_file(fname):
     print("Updating file {}".format(fname))
-    url = "{}/getfile_python_v2/{}".format(config.get("server_url"), fname)
-    request = get(url=url)
+    path = "getfile_python_v2/{}".format(fname)
+    request = get(path=path)
     if request.status_code == 200:
         with open(fname, "wb") as f:
             f.write(request.content)
@@ -46,8 +46,8 @@ def get_file(fname):
 
 
 def get_filelist():
-    url = "{}/listfiles_python_v2".format(config.get("server_url"))
-    request = get(url=url)
+    path = "listfiles_python_v2"
+    request = get(path=path)
     # request.close()
     return request.json()
 

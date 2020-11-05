@@ -14,21 +14,17 @@ DBFILE = "btree.db"
 
 from currentVersionInfo import currentVersionHash, currentVersionTag
 
-print("************* core config ran!")
-
 
 class Config:
     wdt = WDT(timeout=120000)  # milliseconds
 
     def __init__(self):
         """Opens the database, recreating it if necessary."""
-        print("************************************ Config init ran!")
         self._f = None
         self._db = None
         try:
             self._f = open(DBFILE, "r+b")
             self._db = btree.open(self._f)
-            self.reinitialize()  # remove this later
 
         except Exception as err:
             print("Database load error: {}.  Reinitializing database.".format(err))
@@ -52,8 +48,9 @@ class Config:
             "ledPin": 16,
             "runningWithoutError": False,
             "firmware_update_in_progress": False,
-            "sensorFile": "sensorfile",
             "requested_version_tag": None,
+            "name": "",
+            "device_id": None,
         }
         for key, value in defaults.items():
             self.put(key, value)
@@ -62,19 +59,19 @@ class Config:
         from core.credentials import credentials
 
         for key, value in credentials.items():
-            self.put(key, value)
-        self.save()
 
-    def save(self):
-        """Flushes the database to disk"""
-        self._db.flush()
+            self.put(key, value)
+        self.flush()
 
     def flush(self):
+        """Flushes the database to disk"""
         self._db.flush()
+        self._f.flush()
 
     def get(self, key, raw=False):
         """Gets a value from the database, optionally skipping json decoding"""
         if key in self._db:
+            # print("getting {}".format(key))
             # print("getting {} from {}".format(self._db[key.encode()], key))
             item = self._db[key.encode()]
             return item if raw else loads(item)
@@ -128,13 +125,28 @@ class Config:
                         print("New server URL failed validation.  Reverting.")
                         configFromServer["server_url"] = previousServerUrl
                 for key, value in configFromServer.items():
-                    if value != self.get(key):
+                    try:  # try to unpack json strings if they exist from the server
+                        value = loads(value)
+                    except (TypeError, ValueError) as e:
+                        pass
+
+                    if value != self.get(key):  # only update if the value is changed
+                        print("updating {} in config".format(key))
+                        print("old: ", self.get(key))
+                        print("new: ", value)
+
                         self.put(key, value)
                         dbChanged = True
 
         else:
             print("Error: server update fetch unsuccessful")
         return dbChanged
+
+    def wipe(self):
+        """Complete erase and reset of config"""
+        self.close()
+        remove(DBFILE)
+        self.__init__()
 
     def close(self):
         self.flush()

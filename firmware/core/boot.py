@@ -1,8 +1,9 @@
+from ubinascii import hexlify
 from uos import listdir, remove
 from utime import time
 
 from esp32 import Partition
-from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal
+from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, unique_id
 
 from core.config import config
 from currentVersionInfo import currentVersionHash, currentVersionTag
@@ -24,14 +25,20 @@ def main():
             print("Wifi connection failed.  Restarting...")
             config.close()
             reset()
-
-        config.put("LAST_INIT_TIME", now())
-        config.put(
-            "NEXT_INIT_TIME",
-            now() + config.get("INIT_INTERVAL"),
-        )
-        config.updateFromServer()
-        config.flush()
+        try:
+            config.put("LAST_INIT_TIME", now())
+            config.put(
+                "NEXT_INIT_TIME",
+                now() + config.get("INIT_INTERVAL"),
+            )
+            config.flush()
+        except Exception as e:
+            print("Error in boot.main(), updating init times: ", e)
+        try:
+            config.updateFromServer()
+            config.flush()
+        except Exception as e:
+            print("Error in boot.main(), pulling config updates from server: ", e)
 
         ota = otaUpdater.OTAUpdater()
         desiredVersion = ota.getDesiredVersion()
@@ -58,47 +65,68 @@ def main():
 
 
 def printBootInfo():
-    print("==============================")
-    print("Booting at time: {}".format(time()))
-    part = Partition(Partition.RUNNING)
-    print(part.info())
-
-    print(
-        "Current version: {}  Commit hash: {}".format(
-            currentVersionTag, currentVersionHash
+    try:
+        print("==============================")
+        part = Partition(Partition.RUNNING).info()[4]
+        print("Booting at time {} on partition {}".format(time(), part))
+        print(
+            "Current version: {}  Commit hash: {}".format(
+                currentVersionTag, currentVersionHash
+            )
         )
-    )
-    print("==============================")
+        print("Name: {}".format(config.get("name")))
+        print("Mac: {}".format(hexlify(unique_id(), ":").decode()))
+        print("Device_id: {}".format(config.get("device_id")))
+        print("==============================")
+    except Exception as e:
+        print("Error in boot.printBootInfo(): ", e)
 
 
 def setLED():
-    ledPin = config.get("BOARD_LED_PIN")
-    if ledPin and ledPin > 0:
-        invert = config.get("BOARD_LED_PIN_INVERT") == 1
-        on = config.get("LIGHT") == 1
+    try:
+        ledPin = config.get("BOARD_LED_PIN")
+        if ledPin and ledPin > 0:
+            invert = config.get("BOARD_LED_PIN_INVERT") == 1
+            on = config.get("LIGHT") == 1
 
-        board_led = Signal(ledPin, Pin.OUT, invert=invert)
-        if on:
-            print("turning on LED")
-            board_led.on()
-        else:
-            print("turning off LED")
-            board_led.off()
+            board_led = Signal(ledPin, Pin.OUT, invert=invert)
+            if on:
+                print("turning on LED")
+                board_led.on()
+            else:
+                print("turning off LED")
+                board_led.off()
+    except Exception as e:
+        print("Error in boot.setLED():", e)
 
 
 def shouldConnectWifi():
-    return (
-        reset_cause() != DEEPSLEEP_RESET
-        or config.get("bootNum") == 0
-        or now() >= config.get("NEXT_INIT_TIME")
-        or config.get("firmware_update_in_progress")
-        or not config.get("running_without_error")
-    )
+    try:
+        wifiReasons = {
+            "reset_cause != DEEPSLEEP_RESET": reset_cause() != DEEPSLEEP_RESET,
+            'config.get("bootNum") == 0': config.get("bootNum") == 0,
+            'now() >= config.get("NEXT_INIT_TIME")': now()
+            >= config.get("NEXT_INIT_TIME"),
+            'config.get("firmware_update_in_progress")': config.get(
+                "firmware_update_in_progress"
+            ),
+            'not config.get("runningWithoutError")': not config.get(
+                "runningWithoutError"
+            ),
+        }
+        shouldConnect = False
+        for reason, value in wifiReasons.items():
+            if value:
+                shouldConnect = True
+                print("Wifi reason: {}".format(reason))
+        return shouldConnect
+    except Exception as e:
+        print("Error in boot.shouldConnectWifi():", e)
+        return True
 
 
 if __name__ == "__main__":
     main()
-    config.close()
 
 # set defaults
 #

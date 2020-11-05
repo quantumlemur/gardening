@@ -9,9 +9,6 @@ import core.config
 from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
-print("******************core utilities ran!")
-
-
 def now():
     """Returns unix timestamp, correcting for esp32 epoch"""
     return time() + 946684800
@@ -43,7 +40,7 @@ def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):
         url = "{}/{}".format(url, path)
     # Build up default headers using live values
     fullHeaders = {
-        "mac": hexlify(unique_id(), ":"),
+        "mac": hexlify(unique_id(), ":").decode(),
         "device-next-init": str(nextInitExpected()),
         "current-version-tag": currentVersionTag,
         "current-version-hash": currentVersionHash,

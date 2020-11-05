@@ -1,13 +1,16 @@
-from machine import ADC, deepsleep, Pin, RTC, Signal
-from network import WLAN, STA_IF
-from time import sleep, time
+#
+from utime import sleep, time
 from esp32 import Partition
 from ujson import loads
 
-# file imports
+# 3rd party imports
+from machine import ADC, deepsleep, Pin, RTC, Signal
+from network import WLAN, STA_IF
+
+# Local file imports
 from core.config import config
 from core.utilities import now, isWifi
-import sensors
+from sensors import Sensors
 
 pinModes = {
     "OUT": Pin.OUT,
@@ -23,13 +26,12 @@ pinPulls = {
 
 
 def setPins():
-    print("Setting pins")
+    print("Setting pins...")
 
     pinSettings = config.get("PIN_SETTINGS")
-    print("pinsettings:", pinSettings)
     if pinSettings:
         for p in pinSettings:
-            print(p)
+            # print(p)
             pin = Pin(p["pin"], mode=pinModes[p["mode"]], pull=pinPulls[p["pull"]])
 
             if p["mode"] == "OUT":
@@ -67,7 +69,7 @@ def setPins():
 
 def holdPins():
     """Hold the pins before sleep to prevent current leakage"""
-    print("Holding pins")
+    print("Holding pins...")
 
     # First get the misc pins set in the config
     pinSettings = config.get("PIN_SETTINGS")
@@ -81,7 +83,7 @@ def holdPins():
 
     # Then hold all the collected pins
     for pin in pins:
-        print("Holding pin {}".format(pin))
+        # print("Holding pin {}".format(pin))
         Pin(pin, mode=Pin.IN, pull=Pin.PULL_HOLD)
 
 
@@ -143,17 +145,10 @@ def goToSleep(quickSleep=False):
 if __name__ == "__main__":
     setPins()
 
-    sensors.readAll()
+    with Sensors() as sensors:
+        sensors.readSensors()
 
-    if isWifi():
-        sensors.sendReadings()
-        # import test
-
-    # blinker = BlinkMessage()
-    # blinker.genericBlink()
-
-    # sensorReadPin = Pin(33, Pin.IN, None)
-    # adc = ADC(sensorReadPin)
-    # adc.atten(ADC.ATTN_11DB)
+        if isWifi():
+            sensors.sendReadings()
 
     goToSleep()
