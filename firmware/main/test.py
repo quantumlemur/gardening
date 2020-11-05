@@ -1,4 +1,12 @@
-from esp32 import Partition
+from ubinascii import hexlify
+from ujson import loads, dumps
 
-print("============")
-print(dir(Partition))
+from machine import unique_id, WDT
+
+
+mac = hexlify(unique_id(), ":")
+print(mac)
+j = dumps(mac)
+print(type(j), j)
+o = loads(j)
+print(type(o), o)

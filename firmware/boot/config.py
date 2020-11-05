@@ -49,7 +49,7 @@ class Config:
             b"DHT_PIN": b"0",
             b"bootNum": b"0",
             b"next_init_expected": b"0",
-            b"mac": str(hexlify(unique_id(), ":")),
+            b"mac": hexlify(unique_id(), ":"),
             b"ledPin": b"16",
             b"runningWithoutError": b"false",
             b"firmware_update_in_progress": b"false",
