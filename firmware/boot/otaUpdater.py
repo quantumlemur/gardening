@@ -6,6 +6,7 @@ from uhashlib import sha256
 import ujson
 from machine import reset
 import urequests
+from ure import split
 
 from currentVersionInfo import currentVersionHash, currentVersionTag
 
@@ -79,11 +80,14 @@ class OTAUpdater:
                 if firmwareRequest == tag:
                     chosenVersion = v
         else:
-            # no existing request, get the latest
-            chosenVersion = sorted(
-                firmwareVersions, key=lambda x: x["filename"], reverse=True
-            )[0]
-            if chosenVersion["filename"][:-4] < currentVersionTag:
+            # no existing request, get the latest.  List from server is pre-sorted
+            chosenVersion = firmwareVersions[0]
+            #  = sorted(
+            #     firmwareVersions, key=lambda x: x["parsed_version"], reverse=True
+            # )[0]
+            print("split version:")
+            print(split("[\.\-]", currentVersionTag.strip("v")))
+            if chosenVersion["parsed_version"] < split("[\.\-]", currentVersionTag.strip("v")):
                 chosenVersion = None
         if chosenVersion and chosenVersion["filename"][:-4] == currentVersionTag:
             # don't try to update if we're already on the right version

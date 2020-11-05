@@ -1,6 +1,6 @@
 import functools
 from hashlib import md5, sha256
-
+from re import split
 from statistics import mean, stdev
 from time import time
 from os import path, scandir
@@ -233,9 +233,10 @@ def list_versions():
                         "filename": f.name,
                         "sha256": sha256_file("firmware/versions/{}".format(f.name)),
                         "size": path.getsize("firmware/versions/{}".format(f.name)),
+                        "parsed_version": split("[\.\-]", f.name.strip("v")),
                     }
                 )
-    return jsonify(sorted(file_list, key=lambda x: x["filename"], reverse=True))
+    return jsonify(sorted(file_list, key=lambda x: x["parsed_version"], reverse=True))
 
 
 @bp.route("/get_firmware/<path:filename>", methods=("GET", "POST"))
@@ -244,7 +245,9 @@ def list_versions():
 def get_firmware(filename):
     if "mac" in request.headers:
         db = get_db()
-        mac = request.headers["mac"]
+        device_id = db.execute(
+            "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
+        ).fetchone()[0]
         db.execute(
             """
             UPDATE
@@ -252,10 +255,9 @@ def get_firmware(filename):
             SET
                 last_update_attempt_time=?,
                 last_update_attempt_tag=?
-            WHERE[]
-                mac=?
-            JOIN devices ON devices.id=device_status.device_id""",
-            (int(time()), filename[:-4], mac),
+            WHERE
+                device_id=?""",
+            (int(time()), filename[:-4], device_id),
         )
         db.commit()
     return send_from_directory("../firmware/versions", filename)
