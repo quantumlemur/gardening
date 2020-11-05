@@ -33,7 +33,7 @@ class Config:
             self.db = btree.open(f)
             self.reinitialize()
 
-        print(self.get("server_url"))
+        print("server_url: ", self.get("server_url"))
 
     def reinitialize(self):
         defaults = {
