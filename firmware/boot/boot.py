@@ -65,7 +65,7 @@ class Boot:
         print(part.info())
 
         print(
-            "Current version: {}.  Commit hash: {}".format(
+            "Current version: {}  Commit hash: {}".format(
                 currentVersionTag, currentVersionHash
             )
         )

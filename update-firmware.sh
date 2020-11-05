@@ -19,4 +19,6 @@ currentVersionTag = \"$TAG\"" > modules/currentVersionInfo.py
 make
 
 cp build-GENERIC_OTA/application.bin ../../../versions/$TAG.bin
+
+echo "Firmware written!  New version: $TAG"
     

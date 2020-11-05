@@ -232,6 +232,7 @@ def list_versions():
                 strippedVersion = pattern.search(f.name)
                 if strippedVersion:
                     splitVersion = split("\.|\-", strippedVersion.group(0).strip("-."))
+                    parsed_version = [int(s) for s in splitVersion]
 
                     file_list.append(
                         {
@@ -240,7 +241,7 @@ def list_versions():
                                 "firmware/versions/{}".format(f.name)
                             ),
                             "size": path.getsize("firmware/versions/{}".format(f.name)),
-                            "parsed_version": splitVersion,
+                            "parsed_version": parsed_version,
                         }
                     )
     return jsonify(sorted(file_list, key=lambda x: x["parsed_version"], reverse=True))

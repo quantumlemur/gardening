@@ -89,9 +89,10 @@ class OTAUpdater:
             splitRe = compile("[\.\-]")
             strippedVersion = stripRe.search(currentVersionTag).group(0).strip("-.")
             splitVersion = splitRe.split(strippedVersion)
+            parsedVersion = [int(s) for s in splitVersion]
             print("split version:")
-            print(splitVersion)
-            if chosenVersion["parsed_version"] < splitVersion:
+            print(chosenVersion["parsed_version"], parsedVersion)
+            if chosenVersion["parsed_version"] < parsedVersion:
                 chosenVersion = None
         if chosenVersion and chosenVersion["filename"][:-4] == currentVersionTag:
             # don't try to update if we're already on the right version
@@ -159,7 +160,7 @@ class OTAUpdater:
 
                 blockNum += 1
                 bytesRead += len(chunk)
-            print("")
+
             # Erase the remainder of the blocks
             for i in range(blockNum + 1, self.numBlocks):
                 print(
