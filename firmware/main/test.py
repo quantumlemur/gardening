@@ -1,12 +1,23 @@
-from ubinascii import hexlify
-from ujson import loads, dumps
-
-from machine import unique_id, WDT
+importCount = 0
+somevar = 0
 
 
-mac = hexlify(unique_id(), ":")
-print(mac)
-j = dumps(mac).encode()
-print(type(j), j)
-o = loads(j)
-print(type(o), o)
+class Test:
+    def __init__(self):
+        global importCount
+        print("test class just initialized, time number {}".format(importCount))
+        importCount += 1
+
+
+def do_something():
+    print("here we go")
+
+
+def modify():
+    global somevar
+    somevar += 1
+
+
+def output():
+    global somevar
+    return somevar

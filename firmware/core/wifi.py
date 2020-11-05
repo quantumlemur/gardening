@@ -1,13 +1,17 @@
+from ntptime import settime
+from utime import sleep, time
+from ubinascii import hexlify
+
 from machine import reset
 from network import STA_IF, WLAN
-from ntptime import settime
-from time import sleep, time
-from ubinascii import hexlify
+
+# from core.config import config
+
+import config
 
 
 class WifiConnection:
-    def __init__(self, config, led=None):
-        self.config = config
+    def __init__(self, led=None):
         self.led = led
         self.wifi = WLAN(STA_IF)
         # Try to store the mac if the config module is working
@@ -30,9 +34,7 @@ class WifiConnection:
         self.wifi.active(True)
         if not self.wifi.isconnected():
             print("Connecting to wifi...")
-            self.wifi.connect(
-                self.config.get("wifi_ssid"), self.config.get("wifi_password")
-            )
+            self.wifi.connect(config.get("wifi_ssid"), config.get("wifi_password"))
             wifiConnectStartTime = time()
             while not self.wifi.isconnected():
                 sleep(0.1)

@@ -4,36 +4,33 @@ from utime import time
 from esp32 import Partition
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal
 
-from boot import config
+from core.config import config
 from currentVersionInfo import currentVersionHash, currentVersionTag
+from core.utilities import now
 
 
 ## Add in error checking around all config values
-
-
-def now():
-    return time() + 946684800
-
 
 canaryFile = "__canary.py"
 
 
 class Boot:
-    def __init__(self):
-        self.config = config.Config()
-
     def main(self):
         self.printBootInfo()
 
         if self.shouldConnectWifi():
-            from boot import otaUpdater, updater, wifi
+            from core import otaUpdater, updater, wifi
 
-            wifiConnection = wifi.WifiConnection(self.config)
+            wifiConnection = wifi.WifiConnection()
             wifiConnection.connect_wifi()
 
-            self.config.put("LAST_INIT_TIME", now())
-            self.config.put("NEXT_INIT_TIME", now() + self.config.get("INIT_INTERVAL"))
-            self.config.updateFromServer()
+            config.put("LAST_INIT_TIME", now())
+            config.put(
+                "NEXT_INIT_TIME",
+                now() + config.get("INIT_INTERVAL"),
+            )
+            if config.updateFromServer():
+                config.flush()
 
             ota = otaUpdater.OTAUpdater(self.config)
             desiredVersion = ota.getDesiredVersion()
@@ -72,10 +69,10 @@ class Boot:
         print("==============================")
 
     def setLED(self):
-        ledPin = self.config.get("BOARD_LED_PIN")
+        ledPin = config.get("BOARD_LED_PIN")
         if ledPin and ledPin > 0:
-            invert = self.config.get("BOARD_LED_PIN_INVERT") == 1
-            on = self.config.get("LIGHT") == 1
+            invert = config.get("BOARD_LED_PIN_INVERT") == 1
+            on = config.get("LIGHT") == 1
 
             board_led = Signal(ledPin, Pin.OUT, invert=invert)
             if on:
@@ -88,9 +85,9 @@ class Boot:
     def shouldConnectWifi(self):
         return (
             reset_cause() != DEEPSLEEP_RESET
-            or self.config.get("bootNum") == 0
-            or now() >= self.config.get("NEXT_INIT_TIME")
-            or self.config.get("firmware_update_in_progress")
+            or config.get("bootNum") == 0
+            or now() >= config.get("NEXT_INIT_TIME")
+            or config.get("firmware_update_in_progress")
         )
 
 

@@ -4,7 +4,7 @@ from ujson import loads
 
 from machine import ADC, Pin
 
-from utilities import now, post
+from core.utilities import Utilities
 
 
 class Sensors:

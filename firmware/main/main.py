@@ -6,7 +6,6 @@ from ujson import loads
 
 # file imports
 from sensors import Sensors
-from utilities import now
 
 pinModes = {
     "OUT": Pin.OUT,
@@ -22,8 +21,9 @@ pinPulls = {
 
 
 class MasterActions:
-    def __init__(self, config):
+    def __init__(self, config, utilities):
         self.config = config
+        self.utilities = utilities
         self.setPins()
 
     def run(self):
@@ -107,7 +107,7 @@ class MasterActions:
         sleep_duration = max(
             min(
                 self.config.get("SLEEP_DURATION"),
-                self.config.get("NEXT_INIT_TIME") - now(),
+                self.config.get("NEXT_INIT_TIME") - self.utilities.now(),
             ),
             1,
         )
@@ -118,9 +118,9 @@ class MasterActions:
         )
         print(
             "Boot time {} of {}.  {} seconds until connection".format(
-                now(),
+                self.utilities.now(),
                 self.config.get("NEXT_INIT_TIME"),
-                self.config.get("NEXT_INIT_TIME") - now(),
+                self.config.get("NEXT_INIT_TIME") - self.utilities.now(),
             )
         )
 
@@ -130,7 +130,7 @@ class MasterActions:
                 "*** Connecting to wifi next boot, and not sleeping.  Reason: clock at 0"
             )
             sleep_duration = 1
-        elif now() + self.config.get("SLEEP_DURATION") >= self.config.get(
+        elif self.utilities.now() + self.config.get("SLEEP_DURATION") >= self.config.get(
             "NEXT_INIT_TIME"
         ):
             print(
@@ -163,9 +163,12 @@ class MasterActions:
 
 if __name__ == "__main__":
 
-    from boot import config
+    from core.config import Config
+    from core.utilities import Utilities
 
-    config = config.Config()
+    config = Config()
 
-    masterActions = MasterActions(config)
+    utilities = Utilities(config)
+
+    masterActions = MasterActions(config, utilities)
     masterActions.run()
