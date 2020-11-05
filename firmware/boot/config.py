@@ -26,6 +26,7 @@ class Config:
         try:
             f = open(DBFILE, "r+b")
             self.db = btree.open(f)
+            self.reinitialize()  # remove this later
 
         except OSError:
             print("{} not found.  Reinitializing database.".format(DBFILE))
