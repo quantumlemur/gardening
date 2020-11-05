@@ -1,6 +1,6 @@
 import functools
 from hashlib import md5, sha256
-from re import split
+from re import compile, match, split
 from statistics import mean, stdev
 from time import time
 from os import path, scandir
@@ -224,18 +224,25 @@ def listfiles_python_v2():
 
 @bp.route("/list_versions", methods=("GET",))
 def list_versions():
+    pattern = compile("((\d+[\.\-])+)")
     file_list = []
     with scandir("firmware/versions") as files:
         for f in files:
             if f.is_file() and f.name[-4:] == ".bin":
-                file_list.append(
-                    {
-                        "filename": f.name,
-                        "sha256": sha256_file("firmware/versions/{}".format(f.name)),
-                        "size": path.getsize("firmware/versions/{}".format(f.name)),
-                        "parsed_version": split("[\.\-]", f.name.strip("v")),
-                    }
-                )
+                strippedVersion = pattern.search(f.name)
+                if strippedVersion:
+                    splitVersion = split("\.|\-", strippedVersion.group(0).strip("-."))
+
+                    file_list.append(
+                        {
+                            "filename": f.name,
+                            "sha256": sha256_file(
+                                "firmware/versions/{}".format(f.name)
+                            ),
+                            "size": path.getsize("firmware/versions/{}".format(f.name)),
+                            "parsed_version": splitVersion,
+                        }
+                    )
     return jsonify(sorted(file_list, key=lambda x: x["parsed_version"], reverse=True))
 
 
