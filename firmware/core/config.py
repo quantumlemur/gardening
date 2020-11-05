@@ -2,7 +2,8 @@ from ubinascii import hexlify
 import btree
 from ujson import loads, dumps
 from uos import listdir, remove
-from urequests import get
+
+# from urequests import get
 from utime import time
 
 from machine import unique_id, WDT
@@ -12,6 +13,8 @@ DBFILE = "btree.db"
 
 
 from currentVersionInfo import currentVersionHash, currentVersionTag
+
+print("************* core config ran!")
 
 
 class Config:
@@ -69,18 +72,18 @@ class Config:
     def flush(self):
         self._db.flush()
 
-    def get(self, key):
-        """Gets a value from the database"""
+    def get(self, key, raw=False):
+        """Gets a value from the database, optionally skipping json decoding"""
         if key in self._db:
-            # print("getting {} from {}".format(self.db[key.encode()], key))
-            return loads(self._db[key.encode()])
+            # print("getting {} from {}".format(self._db[key.encode()], key))
+            item = self._db[key.encode()]
+            return item if raw else loads(item)
         else:
             return None
 
     def put(self, key, value):
         """Puts a value into the database.
         Returns: bool whether anything changed"""
-        # res = dumps(value).encode()
         # print("putting {} {} in {} {}".format(type(value), str(value), type(key), key))
         # res = dumps(value).encode()
         # print(
@@ -128,6 +131,7 @@ class Config:
                     if value != self.get(key):
                         self.put(key, value)
                         dbChanged = True
+
         else:
             print("Error: server update fetch unsuccessful")
         return dbChanged
@@ -136,6 +140,9 @@ class Config:
         self.flush()
         self._db.close()
         self._f.close()
+
+    def __del__(self):
+        self.close()
 
 
 # The persistent instance of config

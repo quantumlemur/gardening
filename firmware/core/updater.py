@@ -3,51 +3,53 @@ from uhashlib import sha256
 from uos import listdir
 from urequests import get
 
+from core.config import config
 
-class Updater:
-    def __init__(self, config):
-        self.config = config
 
-    # def md5_file(fname):
-    #     hash_md5 = md5()
-    #     with open(fname, "rb") as f:
-    #         for chunk in iter(lambda: f.read(4096), b""):
-    #             hash_md5.update(chunk)
-    #     return hash_md5.hexdigest()
+# def md5_file(fname):
+#     hash_md5 = md5()
+#     with open(fname, "rb") as f:
+#         for chunk in iter(lambda: f.read(4096), b""):
+#             hash_md5.update(chunk)
+#     return hash_md5.hexdigest()
 
-    def sha256_file(self, fname):
-        hash_sha256 = sha256()
-        with open(fname, "rb") as f:
+
+def sha256_file(fname):
+    hash_sha256 = sha256()
+    with open(fname, "rb") as f:
+        chunk = f.read(4096)
+        while chunk != b"":
+            hash_sha256.update(chunk)
             chunk = f.read(4096)
-            while chunk != b"":
-                hash_sha256.update(chunk)
-                chunk = f.read(4096)
-        return hexlify(hash_sha256.digest()).decode("utf-8")
+    return hexlify(hash_sha256.digest()).decode("utf-8")
 
-    def update_all_files(self):
-        filelist = self.get_filelist()
-        newFilesAvailable = False
-        for fname, hash in filelist:
-            device_filelist = listdir()
-            if fname not in device_filelist or hash != self.sha256_file(fname):
-                newFilesAvailable = True
-                self.get_file(fname)
-        return newFilesAvailable
 
-    def get_file(self, fname):
-        print("Updating file {}".format(fname))
-        url = "{}/getfile_python_v2/{}".format(self.config.get("server_url"), fname)
-        request = get(url=url)
-        if request.status_code == 200:
-            with open(fname, "wb") as f:
-                f.write(request.content)
-            print("Download successful: {}".format(fname))
+def update_all_files():
+    filelist = get_filelist()
+    newFilesAvailable = False
+    for fname, hash in filelist:
+        device_filelist = listdir()
+        if fname not in device_filelist or hash != sha256_file(fname):
+            newFilesAvailable = True
+            get_file(fname)
+    return newFilesAvailable
 
-    def get_filelist(self):
-        url = "{}/listfiles_python_v2".format(self.config.get("server_url"))
-        request = get(url=url)
-        # request.close()
-        return request.json()
+
+def get_file(fname):
+    print("Updating file {}".format(fname))
+    url = "{}/getfile_python_v2/{}".format(config.get("server_url"), fname)
+    request = get(url=url)
+    if request.status_code == 200:
+        with open(fname, "wb") as f:
+            f.write(request.content)
+        print("Download successful: {}".format(fname))
+
+
+def get_filelist():
+    url = "{}/listfiles_python_v2".format(config.get("server_url"))
+    request = get(url=url)
+    # request.close()
+    return request.json()
 
 
 if __name__ == "__main__":

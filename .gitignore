@@ -1,4 +1,5 @@
 node_modules/
+firmware/core/credentials.py
 firmware/xtensa-esp32-elf*
 firmware/versions/
 micropython/

@@ -5,8 +5,11 @@ from utime import time
 from machine import unique_id
 from network import WLAN, STA_IF
 
-from core.config import config
+import core.config
 from currentVersionInfo import currentVersionHash, currentVersionTag
+
+
+print("******************core utilities ran!")
 
 
 def now():
@@ -21,10 +24,11 @@ def isWifi():
 
 def nextInitExpected():
     """Calculates the next time we expect that the device will boot and connect to wifi."""
-    nextInitByTime = config.get("NEXT_INIT_TIME")
+    nextInitByTime = core.config.config.get("NEXT_INIT_TIME")
     nextInitByCount = now() + (
-        config.get("MAX_ENTRYS_WITHOUT_INIT") - config.get("bootNum")
-    ) * config.get("SLEEP_DURATION")
+        core.config.config.get("MAX_ENTRYS_WITHOUT_INIT")
+        - core.config.config.get("bootNum")
+    ) * core.config.config.get("SLEEP_DURATION")
     nextInitExpected = min(nextInitByTime, nextInitByCount)
     return nextInitExpected
 
@@ -34,13 +38,13 @@ def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):
     server if not specified."""
     # Set path defaults
     if not url:
-        url = config.get("server_url")
+        url = core.config.config.get("server_url")
     if path:
         url = "{}/{}".format(url, path)
     # Build up default headers using live values
     fullHeaders = {
         "mac": hexlify(unique_id(), ":"),
-        "device-next-init": str(self.nextInitExpected()),
+        "device-next-init": str(nextInitExpected()),
         "current-version-tag": currentVersionTag,
         "current-version-hash": currentVersionHash,
         "device-time": str(now()),

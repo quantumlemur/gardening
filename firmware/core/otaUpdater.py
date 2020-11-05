@@ -8,18 +8,17 @@ from machine import reset
 import urequests
 from ure import compile
 
+from core.config import config
 from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 class OTAUpdater:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         self.nextPartition = Partition(Partition.RUNNING).get_next_update()
         self.numBlocks = self.nextPartition.ioctl(4, None)
         self.blockSize = self.nextPartition.ioctl(5, None)
         self.hash = sha256()
-        self.hashStart = sha256()
-        self.firmwareSize = 1427840
+        self.firmwareSize = 0
 
     # def checkAndUpdate(self):
     #     versions = self.get_available_versions()
@@ -62,8 +61,8 @@ class OTAUpdater:
     #     return headers
 
     def getAvailableVersions(self):
-        url = "{}/list_versions".format(self.config.get("server_url"))
-        headers = {"mac": str(self.config.get("mac"))}
+        url = "{}/list_versions".format(config.get("server_url"))
+        headers = {"mac": str(config.get("mac"))}
         request = urequests.get(url=url, headers=headers)
         versions = request.json()
         request.close()
@@ -71,7 +70,7 @@ class OTAUpdater:
 
     def getDesiredVersion(self):
         firmwareVersions = self.getAvailableVersions()
-        firmwareRequest = self.config.get("requested_version_tag")
+        firmwareRequest = config.get("requested_version_tag")
         chosenVersion = None
         if len(firmwareRequest) > 0:
             # if there's an existing request
@@ -111,8 +110,8 @@ class OTAUpdater:
 
         print("Downloading new firmware {}".format(filename))
 
-        url = "{}/get_firmware/{}".format(self.config.get("server_url"), filename)
-        headers = {"mac": str(self.config.get("mac"))}
+        url = "{}/get_firmware/{}".format(config.get("server_url"), filename)
+        headers = {"mac": str(config.get("mac"))}
 
         request = urequests.get(url=url, headers=headers)
 
