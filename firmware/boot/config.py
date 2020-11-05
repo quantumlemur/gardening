@@ -98,11 +98,11 @@ class Config:
 
     def updateFromServer(self):
         self.calcNextInitExpected()
-        url = "{}/config".format(self.config["server_url"])
+        url = "{}/config".format(self.get("server_url"))
         print("Checking for server config updates from {}".format(url))
         headers = {
-            "mac": str(self.config["mac"]),
-            "device-next-init": str(self.config["next_init_expected"]),
+            "mac": str(self.get("mac")),
+            "device-next-init": str(self.get("next_init_expected")),
             "current-version-tag": str(currentVersionTag),
             "current-version-hash": str(currentVersionHash),
             "device-time": str(now()),
@@ -116,21 +116,23 @@ class Config:
             print(configFromServer)
             if configFromServer:
                 # Validate new server URL before storing it...
-                previousServerUrl = self.config["server_url"]
-                if self.config["server_url"] != configFromServer["server_url"]:
+                previousServerUrl = self.get("server_url")
+                if self.get("server_url") != configFromServer["server_url"]:
                     print("New server URL found.  Validating...")
                     newUrl = "{}/config".format(configFromServer["server_url"])
                     try:
                         request = get(url=newUrl, headers=headers)
                         if request.status_code == 200:
                             print("New server URL validated successfully.  Saving!")
+                            configFromServer = request.json()
                         else:
                             print("New server URL failed validation.  Reverting.")
                             configFromServer["server_url"] = previousServerUrl
                     except OSError:
                         print("New server URL failed validation.  Reverting.")
                         configFromServer["server_url"] = previousServerUrl
-                self.config.update(configFromServer)
+                for key, value in configFromServer.items():
+                    self.db.put(key, value)
                 self.save()
                 self.calcNextInitExpected()
             else:
@@ -140,12 +142,10 @@ class Config:
         # request.close()
 
     def calcNextInitExpected(self):
-        nextInitByTime = self.config["NEXT_INIT_TIME"]
-        nextInitByCount = (
-            now()
-            + (self.config["MAX_ENTRYS_WITHOUT_INIT"] - self.config["bootNum"])
-            * self.config["SLEEP_DURATION"]
-        )
+        nextInitByTime = self.get("NEXT_INIT_TIME")
+        nextInitByCount = now() + (
+            self.get("MAX_ENTRYS_WITHOUT_INIT") - self.get("bootNum")
+        ) * self.get("SLEEP_DURATION")
         nextInitExpected = min(nextInitByTime, nextInitByCount)
         self.put("next_init_expected", nextInitExpected)
 
