@@ -41,12 +41,12 @@ class Config:
         "runningWithoutError": False,
         "firmware_update_in_progress": False,
         "sensorFile": "sensorfile",
-        "server_url": "http://192.168.86.20:5000/device",
+        "server_url": "http://nuc/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
         "requested_version_tag": "",
-        "current_commit_tag": currentVersionTag,
-        "current_commit_hash": currentVersionHash,
+        "current_version_tag": currentVersionTag,
+        "current_version_hash": currentVersionHash,
     }
 
     def __init__(self):
@@ -70,8 +70,8 @@ class Config:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
-        self.config["current_commit_tag"] = currentVersionTag
-        self.config["current_commit_hash"] = currentVersionHash
+        self.config["current_version_tag"] = currentVersionTag
+        self.config["current_version_hash"] = currentVersionHash
         self.save()
 
     def save(self):
@@ -96,8 +96,8 @@ class Config:
         headers = {
             "mac": str(self.config["mac"]),
             "device_next_init": str(self.config["next_init_expected"]),
-            "current_commit_tag": str(self.config["current_commit_tag"]),
-            "current_commit_hash": str(self.config["current_commit_hash"]),
+            "current_version_tag": str(self.config["current_version_tag"]),
+            "current_version_hash": str(self.config["current_version_hash"]),
             "Content-Type": "application/json",
         }
         request = get(url=url, headers=headers)
