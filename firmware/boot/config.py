@@ -92,7 +92,6 @@ class Config:
             "device_time": str(now()),
             "Content-Type": "application/json",
         }
-        print(headers)
         request = get(url=url, headers=headers)
         if request.status_code == 200:
             print("Server config update successful")
