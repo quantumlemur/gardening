@@ -13,12 +13,7 @@ def now():
     return time() + 946684800
 
 
-currentVersionTag = ""
-currentVersionHash = ""
-try:
-    from currentVersionInfo import currentVersionTag, currentVersionHash
-except ImportError:
-    pass
+from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 class Config:
@@ -45,8 +40,6 @@ class Config:
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
         "requested_version_tag": "",
-        "current_version_tag": currentVersionTag,
-        "current_version_hash": currentVersionHash,
     }
 
     def __init__(self):
@@ -70,8 +63,6 @@ class Config:
             print("No config file found.  Saving defaults")
         # Reload the onboard config details
         self.config["mac"] = str(hexlify(unique_id(), ":").decode())
-        self.config["current_version_tag"] = currentVersionTag
-        self.config["current_version_hash"] = currentVersionHash
         self.save()
 
     def save(self):
@@ -96,8 +87,9 @@ class Config:
         headers = {
             "mac": str(self.config["mac"]),
             "device_next_init": str(self.config["next_init_expected"]),
-            "current_version_tag": str(self.config["current_version_tag"]),
-            "current_version_hash": str(self.config["current_version_hash"]),
+            "current_version_tag": currentVersionTag,
+            "current_version_hash": currentVersionHash,
+            "device_time": now(),
             "Content-Type": "application/json",
         }
         request = get(url=url, headers=headers)
