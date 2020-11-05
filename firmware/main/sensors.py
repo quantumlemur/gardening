@@ -51,7 +51,7 @@ def sendReadings(self):
         print("sensor file not found")
 
 
-class Sensor:
+class Sensors:
     # dhtPin = machine.Pin(22, mode=machine.Pin.IN)
     # moisturePin = machine.Pin(32, mode=machine.Pin.IN)
 

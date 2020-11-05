@@ -5,7 +5,7 @@ from esp32 import Partition
 from ujson import loads
 
 # file imports
-from sensor import sendReadings, Sensor
+from sensors import sendReadings, Sensors
 from utilities import now
 
 pinModes = {
@@ -26,7 +26,6 @@ class MasterActions:
         self.config = config
         self.setPins()
 
-
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
 
@@ -34,7 +33,7 @@ class MasterActions:
 
         for s in sensorList:
             print("Defining sensor on pin {}".format(s["pin"]))
-            sensor = Sensor(self.config, s["pin"], s["sensorName"], s["multiplier"])
+            sensor = Sensors(self.config, s["pin"], s["sensorName"], s["multiplier"])
             sensor.takeReading()
 
         if wifiIsConnected:
