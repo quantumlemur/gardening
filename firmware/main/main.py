@@ -5,7 +5,7 @@ from esp32 import Partition
 from ujson import loads
 
 # file imports
-from sensors import sendReadings, Sensors
+from sensors import Sensors
 from utilities import now
 
 pinModes = {
@@ -29,15 +29,11 @@ class MasterActions:
     def run(self):
         wifiIsConnected = WLAN(STA_IF).isconnected()
 
-        sensorList = loads(self.config.get("SENSORS"))
-
-        for s in sensorList:
-            print("Defining sensor on pin {}".format(s["pin"]))
-            sensor = Sensors(self.config, s["pin"], s["sensorName"], s["multiplier"])
-            sensor.takeReading()
+        sensors = Sensors(self.config)
+        sensors.readAll()
 
         if wifiIsConnected:
-            sendReadings(self.config)
+            sensors.sendReadings()
             # import test
 
         # blinker = BlinkMessage()
@@ -52,7 +48,6 @@ class MasterActions:
     def setPins(self):
         print("Setting pins")
 
-        print(self.config.get("PIN_SETTINGS"))
         pinSettings = loads(self.config.get("PIN_SETTINGS"))
         for p in pinSettings:
             pin = Pin(p["pin"], mode=pinModes[p["mode"]], pull=pinPulls[p["pull"]])
@@ -78,7 +73,7 @@ class MasterActions:
         #     Pin(i, Pin.OUT, None)
 
         # Pin(25, Pin.OUT, None).on()
-        Pin(26, Pin.OUT, None).off()
+        # Pin(26, Pin.OUT, None).off()
 
         # soil = ADC(Pin(32, Pin.IN, None))
         # soil.atten(ADC.ATTN_11DB)

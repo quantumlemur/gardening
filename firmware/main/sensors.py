@@ -1,57 +1,71 @@
 from time import sleep
 from os import listdir, remove
-from urequests import post
+from ujson import loads
 
 from machine import ADC, Pin
 
-from utilities import now
-
-
-def printFile(self):
-    fname = self.config.get("sensorFile")
-    with open(fname, "r") as f:
-        print(f.read())
-
-
-def sendReadings(self):
-    fname = self.config.get("sensorFile")
-    # remove(fname)
-
-    success = False
-    if fname in listdir():
-        try:
-            with open(fname, "r") as f:
-                data = "{}]".format(f.read())
-                print(data)
-                url = "{}/readings".format(self.config.get("server_url"))
-                headers = {
-                    "mac": str(self.config.get("mac")),
-                    "device-next-init": str(self.config.get("next_init_expected")),
-                    "Content-Type": "application/json",
-                }
-
-                request = post(url=url, headers=headers, data=data)
-                if request.status_code == 200:
-                    success = True
-            if success:
-                print("Sensor upload successful")
-                remove(fname)
-            else:
-                print("Sensor upload unsuccessful.  Deleting old readings.")
-                remove(fname)
-                # print(f.read())
-        except Exception as err:
-            print("========= Error during sensor send!  Trying deleting sensorfile")
-            print(err)
-            # print(traceback.format_exc())
-
-            self.config.put("runningWithoutError", False)
-            remove(fname)
-    else:
-        print("sensor file not found")
+from utilities import now, post
 
 
 class Sensors:
+    def __init__(self, config):
+        self.config = config
+        self.sensorList = []
+
+        sensorConfig = loads(self.config.get("SENSORS"))
+
+        for s in sensorConfig:
+            print("Defining sensor on pin {}".format(s["pin"]))
+            self.sensorList.append(
+                Sensor(self.config, s["pin"], s["sensorName"], s["multiplier"])
+            )
+
+    def readAll(self):
+        for s in self.sensorList:
+            s.takeReading()
+
+    def printFile(self):
+        fname = self.config.get("sensorFile")
+        with open(fname, "r") as f:
+            print(f.read())
+
+    def sendReadings(self):
+        fname = self.config.get("sensorFile")
+        # remove(fname)
+
+        success = False
+        if fname in listdir():
+            try:
+                with open(fname, "r") as f:
+                    data = "{}]".format(f.read())
+                    print(data)
+                    url = "{}/readings".format(self.config.get("server_url"))
+                    headers = {
+                        "device-next-init": str(self.config.get("next_init_expected")),
+                        "Content-Type": "application/json",
+                    }
+
+                    request = post(url=url, headers=headers, data=data)
+                    if request.status_code == 200:
+                        success = True
+                if success:
+                    print("Sensor upload successful")
+                    remove(fname)
+                else:
+                    print("Sensor upload unsuccessful.")
+                    # print(f.read())
+            except Exception as err:
+                print("========= Error during sensor send!  Trying deleting sensorfile")
+                print(err)
+                # print(traceback.format_exc())
+
+                self.config.put("runningWithoutError", False)
+                remove(fname)
+        else:
+            print("sensor file not found")
+
+
+class Sensor:
     # dhtPin = machine.Pin(22, mode=machine.Pin.IN)
     # moisturePin = machine.Pin(32, mode=machine.Pin.IN)
 
