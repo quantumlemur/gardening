@@ -93,7 +93,7 @@ class OTAUpdater:
             print(splitVersion)
             parsedVersion = [int(s) for s in splitVersion]
             print("split version:")
-            print(chosenVersion["parsed_version"], parsedVersion)
+            print(parsedVersion, chosenVersion["parsed_version"])
             if chosenVersion["parsed_version"] < parsedVersion:
                 chosenVersion = None
         if chosenVersion and chosenVersion["filename"][:-4] == currentVersionTag:
