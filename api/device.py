@@ -105,7 +105,7 @@ def registration_required(view):
                             int(time())
                             - (calibration_time_window - 7) * 60 * 60 * 24
                             + 1,
-                            3000,
+                            650,
                             0,
                             "soil",
                             1,

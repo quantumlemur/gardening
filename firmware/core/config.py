@@ -25,6 +25,8 @@ class Config:
         try:
             self._f = open(DBFILE, "r+b")
             self._db = btree.open(self._f)
+            if b"wifi_ssid" not in self._db:
+                self.reinitialize()
 
         except Exception as err:
             print("Database load error: {}.  Reinitializing database.".format(err))
