@@ -184,17 +184,34 @@
 
 
 
+-- --------------------------------------
+-- -- Nov 2
+-- -- Add OTA update info
+-- --------------------------------------
+
+-- ALTER TABLE device_status ADD COLUMN last_update_attempt_time;
+-- ALTER TABLE device_status ADD COLUMN last_update_attempt_tag;
+-- ALTER TABLE device_status ADD COLUMN current_version_tag;
+-- ALTER TABLE device_status ADD COLUMN current_version_hash;
+-- ALTER TABLE device_config ADD COLUMN requested_version_tag TEXT DEFAULT "";
+
+
 --------------------------------------
--- Nov 2
--- Add OTA update info
+-- Nov 7
+-- Add zones table
 --------------------------------------
 
--- ALTER TABLE device_status ADD COLUMN update_status TEXT;
-ALTER TABLE device_status ADD COLUMN last_update_attempt_time;
-ALTER TABLE device_status ADD COLUMN last_update_attempt_tag;
-ALTER TABLE device_status ADD COLUMN current_version_tag;
-ALTER TABLE device_status ADD COLUMN current_version_hash;
-ALTER TABLE device_config ADD COLUMN requested_version_tag TEXT DEFAULT "";
+CREATE TABLE zones (
+    zone_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    zone_name TEXT,
+    file_name TEXT NOT NULL,
+    image_width INTEGER NOT NULL,
+    image_height INTEGER NOT NULL
+);
 
-
-
+INSERT INTO zones (zone_id, zone_name, file_name, image_width, image_height)
+VALUES
+(0, "Downstairs", "zone0.png", 753, 1594),
+(1, "Upstairs", "zone1.png", 607, 740),
+(2, "Deck", "zone2.png", 726, 660)
+;

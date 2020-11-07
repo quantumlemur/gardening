@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS devices;
-DROP TABLE IF EXISTS device_config;
-DROP TABLE IF EXISTS device_status;
+-- DROP TABLE IF EXISTS devices;
+-- DROP TABLE IF EXISTS device_config;
+-- DROP TABLE IF EXISTS device_status;
 -- DROP TABLE IF EXISTS readings;
 
 
@@ -57,6 +57,7 @@ CREATE TABLE device_status (
 --   FOREIGN KEY(device_id) REFERENCES devices(id)
 -- );
 
+
 CREATE TABLE board_types (
   board_id INTEGER PRIMARY KEY AUTOINCREMENT,
   board_name TEXT,
@@ -70,11 +71,11 @@ CREATE TABLE board_types (
   B_LED_PIN INTEGER NOT NULL DEFAULT -1
 );
 
-ALTER TABLE device_config ADD board_id INTEGER NOT NULL DEFAULT 2;
-INSERT INTO board_types (board_id, board_name, HIGH_PINS, LOW_PINS, SENSORS, BOARD_LED_PIN, BOARD_LED_PIN_INVERT,  R_LED_PIN, G_LED_PIN, B_LED_PIN)
-VALUES
-(1, "EzSBC Feather", "[2, 33]", "[]", '[{"sensorName": "volt", "pin": 35, "multiplier": 0.00177289377289377}, {"sensorName": "soil", "pin": 27, "multiplier": 1}]', 13, 0, -1, -1, -1),
-(2, "Spike", "[]", "[]", '{"sensorName": "soil", "pin": 32, "multiplier": 1}', 16, 1, -1, -1, -1);
 
-UPDATE device_config SET board_id=1;
-UPDATE device_config SET board_id=2 WHERE device_id=22;
+CREATE TABLE zones (
+    zone_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    zone_name TEXT,
+    file_name TEXT NOT NULL,
+    image_width INTEGER NOT NULL,
+    image_height INTEGER NOT NULL
+);

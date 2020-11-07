@@ -7,14 +7,21 @@ import { Box, Heading, Text } from "gestalt";
 
 function Home() {
   const [devices, setDevices] = useState([]);
-  const [map, setMap] = useState(0);
+  const [zones, setZones] = useState([]);
 
   useEffect(() => {
     fetch("/api/get_devices")
       .then((res) => res.json())
       .then((data) => {
         setDevices(data);
-        setMap(<Map devices={data} activeDevice={false} />);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/get_zones")
+      .then((res) => res.json())
+      .then((data) => {
+        setZones(data);
       });
   }, []);
 
@@ -27,7 +34,7 @@ function Home() {
       alignItems="center"
     >
       <Box display="flex" direction="column" alignContent="center">
-        {map}
+        <Map devices={devices} zones={zones} />
       </Box>
     </Box>
   );
