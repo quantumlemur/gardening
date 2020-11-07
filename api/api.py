@@ -214,6 +214,20 @@ def get_raw_sensor_data(deviceid):
     return jsonify(data)
 
 
+@bp.route("/get_zones")
+def get_zones():
+    db = get_db_dicts()
+    error = None
+    data = db.execute(
+        """
+        SELECT
+           *
+        FROM zones
+        """
+    ).fetchall()
+    return jsonify(data)
+
+
 @bp.route("/time")
 def return_time():
     return {"time": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")}

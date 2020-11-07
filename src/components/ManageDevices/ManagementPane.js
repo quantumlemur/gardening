@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import "gestalt/dist/gestalt.css";
 import { Box, Button, Heading, Layer, Modal } from "gestalt";
@@ -17,12 +17,35 @@ function SubmitConfig(data) {
 }
 
 function ManagementPane({ device, alldevices }) {
+  const [zones, setZones] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
+  useEffect(() => {
+    fetch("/api/get_zones")
+      .then((res) => res.json())
+      .then((data) => {
+        setZones(data);
+      });
+  }, []);
+
   function setLocation(event) {
-    device.location_x = event.nativeEvent.offsetX;
-    device.location_y = event.nativeEvent.offsetY;
+    device.location_x =
+      (event.nativeEvent.offsetX /
+        event.nativeEvent.target.width.baseVal.value) *
+      1000;
+    device.location_y =
+      (event.nativeEvent.offsetY /
+        event.nativeEvent.target.height.baseVal.value) *
+      1000;
+    device.location_zone = event.nativeEvent.target.id;
+    console.log(
+      event.nativeEvent.offsetX,
+      event.nativeEvent.target.width.baseVal.value
+    );
+    // console.log(event.nativeEvent.target);
+    // console.log(event);
+    // console.log(event.nativeEvent.target.width.baseVal.value);
   }
 
   function handleDismiss() {
@@ -90,6 +113,7 @@ function ManagementPane({ device, alldevices }) {
                 <Box display="flex" direction="row" wrap>
                   <Map
                     devices={alldevices}
+                    zones={zones}
                     initialActiveDevice={device}
                     setLocation={setLocation}
                   />
