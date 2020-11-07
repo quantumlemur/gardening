@@ -1,9 +1,9 @@
 import functools
 from hashlib import md5, sha256
-
+from re import compile, match, split
 from statistics import mean, stdev
 from time import time
-from os import scandir
+from os import path, scandir
 
 from flask import (
     Blueprint,
@@ -105,7 +105,7 @@ def registration_required(view):
                             int(time())
                             - (calibration_time_window - 7) * 60 * 60 * 24
                             + 1,
-                            3000,
+                            650,
                             0,
                             "soil",
                             1,
@@ -121,19 +121,40 @@ def update_checkin(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         db = get_db()
+        mac = request.headers["mac"]
         device_id = db.execute(
-            "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
+            "SELECT id FROM devices WHERE mac = ?", (mac,)
         ).fetchone()
         if device_id is not None:
+            device_id = device_id[0]
+            # Update check-in time
             db.execute(
                 """UPDATE device_status
 				SET
-					checkin_time = ?,
-					device_next_init = ?
+					checkin_time = ?
 				WHERE
 					device_id = ?""",
-                (int(time()), request.headers["device_next_init"], device_id[0]),
+                (int(time()), device_id),
             )
+            # Iterate through the other optional parameters
+            optional_params = [
+                "current_version_hash",
+                "current_version_tag",
+                "device_next_init",
+                "device_time",
+            ]
+            for param in optional_params:
+                if param in request.headers:
+                    db.execute(
+                        """UPDATE device_status
+                        SET
+                            {} = ?
+                        WHERE
+                            device_id = ?""".format(
+                            param
+                        ),
+                        (request.headers[param], device_id),
+                    )
             db.commit()
         return view(**kwargs)
 
@@ -166,6 +187,11 @@ def listfiles():
     return jsonify(file_list)
 
 
+@bp.route("/getfile/<path:filename>", methods=("GET", "POST"))
+def getfile(filename):
+    return send_from_directory(current_app.config["NODEMCU_FILE_PATH"], filename)
+
+
 @bp.route("/getfile_python/<path:filename>", methods=("GET", "POST"))
 def getfile_python(filename):
     return send_from_directory(current_app.config["MICROPYTHON_FILE_PATH"], filename)
@@ -181,9 +207,68 @@ def listfiles_python():
     return jsonify(file_list)
 
 
-@bp.route("/getfile/<path:filename>", methods=("GET", "POST"))
-def getfile(filename):
-    return send_from_directory(current_app.config["NODEMCU_FILE_PATH"], filename)
+@bp.route("/getfile_python_v2/<path:filename>", methods=("GET", "POST"))
+def getfile_python_v2(filename):
+    return send_from_directory("../firmware/main", filename)
+
+
+@bp.route("/listfiles_python_v2", methods=("GET", "POST"))
+def listfiles_python_v2():
+    file_list = []
+    with scandir("firmware/main") as files:
+        for f in files:
+            if f.is_file() and (f.name[-3:] == ".py" or f.name[-4:] == ".cfg"):
+                file_list.append([f.name, sha256_file("firmware/main/" + f.name)])
+    return jsonify(file_list)
+
+
+@bp.route("/list_versions", methods=("GET",))
+def list_versions():
+    pattern = compile("((\d+[\.\-])+)")
+    file_list = []
+    with scandir("firmware/versions") as files:
+        for f in files:
+            if f.is_file() and f.name[-4:] == ".bin":
+                strippedVersion = pattern.search(f.name)
+                if strippedVersion:
+                    splitVersion = split("\.|\-", strippedVersion.group(0).strip("-."))
+                    parsed_version = [int(s) for s in splitVersion]
+
+                    file_list.append(
+                        {
+                            "filename": f.name,
+                            "sha256": sha256_file(
+                                "firmware/versions/{}".format(f.name)
+                            ),
+                            "size": path.getsize("firmware/versions/{}".format(f.name)),
+                            "parsed_version": parsed_version,
+                        }
+                    )
+    return jsonify(sorted(file_list, key=lambda x: x["parsed_version"], reverse=True))
+
+
+@bp.route("/get_firmware/<path:filename>", methods=("GET", "POST"))
+# @registration_required
+# @update_checkin
+def get_firmware(filename):
+    if "mac" in request.headers:
+        db = get_db()
+        device_id = db.execute(
+            "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
+        ).fetchone()[0]
+        db.execute(
+            """
+            UPDATE
+                device_status
+            SET
+                last_update_attempt_time=?,
+                last_update_attempt_tag=?
+            WHERE
+                device_id=?""",
+            (int(time()), filename[:-4], device_id),
+        )
+        db.commit()
+    return send_from_directory("../firmware/versions", filename)
 
 
 @bp.route("/status", methods=("GET", "POST"))
@@ -193,7 +278,6 @@ def status():
     db.execute(
         "INSERT INTO device_status (voltage) VALUES (?)", (request.json.voltage,)
     )
-    print("{}".format(request.json.voltage))
     db.commit()
     return '{"status": "ok"}'
 
@@ -326,5 +410,4 @@ def config():
         """,
         (request.headers.get("mac"),),
     ).fetchone()
-    print(deviceConfig)
     return jsonify(deviceConfig)

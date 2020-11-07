@@ -65,6 +65,7 @@ def get_devices():
                 device_id
             FROM readings
             WHERE name="soil"
+            AND zscore < 2
             GROUP BY device_id
             ) AS latest_soil_readings ON latest_soil_readings.device_id = devices.id
         LEFT JOIN (

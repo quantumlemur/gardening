@@ -17,15 +17,13 @@ CREATE TABLE device_config (
   location_zone INTEGER NOT NULL DEFAULT 0,
   location_x INTEGER NOT NULL DEFAULT 0,
   location_y INTEGER NOT NULL DEFAULT 0,
-  calibration_min INTEGER NOT NULL DEFAULT 0, -- not used
-  calibration_max INTEGER NOT NULL DEFAULT 1000, -- not used
-  trigger_min INTEGER NOT NULL DEFAULT 0, -- not used
   INIT_INTERVAL INTEGER NOT NULL DEFAULT 1,
   SLEEP_DURATION INTEGER NOT NULL DEFAULT 1,
   SLEEP_DELAY INTEGER NOT NULL DEFAULT 10,
   MAX_ENTRYS_WITHOUT_INIT INTEGER NOT NULL DEFAULT 3,
   LIGHT INTEGER NOT NULL DEFAULT 1,
   board_id INTEGER NOT NULL DEFAULT 1,
+  requested_version_tag TEXT DEFAULT "",
   FOREIGN KEY(device_id) REFERENCES devices(id),
   FOREIGN KEY(board_id) REFERENCES board_types(board_id)
 );
@@ -34,10 +32,16 @@ CREATE TABLE device_config (
 CREATE TABLE device_status (
   device_id INTEGER NOT NULL,
   checkin_time INTEGER,
-  device_time INTEGER, -- not used
+  device_time INTEGER,
   device_next_init INTEGER,
   voltage INTEGER, -- not used
   log TEXT, -- not used
+  update_status TEXT,
+  last_update_time INTEGER,
+  current_version_hash TEXT,
+  current_version_tag TEXT,
+  last_update_attempt_time INTEGER,
+  last_update_attempt_version TEXT,
   FOREIGN KEY(device_id) REFERENCES devices(id)
 );
 

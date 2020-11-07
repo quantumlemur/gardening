@@ -1,17 +1,24 @@
 #!/bin/sh
+set -e
 
 . venv/bin/activate
 
-export ESPIDF=/home/mike/gardening/micropython/firmware/esp-idf
-export PATH=/home/mike/gardening/micropython/firmware/xtensa-esp32-elf/bin:$PATH
+export ESPIDF=$(pwd)/firmware/esp-idf
+export PATH=$(pwd)/firmware/xtensa-esp32-elf/bin:$PATH
 
-cd micropython/firmware/micropython/ports/esp32
+HASH=$(git rev-parse HEAD)
+TAG=$(git describe --tags)
+
+cd firmware/micropython/ports/esp32
 
 
-echo "class CurrentCommitHash:
-    currentCommitHash = \"$(git rev-parse HEAD)\"" > modules/currentCommitHash.py
+echo "currentVersionHash = \"$HASH\"
+currentVersionTag = \"$TAG\"" > modules/currentVersionInfo.py
+
 
 make
 
-cp build-GENERIC_OTA/application.bin ../../../../../api/static/
+cp build-GENERIC_OTA/application.bin ../../../versions/$TAG.bin
+
+echo "Firmware written!  New version: $TAG"
     

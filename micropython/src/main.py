@@ -71,7 +71,7 @@ for filename in listdir():
     if filename[-4:] == ".new":
         print("renaming file from {} to {}".format(filename, filename[:-4]))
         rename(filename, filename[:-4])
-        doConnectWifi = True
+        doConnectWifi = True 
 
 if (
     config.get("bootNum") == 0

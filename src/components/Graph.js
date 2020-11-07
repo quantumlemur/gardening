@@ -74,6 +74,7 @@ function Graph() {
           {
             key: device_data[0].device_id,
             data: mappedData.data,
+            highlight: false,
           },
         ])
       );
@@ -82,6 +83,7 @@ function Graph() {
           {
             key: device_data[0].device_id,
             data: mappedData.data,
+            highlight: false,
           },
         ])
       );

@@ -1,0 +1,6 @@
+[submodule "firmware/micropython"]
+	path = firmware/micropython
+	url = git@github.com:quantumlemur/micropython.git
+[submodule "firmware/esp-idf"]
+	path = firmware/esp-idf
+	url = https://github.com/espressif/esp-idf.git

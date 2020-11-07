@@ -32,7 +32,7 @@ class Config:
         "ledPin": 16,
         "runningWithoutError": False,
         "sensorFile": "sensorfile",
-        "server_url": "http://192.168.86.20:5000/device",
+        "server_url": "http://nuc/device",
         "wifi_ssid": "julia&mike-guest",
         "wifi_password": "welcometothebarnyard",
     }
