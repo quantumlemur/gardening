@@ -4,21 +4,43 @@ import { Box, Heading } from "gestalt";
 import { scaleLinear } from "d3-scale";
 
 import PlantSymbol from "./PlantSymbol";
+import SettingsModal from "../ManageDevices/SettingsModal";
+import StatusModal from "../ManageDevices/StatusModal";
 
 function Map({ devices, initialActiveDevice, setLocation }) {
   const [data, setData] = useState(devices);
   const [activeDevice, setActiveDevice] = useState(
     initialActiveDevice ? initialActiveDevice : {}
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showStatus, setShowStatus] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  function handleSubmit(data) {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+    fetch("/api/submit_config", requestOptions);
+  }
 
   const width = 640,
     height = 400;
 
-  const handleClick = (device) => {
+  const handlePlantClick = (device) => {
     setActiveDevice(device);
-    setIsModalOpen(!!isModalOpen);
+    setShowStatus(!showStatus);
+    // setShowSettings(!showSettings);
   };
+
+  const handleSettingsButtonClick = (device) => {
+    setShowSettings(!showSettings);
+  };
+
+  function handleDismiss() {
+    setShowStatus(false);
+    setShowSettings(false);
+  }
 
   const activeDeviceId = activeDevice.id || "No device active";
   const activeHeader = "Active device: ";
@@ -30,11 +52,11 @@ function Map({ devices, initialActiveDevice, setLocation }) {
       key={d.id}
       data={d}
       index={i}
-      onClick={handleClick}
+      onClick={handlePlantClick}
       pulse={d.id === activeDeviceId}
       color={colorScale(d.calibrated_value)}
-      needCharge={d.volt < 3000}
-      alert={new Date() > data.device_next_init * 1000}
+      needCharge={d.volt < 3500}
+      alert={new Date() > d.device_next_init * 1000}
     />
   ));
 
@@ -50,6 +72,22 @@ function Map({ devices, initialActiveDevice, setLocation }) {
         <image href="/zone0.png" x="0" y="0" width={width} height={height} />
         <g>{plants}</g>
       </svg>
+
+      {showStatus && (
+        <StatusModal
+          currDevice={activeDevice}
+          onSettingsButtonClick={handleSettingsButtonClick}
+          onDismiss={handleDismiss}
+        />
+      )}
+      {showSettings && (
+        <SettingsModal
+          currDevice={activeDevice}
+          onDismiss={handleDismiss}
+          // updateValue={updateValue}
+          onSubmit={handleSubmit}
+        />
+      )}
     </Box>
   );
 }

@@ -72,6 +72,7 @@ db.sqlite3-journal
 # Flask stuff:
 instance/*
 !instance/config.cfg
+!instance/migrate.sql
 .webassets-cache
 
 # Scrapy stuff:

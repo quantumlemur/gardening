@@ -15,6 +15,12 @@ function InputField({
   onChange,
   errorMessage,
 }) {
+  if (type === "datetime-local") {
+    type = "text";
+    value = String(new Date(value * 1000));
+  } else {
+    value = String(value);
+  }
   return (
     <Box flex="grow" padding={3}>
       <TextField
@@ -22,7 +28,7 @@ function InputField({
         id={name}
         label={label ? label : name}
         name={name}
-        value={type === "timestamp" ? new Date(value * 1000) : value}
+        value={value}
         helperText={helperText}
         onChange={(e) => onChange(e.event)}
         placeholder={placeholder ? placeholder : name}

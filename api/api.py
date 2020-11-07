@@ -8,21 +8,35 @@ from os import scandir
 
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, send_from_directory, current_app
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    jsonify,
+    send_from_directory,
+    current_app,
 )
+
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 from api.db import get_db, get_db_dicts
 
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+bp = Blueprint("api", __name__, url_prefix="/api")
+
+calibration_time_window = 28  # days
 
 
-@bp.route('/get_devices', methods=('GET',))
+@bp.route("/get_devices", methods=("GET",))
 def get_devices():
     db = get_db_dicts()
     error = None
-    devices = db.execute("""
+    devices = db.execute(
+        """
         SELECT
             devices.id,
             mac,
@@ -36,13 +50,12 @@ def get_devices():
             SLEEP_DURATION,
             MAX_ENTRYS_WITHOUT_INIT,
             LIGHT,
-            calibration_min,
-            calibration_max,
-            trigger_min,
             timestamp,
             latest_soil_readings.value AS soil,
             latest_volt_readings.value AS volt,
-            CAST(latest_soil_readings.value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value
+            calibration.min,
+            calibration.max,
+            CAST(latest_soil_readings.value - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS calibrated_value
         FROM
             devices
         LEFT JOIN (
@@ -63,18 +76,35 @@ def get_devices():
             WHERE name="volt"
             GROUP BY device_id
             ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MAX(value) AS max,
+                MIN(value) AS min,
+                device_id
+            FROM
+                readings
+            WHERE
+                name = "soil" AND
+                zscore < 2 AND
+                timestamp > ?
+            GROUP BY device_id
+            ) AS calibration ON calibration.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
-            """).fetchall()
+        ORDER BY devices.id
+            """,
+        (int(time()) - calibration_time_window * 24 * 60 * 60,),
+    ).fetchall()
     return jsonify(devices)
 
 
-@bp.route('/submit_config', methods=('POST',))
+@bp.route("/submit_config", methods=("POST",))
 def submit_config():
     db = get_db()
     error = None
 
-    db.execute("""
+    db.execute(
+        """
         UPDATE
             device_config
         SET
@@ -83,40 +113,35 @@ def submit_config():
             SLEEP_DURATION = ?,
             MAX_ENTRYS_WITHOUT_INIT = ?,
             LIGHT = ?,
-            calibration_min = ?,
-            calibration_max = ?,
-            trigger_min = ?,
             location_zone = ?,
             location_x = ?,
             location_y = ?
         WHERE device_id = ?""",
-               (
-                   request.json['name'],
-                   request.json['INIT_INTERVAL'],
-                   request.json['SLEEP_DURATION'],
-                   request.json['MAX_ENTRYS_WITHOUT_INIT'],
-                   request.json['LIGHT'],
-                   request.json['calibration_min'],
-                   request.json['calibration_max'],
-                   request.json['trigger_min'],
-                   request.json['location_zone'],
-                   request.json['location_x'],
-                   request.json['location_y'],
-                   request.json['id']
-               ))
+        (
+            request.json["name"],
+            request.json["INIT_INTERVAL"],
+            request.json["SLEEP_DURATION"],
+            request.json["MAX_ENTRYS_WITHOUT_INIT"],
+            request.json["LIGHT"],
+            request.json["location_zone"],
+            request.json["location_x"],
+            request.json["location_y"],
+            request.json["id"],
+        ),
+    )
     db.commit()
     return request.json
 
 
-@bp.route('/get_sensor_data')
-def get_sensor_data():
+@bp.route("/get_all_sensor_data")
+def get_all_sensor_data():
     db = get_db_dicts()
     error = None
-    data = db.execute("""
+    data = db.execute(
+        """
         SELECT
             timestamp,
             value,
-            CAST(value - calibration_min AS FLOAT) / (calibration_max - calibration_min) AS calibrated_value,
             readings.device_id,
             device_config.name
         FROM readings
@@ -126,18 +151,49 @@ def get_sensor_data():
             readings.name = "soil" AND
             zscore < 2 AND
             timestamp > ?
+        ORDER BY timestamp ASC
         """,
-                      (
-                          int(time()) - 14 * 24 * 60 * 60,
-                      )).fetchall()
+        (int(time()) - 14 * 24 * 60 * 60,),
+    ).fetchall()
     return jsonify(data)
 
 
-@bp.route('/get_raw_sensor_data/<path:deviceid>')
+@bp.route("/get_sensor_data/<deviceId>/<sensorName>")
+def get_sensor_data(deviceId, sensorName):
+    assert deviceId == request.view_args["deviceId"]
+    assert sensorName == request.view_args["sensorName"]
+    db = get_db_dicts()
+    error = None
+    data = db.execute(
+        """
+        SELECT
+            timestamp,
+            value,
+            device_id,
+            name
+        FROM readings
+        WHERE
+            device_id = ? AND
+            name = ? AND
+            zscore < 2 AND
+            timestamp > ?
+        ORDER BY timestamp ASC
+        """,
+        (
+            deviceId,
+            sensorName,
+            int(time()) - 14 * 24 * 60 * 60,
+        ),
+    ).fetchall()
+    return jsonify(data)
+
+
+@bp.route("/get_raw_sensor_data/<path:deviceid>")
 def get_raw_sensor_data(deviceid):
     db = get_db_dicts()
     error = None
-    data = db.execute("""
+    data = db.execute(
+        """
         SELECT
             timestamp,
             value,
@@ -152,13 +208,11 @@ def get_raw_sensor_data(deviceid):
             timestamp > ? AND
             readings.device_id = ?
         """,
-                      (
-                          int(time()) - 14 * 24 * 60 * 60,
-                          deviceid
-                      )).fetchall()
+        (int(time()) - 14 * 24 * 60 * 60, deviceid),
+    ).fetchall()
     return jsonify(data)
 
 
-@bp.route('/time')
+@bp.route("/time")
 def return_time():
     return {"time": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")}
