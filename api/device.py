@@ -51,8 +51,9 @@ def registration_required(view):
                 db.execute(
                     """INSERT INTO device_config
                         (device_id,
-                        name)
-                        VALUES (?, ?)""",
+                        name,
+                        board_type)
+                        VALUES (?, ?, 2)""",
                     (device_id[0], request.headers["mac"]),
                 )
                 db.execute(
