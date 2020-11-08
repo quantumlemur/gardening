@@ -1,11 +1,9 @@
+from datetime import datetime, timezone, timedelta
 import functools
 import hashlib
-
-from datetime import datetime, timezone, timedelta
+from os import scandir
 from statistics import mean, stdev
 from time import time
-from os import scandir
-
 
 from flask import (
     Blueprint,
@@ -20,6 +18,7 @@ from flask import (
     send_from_directory,
     current_app,
 )
+import pandas as pd
 
 # from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -187,11 +186,32 @@ def get_sensor_data(deviceId, sensorName):
             int(time()) - 14 * 24 * 60 * 60,
         ),
     ).fetchall()
-    return jsonify(data)
+    if len(data) == 0:
+        return jsonify([])
+
+    df = pd.DataFrame(data)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
+    df["value"] = pd.to_numeric(df["value"])
+    df = df.set_index("timestamp")
+
+    # exponential smoothing and resampling
+    newdf = df.ewm(halflife="2 hours", times=df.index).mean()
+    newdf = newdf.resample("1H").mean().bfill()
+
+    newdf = newdf.reset_index()
+    newdf.loc[:, "name"] = sensorName
+    newdf.loc[:, "device_id"] = deviceId
+    newdf["timestamp"] = pd.to_numeric(newdf["timestamp"]) / 1000000000
+    output = newdf.to_dict("records")
+    # output = newdf
+    # print(output)
+    return jsonify(output)
 
 
-@bp.route("/get_raw_sensor_data/<path:deviceid>")
-def get_raw_sensor_data(deviceid):
+@bp.route("/get_raw_sensor_data/<deviceId>/<sensorName>")
+def get_raw_sensor_data(deviceId, sensorName):
+    assert deviceId == request.view_args["deviceId"]
+    assert sensorName == request.view_args["sensorName"]
     db = get_db_dicts()
     error = None
     data = db.execute(
@@ -199,18 +219,21 @@ def get_raw_sensor_data(deviceid):
         SELECT
             timestamp,
             value,
-            zscore,
-            readings.device_id,
-            device_config.name,
-            readings.name AS sensor
+            device_id,
+            name
         FROM readings
-        LEFT JOIN device_config
-        ON readings.device_id = device_config.device_id
         WHERE
-            timestamp > ? AND
-            readings.device_id = ?
+            device_id = ? AND
+            name = ? AND
+            zscore < 2 AND
+            timestamp > ?
+        ORDER BY timestamp ASC
         """,
-        (int(time()) - 14 * 24 * 60 * 60, deviceid),
+        (
+            deviceId,
+            sensorName,
+            int(time()) - 14 * 24 * 60 * 60,
+        ),
     ).fetchall()
     return jsonify(data)
 
