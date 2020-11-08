@@ -51,6 +51,7 @@ def get_devices():
             MAX_ENTRYS_WITHOUT_INIT,
             LIGHT,
             timestamp,
+            board_type,
             latest_soil_readings.value AS soil,
             latest_volt_readings.value AS volt,
             calibration.min,
