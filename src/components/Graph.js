@@ -111,22 +111,34 @@ function Graph() {
         return false;
       }
     });
-    // If you don't find it, add it back in
+    // Uncomment this block to set highlighting
     if (index > -1) {
+      var item = selectedGraphData[index];
+      item.highlight = !item.highlight;
       setSelectedGraphData((selectedGraphData) => [
         ...selectedGraphData.slice(0, index),
+        item,
         ...selectedGraphData.slice(index + 1),
       ]);
-    } else {
-      allGraphData.some((d, i) => {
-        if (d.key === key) {
-          setSelectedGraphData((selectedGraphData) =>
-            selectedGraphData.concat(d)
-          );
-          return true;
-        }
-      });
     }
+
+    // // Uncomment this block to set add/remove
+    // // If you don't find it, add it back in
+    // if (index > -1) {
+    //   setSelectedGraphData((selectedGraphData) => [
+    //     ...selectedGraphData.slice(0, index),
+    //     ...selectedGraphData.slice(index + 1),
+    //   ]);
+    // } else {
+    //   allGraphData.some((d, i) => {
+    //     if (d.key === key) {
+    //       setSelectedGraphData((selectedGraphData) =>
+    //         selectedGraphData.concat(d)
+    //       );
+    //       return true;
+    //     }
+    //   });
+    // }
   };
 
   var colorScale = scaleOrdinal(schemeCategory10).domain(
