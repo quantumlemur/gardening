@@ -17,6 +17,7 @@ canaryFile = "__canary.py"
 
 def main():
     printBootInfo()
+    setLED()
 
     if shouldConnectWifi():
         from core import otaUpdater, updater, wifi
@@ -89,12 +90,13 @@ def setLED():
             invert = config.get("BOARD_LED_PIN_INVERT") == 1
             on = config.get("LIGHT") == 1
 
-            board_led = Signal(ledPin, Pin.OUT, invert=invert)
+            # Pin(self.config.get("G_LED_PIN"), mode=Pin.OUT, pull=None)
+            board_led = Signal(ledPin, Pin.OUT, pull=None, invert=invert)
             if on:
-                print("turning on LED")
+                print("turning on LED, pin {}, invert {}".format(ledPin, invert))
                 board_led.on()
             else:
-                print("turning off LED")
+                print("turning off LED, pin {}, invert {}".format(ledPin, invert))
                 board_led.off()
     except Exception as e:
         print("Error in boot.setLED():", e)
