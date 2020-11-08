@@ -200,7 +200,7 @@ def get_sensor_data(deviceId, sensorName):
 
     newdf = newdf.reset_index()
     newdf.loc[:, "name"] = sensorName
-    newdf.loc[:, "device_id"] = deviceId
+    newdf.loc[:, "device_id"] = int(deviceId)
     newdf["timestamp"] = pd.to_numeric(newdf["timestamp"]) / 1000000000
     output = newdf.to_dict("records")
     # output = newdf
