@@ -52,7 +52,7 @@ function RawGraph() {
         setLegendData(processLegendData(devices));
 
         devices.forEach((device) => {
-          fetch(`/api/get_sensor_data/${device.id}/soil`)
+          fetch(`/api/get_raw_sensor_data/${device.id}/soil`)
             .then((response) => response.json())
             .then((device_data) => {
               addDeviceData(device_data);
@@ -72,6 +72,7 @@ function RawGraph() {
           {
             key: device_data[0].device_id,
             data: mappedData.data,
+            highlight: false,
           },
         ])
       );
@@ -80,6 +81,7 @@ function RawGraph() {
           {
             key: device_data[0].device_id,
             data: mappedData.data,
+            highlight: false,
           },
         ])
       );
