@@ -55,20 +55,20 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
 
   // margins as percentage of svg size
   const margin = {
-    top: 0.05,
-    bottom: 0.08,
-    left: 0.1,
-    right: 0.05,
+    top: 10,
+    bottom: 30,
+    left: 40,
+    right: 10,
   };
 
   const coords = {
     x: {
-      left: width * margin.left,
-      right: width * (1 - margin.right),
+      left: margin.left,
+      right: width - margin.right,
     },
     y: {
-      bottom: height * (1 - margin.bottom),
-      top: height * margin.top,
+      bottom: height - margin.bottom,
+      top: margin.top,
     },
   };
 
@@ -153,16 +153,8 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
 
   return (
     <svg width="100%" height="auto" ref={ref}>
-      <AxisBottom
-        xScale={xScale}
-        yScale={yScale}
-        height={margin.bottom * 0.5}
-      />
-      <AxisLeft
-        xScale={xScale}
-        yScale={yScale}
-        width={width * margin.left * 0.5}
-      />
+      <AxisBottom xScale={xScale} yScale={yScale} />
+      <AxisLeft xScale={xScale} yScale={yScale} />
       {lines}
       <text transform={tooltipTransform}>
         <tspan x="10" y="45">
