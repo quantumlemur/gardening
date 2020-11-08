@@ -61,8 +61,6 @@ function PlantSymbol({
       draggable
       onClick={() => onClick(data)}
     >
-      <circle r="40" fill="url(#shadow)" />
-
       <Circle color={color} pulse={pulse} />
       {alert && <Alert />}
       {needCharge && <LightningBolt />}

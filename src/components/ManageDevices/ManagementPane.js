@@ -43,9 +43,6 @@ function ManagementPane({ device, alldevices }) {
       event.nativeEvent.offsetX,
       event.nativeEvent.target.width.baseVal.value
     );
-    // console.log(event.nativeEvent.target);
-    // console.log(event);
-    // console.log(event.nativeEvent.target.width.baseVal.value);
   }
 
   function handleDismiss() {
