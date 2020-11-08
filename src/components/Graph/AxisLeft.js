@@ -2,7 +2,7 @@ import { scaleLinear } from "d3-scale";
 
 import React from "react";
 
-function AxisLeft({ xScale, yScale, width }) {
+function AxisLeft({ xScale, yScale }) {
   const axis = yScale.ticks(5).map((d, i) => (
     <g key={i} className="y-tick">
       <line
@@ -15,7 +15,7 @@ function AxisLeft({ xScale, yScale, width }) {
       />
       <text
         style={{ fontSize: 14, textAnchor: "end" }}
-        x={width}
+        x={xScale.range()[0] - 10}
         dy=".32em"
         y={yScale(d)}
       >

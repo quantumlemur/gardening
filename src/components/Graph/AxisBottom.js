@@ -2,9 +2,7 @@ import React from "react";
 
 import { timeFormat } from "d3";
 
-function AxisBottom({ xScale, yScale, height }) {
-  const textPadding = 1;
-
+function AxisBottom({ xScale, yScale }) {
   var formatTime = timeFormat("%e");
   console.log(yScale.range());
 

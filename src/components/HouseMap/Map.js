@@ -3,6 +3,7 @@ import "gestalt/dist/gestalt.css";
 import { Box, Heading, Image } from "gestalt";
 import { scaleLinear } from "d3-scale";
 
+import PlantShadow from "./PlantShadow";
 import PlantSymbol from "./PlantSymbol";
 import SettingsModal from "../ManageDevices/SettingsModal";
 import StatusModal from "../ManageDevices/StatusModal";
@@ -51,7 +52,6 @@ function Map({ devices, zones, initialActiveDevice, setLocation }) {
   var colorScale = scaleLinear().domain([0, 1]).range(["green", "brown"]);
 
   const xScale = scaleLinear().domain([0, 1000]).range([0, width]);
-  console.log(devices);
 
   const zoneBoxes = zones.map((z, i) => {
     const scalingFactor = width / z.image_width;
@@ -84,6 +84,15 @@ function Map({ devices, zones, initialActiveDevice, setLocation }) {
                     <stop offset="75%" stopColor="white" stopOpacity="0" />
                   </radialGradient>
                 </defs>
+                {devices
+                  .filter((device) => device.location_zone === z.zone_id)
+                  .map((d, i) => (
+                    <PlantShadow
+                      key={d.id}
+                      x={xScale(d.location_x)}
+                      y={yScale(d.location_y)}
+                    />
+                  ))}
                 {devices
                   .filter((device) => device.location_zone === z.zone_id)
                   .map((d, i) => (
