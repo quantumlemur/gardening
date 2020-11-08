@@ -22,7 +22,7 @@ function Circle({ color, pulse }) {
       <Chain>{(props) => <animated.circle style={props} fill={color} />}</Chain>
     );
   } else {
-    return <circle r="8" fill={color} />;
+    return <circle r="10" fill={color} />;
   }
 }
 
@@ -47,6 +47,8 @@ function LightningBolt() {
 function PlantSymbol({
   data,
   index,
+  x,
+  y,
   onClick,
   color,
   pulse,
@@ -55,10 +57,12 @@ function PlantSymbol({
 }) {
   return (
     <g
-      transform={`translate(${data.location_x}, ${data.location_y})`}
+      transform={`translate(${x}, ${y})`}
       draggable
       onClick={() => onClick(data)}
     >
+      <circle r="40" fill="url(#shadow)" />
+
       <Circle color={color} pulse={pulse} />
       {alert && <Alert />}
       {needCharge && <LightningBolt />}
