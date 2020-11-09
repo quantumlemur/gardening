@@ -37,20 +37,10 @@ def get_devices():
     devices = db.execute(
         """
         SELECT
-            devices.id,
+            devices.*,
+            device_config.*,
+            device_status.*,
             mac,
-            device_config.name,
-            checkin_time,
-            device_next_init,
-            location_zone,
-            location_x,
-            location_y,
-            INIT_INTERVAL,
-            SLEEP_DURATION,
-            MAX_ENTRYS_WITHOUT_INIT,
-            LIGHT,
-            timestamp,
-            board_type,
             latest_soil_readings.value AS soil,
             latest_volt_readings.value AS volt,
             calibration.min,
@@ -110,6 +100,8 @@ def submit_config():
             device_config
         SET
             name = ?,
+            requested_version_tag = ?,
+            board_type = ?,
             INIT_INTERVAL = ?,
             SLEEP_DURATION = ?,
             MAX_ENTRYS_WITHOUT_INIT = ?,
@@ -120,6 +112,8 @@ def submit_config():
         WHERE device_id = ?""",
         (
             request.json["name"],
+            request.json["requested_version_tag"],
+            request.json["board_type"],
             request.json["INIT_INTERVAL"],
             request.json["SLEEP_DURATION"],
             request.json["MAX_ENTRYS_WITHOUT_INIT"],
