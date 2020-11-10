@@ -178,7 +178,7 @@ def get_sensor_data(deviceId, sensorName):
         (
             deviceId,
             sensorName,
-            int(time()) - 14 * 24 * 60 * 60,
+            int(time()) - 28 * 24 * 60 * 60,
         ),
     ).fetchall()
     if len(data) == 0:
@@ -190,7 +190,7 @@ def get_sensor_data(deviceId, sensorName):
     df = df.set_index("timestamp")
 
     # exponential smoothing and resampling
-    newdf = df.ewm(halflife="2 hours", times=df.index).mean()
+    newdf = df.ewm(halflife="4 hours", times=df.index).mean()
     newdf = newdf.resample("1H").mean().bfill()
 
     newdf = newdf.reset_index()
@@ -227,7 +227,7 @@ def get_raw_sensor_data(deviceId, sensorName):
         (
             deviceId,
             sensorName,
-            int(time()) - 14 * 24 * 60 * 60,
+            int(time()) - 28 * 24 * 60 * 60,
         ),
     ).fetchall()
     return jsonify(data)

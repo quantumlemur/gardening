@@ -29,30 +29,59 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
   const [xExtent, setxExtent] = useState([]);
   const [yExtent, setyExtent] = useState([]);
 
+  const [voltgraphData, setvoltGraphData] = useState([]);
+  const [voltxExtent, setvoltxExtent] = useState([]);
+  const [voltyExtent, setvoltyExtent] = useState([]);
+
   useEffect(() => {
     fetch(`/api/get_sensor_data/${device.id}/soil`)
       .then((response) => response.json())
       .then((device_data) => {
-        addDeviceData(device_data);
-      });
-  }, []);
+        const mappedData = processData(device_data);
 
-  function addDeviceData(device_data) {
-    if (device_data.length > 0) {
-      const mappedData = processData(device_data);
-
-      setxExtent((xExtent) => extent(xExtent.concat(mappedData.xExtent)));
-      setyExtent((yExtent) => extent(yExtent.concat(mappedData.yExtent)));
-      setGraphData((graphData) =>
-        graphData.concat([
+        setxExtent(mappedData.xExtent);
+        setyExtent(mappedData.yExtent);
+        setGraphData([
           {
             key: device_data[0].device_id,
             data: mappedData.data,
           },
-        ])
-      );
-    }
-  }
+        ]);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`/api/get_sensor_data/${device.id}/volt`)
+      .then((response) => response.json())
+      .then((device_data) => {
+        const mappedData = processData(device_data);
+
+        setvoltxExtent(mappedData.xExtent);
+        setvoltyExtent(mappedData.yExtent);
+        setvoltGraphData([
+          {
+            key: device_data[0].device_id,
+            data: mappedData.data,
+          },
+        ]);
+      });
+  }, []);
+
+  // function addDeviceData(device_data) {
+  //   if (device_data.length > 0) {
+  //     const mappedData = processData(device_data);
+  //     setxExtent((xExtent) => extent(xExtent.concat(mappedData.xExtent)));
+  //     setyExtent((yExtent) => extent(yExtent.concat(mappedData.yExtent)));
+  //     setGraphData((graphData) =>
+  //       graphData.concat([
+  //         {
+  //           key: device_data[0].device_id,
+  //           data: mappedData.data,
+  //         },
+  //       ])
+  //     );
+  //   }
+  // }
 
   var colorScale = scaleOrdinal(schemeCategory10);
 
@@ -80,6 +109,15 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
               xExtent={xExtent}
               yExtent={yExtent}
               invert={true}
+            />
+          </Box>
+          <Box flex="grow" width="100%" padding={3}>
+            <LineGraph
+              graphData={voltgraphData}
+              colorScale={colorScale}
+              xExtent={voltxExtent}
+              yExtent={voltyExtent}
+              invert={false}
             />
           </Box>
           <Button
