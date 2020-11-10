@@ -14,7 +14,7 @@ import { Box, Heading, Text } from "gestalt";
 function processData(data) {
   const yExtent = extent(data, (d) => d.value);
 
-  const yScale = scaleLinear().domain(yExtent).range([1, 0]);
+  const yScale = scaleLinear().domain(yExtent).range([0, 1]);
 
   const mappedData = data.map((d, i) => {
     return {
@@ -28,7 +28,7 @@ function processData(data) {
   return {
     data: mappedData,
     xExtent: xExtent,
-    yExtent: [1, 0],
+    yExtent: [0, 1],
   };
 }
 

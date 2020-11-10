@@ -40,8 +40,6 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
     setWidth(ref.current.clientWidth);
   });
 
-  console.log(graphData);
-
   //   div.transition()
   //       .duration(200)
   //       .style("opacity", .9);
@@ -79,8 +77,6 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
     .domain(xExtent)
     .range([coords.x.left, coords.x.right]);
   // .nice();
-
-  console.log(xScale.domain());
 
   const yScale = scaleLinear()
     .domain(yExtent)

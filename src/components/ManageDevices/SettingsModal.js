@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Box, Button, Modal, Layer, SelectList, Switch, Text } from "gestalt";
 import InputField from "./InputField";
@@ -26,19 +26,27 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     lightError: "",
   });
   const [canSubmit, setCanSubmit] = useState(true);
+  const [firmwareVersionsAvailable, setFirmwareVersionsAvailable] = useState(
+    []
+  );
+  const [boardTypesAvailable, setBoardTypesAvailable] = useState([]);
 
-  const versionsAvailable = [
-    { label: "None (always stay updated)", value: "" },
-    { label: "0.2.7", value: "0.2.7" },
-    { label: "0.2.7.2", value: "0.2.7.2" },
-    { label: "3", value: "3" },
-  ];
+  useEffect(() => {
+    fetch("/api/get_firmware_versions")
+      .then((response) => response.json())
+      .then((data) => {
+        data.unshift({ label: "None (always stay updated)", value: "" });
+        setFirmwareVersionsAvailable(data);
+      });
+  }, []);
 
-  const boardTypesAvailable = [
-    { label: "spike", value: 1 },
-    { label: "feather", value: 2 },
-    { label: "volt test", value: 3 },
-  ];
+  useEffect(() => {
+    fetch("/api/get_board_types")
+      .then((response) => response.json())
+      .then((data) => {
+        setBoardTypesAvailable(data);
+      });
+  }, []);
 
   // function checkIsValid() {
   //   if (
@@ -75,16 +83,16 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     setErrorMessages({ [errorName]: message });
   }
 
-  function checkVersionExists(value, errorName) {
-    let message = "";
-    if (~versionsAvailable.includes(value)) {
-      message = "Version not available";
-      setCanSubmit(false);
-    } else {
-      setCanSubmit(true);
-    }
-    setErrorMessages({ [errorName]: message });
-  }
+  // function checkVersionExists(value, errorName) {
+  //   let message = "";
+  //   if (~versionsAvailable.includes(value)) {
+  //     message = "Version not available";
+  //     setCanSubmit(false);
+  //   } else {
+  //     setCanSubmit(true);
+  //   }
+  //   setErrorMessages({ [errorName]: message });
+  // }
 
   function handleNameChange(value) {
     checkFieldExists(value, "nameError");
@@ -206,7 +214,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                   name="requested_version"
                   label="Requested firmware version"
                   value={requestedVersion}
-                  options={versionsAvailable}
+                  options={firmwareVersionsAvailable}
                   onChange={({ value }) => handleRequestedVersionChange(value)}
                 />
               </Box>

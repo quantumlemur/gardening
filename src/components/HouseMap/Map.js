@@ -105,8 +105,9 @@ function Map({ devices, zones, initialActiveDevice, setLocation }) {
                       onClick={handlePlantClick}
                       pulse={d.id === activeDeviceId}
                       color={colorScale(d.calibrated_value)}
-                      needCharge={d.board_type !== 1 && d.volt < 3500}
-                      alert={new Date() > d.device_next_init * 1000}
+                      needWater={d.calibrated_value > 0.8}
+                      needCharge={d.board_type !== 1 && d.volt < 3600}
+                      alert={false} //new Date() > d.device_next_init * 1000}
                     />
                   ))}
               </svg>
