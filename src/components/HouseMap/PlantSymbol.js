@@ -44,6 +44,19 @@ function LightningBolt() {
   );
 }
 
+function Dropper() {
+  return (
+    <g transform="translate(-5, -27)">
+      <Icon
+        icon="color-picker"
+        accessibilityLabel="color-picker"
+        color="black"
+        size="28"
+      />
+    </g>
+  );
+}
+
 function PlantSymbol({
   data,
   index,
@@ -52,6 +65,7 @@ function PlantSymbol({
   onClick,
   color,
   pulse,
+  needWater,
   needCharge,
   alert,
 }) {
@@ -62,6 +76,7 @@ function PlantSymbol({
       onClick={() => onClick(data)}
     >
       <Circle color={color} pulse={pulse} />
+      {needWater && <Dropper />}
       {alert && <Alert />}
       {needCharge && <LightningBolt />}
     </g>

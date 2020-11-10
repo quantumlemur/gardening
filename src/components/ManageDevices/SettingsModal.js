@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Box, Button, Modal, Layer, Switch, Text } from "gestalt";
+import { Box, Button, Modal, Layer, SelectList, Switch, Text } from "gestalt";
 import InputField from "./InputField";
 
 function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
   const [device, setDevice] = useState(currDevice);
   const [name, setName] = useState(currDevice.name);
+  const [requestedVersion, setRequestedVersion] = useState(
+    currDevice.requested_version_tag
+  );
+  const [boardType, setBoardType] = useState(currDevice.board_type);
   const [initInterval, setInitInterval] = useState(currDevice.INIT_INTERVAL);
   const [sleepDuration, setSleepDuration] = useState(currDevice.SLEEP_DURATION);
   const [maxEntries, setMaxEntries] = useState(
@@ -14,12 +18,35 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
   const [light, setLight] = useState(currDevice.LIGHT);
   const [errorMessages, setErrorMessages] = useState({
     nameError: "",
+    requestedVersionError: "",
+    boardTypeError: "",
     initIntervalError: "",
     sleepDurationError: "",
     maxEntriesError: "",
     lightError: "",
   });
   const [canSubmit, setCanSubmit] = useState(true);
+  const [firmwareVersionsAvailable, setFirmwareVersionsAvailable] = useState(
+    []
+  );
+  const [boardTypesAvailable, setBoardTypesAvailable] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/get_firmware_versions")
+      .then((response) => response.json())
+      .then((data) => {
+        data.unshift({ label: "None (always stay updated)", value: "" });
+        setFirmwareVersionsAvailable(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/get_board_types")
+      .then((response) => response.json())
+      .then((data) => {
+        setBoardTypesAvailable(data);
+      });
+  }, []);
 
   // function checkIsValid() {
   //   if (
@@ -56,9 +83,30 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     setErrorMessages({ [errorName]: message });
   }
 
+  // function checkVersionExists(value, errorName) {
+  //   let message = "";
+  //   if (~versionsAvailable.includes(value)) {
+  //     message = "Version not available";
+  //     setCanSubmit(false);
+  //   } else {
+  //     setCanSubmit(true);
+  //   }
+  //   setErrorMessages({ [errorName]: message });
+  // }
+
   function handleNameChange(value) {
     checkFieldExists(value, "nameError");
     setName(value);
+  }
+
+  function handleRequestedVersionChange(value) {
+    // checkVersionExists(value, "requestedVersionError");
+    // console.log(value);
+    setRequestedVersion(value);
+  }
+
+  function handleBoardTypeChange(value) {
+    setBoardType(value);
   }
 
   function handleInitIntervalChange(value) {
@@ -88,6 +136,8 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     // const isValid = checkIsValid();
     // if (isValid) {
     device.name = name;
+    device.requested_version_tag = requestedVersion;
+    device.board_type = boardType;
     device.INIT_INTERVAL = initInterval;
     device.SLEEP_DURATION = sleepDuration;
     device.MAX_ENTRYS_WITHOUT_INIT = maxEntries;
@@ -146,6 +196,45 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                 disabled
               />
             </Box>
+          </Box>
+
+          <Box display="flex">
+            <Box column={6}>
+              <InputField
+                name="firmware_version"
+                label="Frmware version"
+                value={device.current_version_tag}
+                disabled
+              />
+            </Box>
+            <Box column={6}>
+              <Box flex="grow" padding={3}>
+                <SelectList
+                  id="requested_version"
+                  name="requested_version"
+                  label="Requested firmware version"
+                  value={requestedVersion}
+                  options={firmwareVersionsAvailable}
+                  onChange={({ value }) => handleRequestedVersionChange(value)}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          <Box display="flex">
+            <Box column={6}>
+              <Box flex="grow" padding={3}>
+                <SelectList
+                  id="board_type"
+                  name="board_type"
+                  label="Board type"
+                  value={boardType}
+                  options={boardTypesAvailable}
+                  onChange={({ value }) => handleBoardTypeChange(value)}
+                />
+              </Box>
+            </Box>
+            <Box column={6}></Box>
           </Box>
 
           <Box display="flex">

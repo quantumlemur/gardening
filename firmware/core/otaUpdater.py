@@ -72,7 +72,7 @@ class OTAUpdater:
         firmwareVersions = self.getAvailableVersions()
         firmwareRequest = config.get("requested_version_tag")
         chosenVersion = None
-        if len(firmwareRequest) > 0:
+        if (type(firmwareRequest) == str) and (len(firmwareRequest) > 0):
             # if there's an existing request
             for v in firmwareVersions:
                 tag = v["filename"][:-4]

@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 import functools
 import hashlib
 from os import scandir
+from re import compile, match, split
 from statistics import mean, stdev
 from time import time
 
@@ -37,20 +38,10 @@ def get_devices():
     devices = db.execute(
         """
         SELECT
-            devices.id,
+            devices.*,
+            device_config.*,
+            device_status.*,
             mac,
-            device_config.name,
-            checkin_time,
-            device_next_init,
-            location_zone,
-            location_x,
-            location_y,
-            INIT_INTERVAL,
-            SLEEP_DURATION,
-            MAX_ENTRYS_WITHOUT_INIT,
-            LIGHT,
-            timestamp,
-            board_type,
             latest_soil_readings.value AS soil,
             latest_volt_readings.value AS volt,
             calibration.min,
@@ -110,6 +101,8 @@ def submit_config():
             device_config
         SET
             name = ?,
+            requested_version_tag = ?,
+            board_type = ?,
             INIT_INTERVAL = ?,
             SLEEP_DURATION = ?,
             MAX_ENTRYS_WITHOUT_INIT = ?,
@@ -120,6 +113,8 @@ def submit_config():
         WHERE device_id = ?""",
         (
             request.json["name"],
+            request.json["requested_version_tag"],
+            request.json["board_type"],
             request.json["INIT_INTERVAL"],
             request.json["SLEEP_DURATION"],
             request.json["MAX_ENTRYS_WITHOUT_INIT"],
@@ -249,6 +244,47 @@ def get_zones():
         FROM zones
         """
     ).fetchall()
+    return jsonify(data)
+
+
+@bp.route("/get_firmware_versions", methods=("GET",))
+def get_firmware_versions():
+    pattern = compile("((\d+[\.\-])+)")
+    file_list = []
+    with scandir("firmware/versions") as files:
+        for f in files:
+            if f.is_file() and f.name[-4:] == ".bin":
+                strippedVersion = pattern.search(f.name)
+                if strippedVersion:
+                    splitVersion = split("\.|\-", strippedVersion.group(0).strip("-."))
+                    parsed_version = [int(s) for s in splitVersion]
+
+                    file_list.append(
+                        {
+                            "tag": f.name[:-4],
+                            "parsed_version": parsed_version,
+                        }
+                    )
+    file_list = sorted(file_list, key=lambda x: x["parsed_version"], reverse=True)
+    file_list = [{"label": item["tag"], "value": item["tag"]} for item in file_list]
+    return jsonify(file_list)
+
+
+@bp.route("/get_board_types", methods=("GET",))
+def get_board_types():
+    file_list = []
+    db = get_db_dicts()
+    data = db.execute(
+        """
+        SELECT
+            board_name AS label,
+            board_type AS value
+        FROM
+            board_types"""
+    ).fetchall()
+    # output = [
+    #     {"label": item["board_name"], "value": item["board_type"]} for item in data
+    # ]
     return jsonify(data)
 
 

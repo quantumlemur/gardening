@@ -7,10 +7,11 @@ from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, unique_id
 
 from core.config import config
 from currentVersionInfo import currentVersionHash, currentVersionTag
-from core.utilities import now
+from core.utilities import colors, now
 
-
-## Add in error checking around all config values
+######
+## Anything non-essential to OTA updates should be enclosed in try...except blocks
+######
 
 canaryFile = "__canary.py"
 
@@ -67,18 +68,44 @@ def main():
 
 def printBootInfo():
     try:
-        print("==============================")
-        part = Partition(Partition.RUNNING).info()[4]
-        print("Booting at time {} on partition {}".format(time(), part))
+        items = [
+            ["Name", config.get("name")],
+            ["ID", str(config.get("device_id"))],
+            ["Board type", config.get("board_name")],
+            ["MAC", hexlify(unique_id(), ":").decode()],
+            ["Firmware", currentVersionTag],
+            ["Partition", str(Partition(Partition.RUNNING).info()[4])],
+            ["Server", config.get("server_url")],
+        ]
+        # find widths
+        colWidths = [0, 0]
+        for item in items:
+            for i in range(len(colWidths)):
+                colWidths[i] = max(colWidths[i], len(item[i]))
+
         print(
-            "Current version: {}  Commit hash: {}".format(
-                currentVersionTag, currentVersionHash
+            "{color}{fill:{fill}<{width}}".format(
+                color=colors.HEADER,
+                fill="-",
+                width=(2 + colWidths[0] + 3 + colWidths[1] + 2),
             )
         )
-        print("Name: {}".format(config.get("name")))
-        print("Mac: {}".format(hexlify(unique_id(), ":").decode()))
-        print("Device_id: {}".format(config.get("device_id")))
-        print("==============================")
+        for item in items:
+            print(
+                "| {label: <{width0}}   {value: <{width1}} |".format(
+                    label=item[0],
+                    value=item[1],
+                    width0=colWidths[0],
+                    width1=colWidths[1],
+                )
+            )
+        print(
+            "{fill:{fill}<{width}}{color}".format(
+                color=colors.ENDC,
+                fill="-",
+                width=(2 + colWidths[0] + 3 + colWidths[1] + 2),
+            )
+        )
     except Exception as e:
         print("Error in boot.printBootInfo(): ", e)
 

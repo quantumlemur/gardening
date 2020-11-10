@@ -1,12 +1,11 @@
 import React from "react";
 
-import { timeFormat } from "d3";
+import { timeDay, timeFormat } from "d3";
 
 function AxisBottom({ xScale, yScale }) {
   var formatTime = timeFormat("%e");
-  console.log(yScale.range());
 
-  const axis = xScale.ticks().map((d, i) => (
+  const axis = xScale.ticks(timeDay).map((d, i) => (
     <g className="x-tick" key={i}>
       <line
         style={{ stroke: "#e4e5eb" }}
@@ -26,7 +25,7 @@ function AxisBottom({ xScale, yScale }) {
         x={xScale(d)}
         y={Math.max(...yScale.range())}
       >
-        {formatTime(d * 1000)}
+        {formatTime(d)}
       </text>
     </g>
   ));

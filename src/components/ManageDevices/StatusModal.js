@@ -10,15 +10,16 @@ import { Box, Button, Modal, Layer, Text } from "gestalt";
 // Input: List of points from get_sensor_data
 // Output: List of x/y pairs
 function processData(data) {
-  const xExtent = extent(data, (d) => d.timestamp);
   const yExtent = extent(data, (d) => d.value);
 
   const mappedData = data.map((d, i) => {
     return {
-      x: d.timestamp,
+      x: new Date(d.timestamp * 1000),
       y: d.value,
     };
   });
+  const xExtent = extent(mappedData, (d) => d.x);
+
   return { data: mappedData, xExtent: xExtent, yExtent: yExtent };
 }
 
