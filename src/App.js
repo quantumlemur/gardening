@@ -13,34 +13,39 @@ import { Box } from "gestalt";
 function App() {
   return (
     <BrowserRouter>
-      <Box display="flex" direction="column" minHeight="100vh">
-        <Navigation />
-        <Box
-          display="flex"
-          color="gray"
-          // justifyContent="center"
-          // alignItems="center"
-          flex="grow"
-        >
-          <Switch>
-            <Route path="/" component={Home} exact />
-            <Route path="/manage/">
-              <ManageDevices />
-            </Route>
-            <Route path="/graph/">
-              <Graph />
-            </Route>
-            <Route path="/rawgraph/">
-              <RawGraph />
-            </Route>
-            <Route path="/test/:id">
-              <TestId />
-            </Route>
-            <Route component={Error} />
-          </Switch>
-        </Box>
-        <Box color="blue">{"footer"}</Box>
-      </Box>
+      <Switch>
+        <Route path="/screenshot" component={Home} exact />
+        <Route>
+          <Box display="flex" direction="column" minHeight="100vh">
+            <Navigation />
+            <Box
+              display="flex"
+              color="gray"
+              // justifyContent="center"
+              // alignItems="center"
+              flex="grow"
+            >
+              <Switch>
+                <Route path="/" component={Home} exact />
+                <Route path="/manage/">
+                  <ManageDevices />
+                </Route>
+                <Route path="/graph/">
+                  <Graph />
+                </Route>
+                <Route path="/rawgraph/">
+                  <RawGraph />
+                </Route>
+                <Route path="/test/:id">
+                  <TestId />
+                </Route>
+                <Route component={Error} />
+              </Switch>
+            </Box>
+            <Box color="blue">{"footer"}</Box>
+          </Box>
+        </Route>
+      </Switch>
     </BrowserRouter>
   );
 }
