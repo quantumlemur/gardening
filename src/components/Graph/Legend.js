@@ -58,7 +58,11 @@ function Legend({ legendData, handleClick, colorScale }) {
     .domain([0, legendData.length])
     .range([coords.y.bottom, coords.y.top]);
 
-  const labels = legendData.map((d, i) => (
+  const sortedLegendData = legendData.sort((a, b) =>
+    a.text < b.text ? 1 : -1
+  );
+
+  const labels = sortedLegendData.map((d, i) => (
     <g
       key={d.key}
       transform={`translate(0,${yScale(i)})`}
