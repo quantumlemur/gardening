@@ -3,6 +3,7 @@ import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "../Graph/LineGraph";
+import SettingsModal from "../ManageDevices/SettingsModal";
 
 import { Box, Button, Modal, Layer, Text } from "gestalt";
 
@@ -23,8 +24,10 @@ function processData(data) {
   return { data: mappedData, xExtent: xExtent, yExtent: yExtent };
 }
 
-function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
-  const [device, setDevice] = useState(currDevice);
+function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
+  const [showSettings, setShowSettings] = useState(false);
+
+  const [device, setDevice] = useState({});
   const [graphData, setGraphData] = useState([]);
   const [xExtent, setxExtent] = useState([]);
   const [yExtent, setyExtent] = useState([]);
@@ -34,7 +37,15 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
   const [voltyExtent, setvoltyExtent] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/get_sensor_data/${device.id}/soil`)
+    fetch(`/api/get_device/${deviceId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setDevice(data);
+      });
+  }, [deviceId]);
+
+  useEffect(() => {
+    fetch(`/api/get_sensor_data/${deviceId}/soil`)
       .then((response) => response.json())
       .then((device_data) => {
         const mappedData = processData(device_data);
@@ -48,10 +59,10 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
-  }, []);
+  }, [deviceId]);
 
   useEffect(() => {
-    fetch(`/api/get_sensor_data/${device.id}/volt`)
+    fetch(`/api/get_sensor_data/${deviceId}/volt`)
       .then((response) => response.json())
       .then((device_data) => {
         const mappedData = processData(device_data);
@@ -65,23 +76,16 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
-  }, []);
+  }, [deviceId]);
 
-  // function addDeviceData(device_data) {
-  //   if (device_data.length > 0) {
-  //     const mappedData = processData(device_data);
-  //     setxExtent((xExtent) => extent(xExtent.concat(mappedData.xExtent)));
-  //     setyExtent((yExtent) => extent(yExtent.concat(mappedData.yExtent)));
-  //     setGraphData((graphData) =>
-  //       graphData.concat([
-  //         {
-  //           key: device_data[0].device_id,
-  //           data: mappedData.data,
-  //         },
-  //       ])
-  //     );
-  //   }
-  // }
+  function handleSettingsButtonClick() {
+    setShowSettings(!showSettings);
+  }
+
+  function handleDismiss() {
+    setShowSettings(false);
+    // setShowSettings(false);
+  }
 
   var colorScale = scaleOrdinal(schemeCategory10);
 
@@ -89,7 +93,7 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
     <Layer>
       <Modal
         heading={device.name}
-        accessibilityModalLabel={device.name}
+        accessibilityModalLabel={device.name || "Status"}
         onDismiss={onDismiss}
         size="sm"
       >
@@ -121,12 +125,20 @@ function StatusModal({ currDevice, onSettingsButtonClick, onDismiss }) {
             />
           </Box>
           <Button
-            onClick={onSettingsButtonClick}
+            onClick={handleSettingsButtonClick}
             color="blue"
             paddingX={3}
             paddingY={3}
             text="Settings"
           />
+
+          {showSettings && (
+            <SettingsModal
+              deviceId={device.id}
+              onDismiss={handleDismiss}
+              // updateValue={updateValue}
+            />
+          )}
         </Box>
       </Modal>
     </Layer>

@@ -3,19 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Modal, Layer, SelectList, Switch, Text } from "gestalt";
 import InputField from "./InputField";
 
-function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
-  const [device, setDevice] = useState(currDevice);
-  const [name, setName] = useState(currDevice.name);
-  const [requestedVersion, setRequestedVersion] = useState(
-    currDevice.requested_version_tag
-  );
-  const [boardType, setBoardType] = useState(currDevice.board_type);
-  const [initInterval, setInitInterval] = useState(currDevice.INIT_INTERVAL);
-  const [sleepDuration, setSleepDuration] = useState(currDevice.SLEEP_DURATION);
-  const [maxEntries, setMaxEntries] = useState(
-    currDevice.MAX_ENTRYS_WITHOUT_INIT
-  );
-  const [light, setLight] = useState(currDevice.LIGHT);
+function SettingsModal({ deviceId, onDismiss }) {
+  const [device, setDevice] = useState({});
+  const [requestedVersionTag, setRequestedVersionTag] = useState("");
+  const [boardType, setboardType] = useState("");
   const [errorMessages, setErrorMessages] = useState({
     nameError: "",
     requestedVersionError: "",
@@ -32,6 +23,16 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
   const [boardTypesAvailable, setBoardTypesAvailable] = useState([]);
 
   useEffect(() => {
+    fetch(`/api/get_device/${deviceId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setDevice(data);
+        setRequestedVersionTag(data.requested_version_tag);
+        setboardType(String(data.board_type));
+      });
+  }, []);
+
+  useEffect(() => {
     fetch("/api/get_firmware_versions")
       .then((response) => response.json())
       .then((data) => {
@@ -44,22 +45,13 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     fetch("/api/get_board_types")
       .then((response) => response.json())
       .then((data) => {
-        setBoardTypesAvailable(data);
+        const stringifiedData = data.map((d) => ({
+          label: d.label,
+          value: String(d.value),
+        }));
+        setBoardTypesAvailable(stringifiedData);
       });
   }, []);
-
-  // function checkIsValid() {
-  //   if (
-  //     errorMessages.nameError ||
-  //     errorMessages.initIntervalError ||
-  //     errorMessages.sleepDurationError ||
-  //     errorMessages.maxEntriesError ||
-  //     errorMessages.lightError
-  //   ) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   function checkFieldExists(value, errorName) {
     let message = "";
@@ -83,67 +75,53 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     setErrorMessages({ [errorName]: message });
   }
 
-  // function checkVersionExists(value, errorName) {
-  //   let message = "";
-  //   if (~versionsAvailable.includes(value)) {
-  //     message = "Version not available";
-  //     setCanSubmit(false);
-  //   } else {
-  //     setCanSubmit(true);
-  //   }
-  //   setErrorMessages({ [errorName]: message });
-  // }
-
   function handleNameChange(value) {
     checkFieldExists(value, "nameError");
-    setName(value);
+    setDevice((device) => Object.assign(device, { name: value }));
   }
 
   function handleRequestedVersionChange(value) {
-    // checkVersionExists(value, "requestedVersionError");
-    // console.log(value);
-    setRequestedVersion(value);
+    setDevice((device) =>
+      Object.assign(device, { requested_version_tag: value })
+    );
+    setRequestedVersionTag(value);
   }
 
   function handleBoardTypeChange(value) {
-    setBoardType(value);
+    setDevice((device) =>
+      Object.assign(device, { board_type: parseInt(value) })
+    );
+    setboardType(String(value));
   }
 
   function handleInitIntervalChange(value) {
     checkPositiveValue(value, "initIntervalError");
-    setInitInterval(value);
+    setDevice((device) => Object.assign(device, { INIT_INTERVAL: value }));
   }
 
   function handleMaxEntriesChange(value) {
     checkPositiveValue(value, "maxEntriesError");
-    setMaxEntries(value);
+    setDevice((device) =>
+      Object.assign(device, { MAX_ENTRYS_WITHOUT_INIT: value })
+    );
   }
 
   function handleSleepDurationChange(value) {
     checkPositiveValue(value, "sleepDurationError");
-    setSleepDuration(value);
+    setDevice((device) => Object.assign(device, { SLEEP_DURATION: value }));
   }
 
   function handleLight(value) {
-    if (value) {
-      setLight(1);
-    } else {
-      setLight(0);
-    }
+    setDevice((device) => Object.assign(device, { LIGHT: value ? 1 : 0 }));
   }
 
   function handleSubmit() {
-    // const isValid = checkIsValid();
-    // if (isValid) {
-    device.name = name;
-    device.requested_version_tag = requestedVersion;
-    device.board_type = boardType;
-    device.INIT_INTERVAL = initInterval;
-    device.SLEEP_DURATION = sleepDuration;
-    device.MAX_ENTRYS_WITHOUT_INIT = maxEntries;
-    device.LIGHT = light;
-    setDevice(device);
-    onSubmit(device);
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(device),
+    };
+    fetch("/api/submit_config", requestOptions);
     onDismiss();
   }
 
@@ -151,7 +129,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
     <Layer>
       <Modal
         heading={device.name}
-        accessibilityModalLabel={device.name}
+        accessibilityModalLabel={device.name || "Settings"}
         onDismiss={onDismiss}
         size="lg"
       >
@@ -167,7 +145,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
             <Box column={6}>
               <InputField
                 name="NAME"
-                value={name}
+                value={device.name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 errorMessage={errorMessages.nameError}
               />
@@ -213,7 +191,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                   id="requested_version"
                   name="requested_version"
                   label="Requested firmware version"
-                  value={requestedVersion}
+                  value={requestedVersionTag}
                   options={firmwareVersionsAvailable}
                   onChange={({ value }) => handleRequestedVersionChange(value)}
                 />
@@ -241,7 +219,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
             <Box column={6}>
               <InputField
                 name="INIT_INTERVAL"
-                value={initInterval}
+                value={device.INIT_INTERVAL}
                 onChange={(e) => handleInitIntervalChange(e.target.value)}
                 placeholder="Max time between INIT boots (wifi)"
                 type="number"
@@ -251,7 +229,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
             <Box column={6}>
               <InputField
                 name="SLEEP_DURATION"
-                value={sleepDuration}
+                value={device.SLEEP_DURATION}
                 placeholder="Sleep time (sec)"
                 onChange={(e) => handleSleepDurationChange(e.target.value)}
                 type="number"
@@ -264,7 +242,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
             <Box column={6}>
               <InputField
                 name="MAX_ENTRYS_WITHOUT_INIT"
-                value={maxEntries}
+                value={device.MAX_ENTRYS_WITHOUT_INIT}
                 onChange={(e) => handleMaxEntriesChange(e.target.value)}
                 placeholder="Max boots before going to INIT"
                 type="number"
@@ -280,7 +258,7 @@ function SettingsModal({ currDevice, onDismiss, updateValue, onSubmit }) {
                   <Switch
                     name="Light"
                     id="Light"
-                    switched={light === 1}
+                    switched={device.LIGHT === 1}
                     onChange={(e) => handleLight(e.value)}
                     placeholder="Light? 1/0"
                   />
