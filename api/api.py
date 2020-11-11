@@ -31,6 +31,24 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 calibration_time_window = 28  # days
 
 
+@bp.route("/get_device_list", methods=("GET",))
+def get_device_list():
+    db = get_db_dicts()
+    error = None
+    devices = db.execute(
+        """
+        SELECT
+            devices.*,
+            name
+        FROM
+            devices
+        LEFT JOIN device_config ON device_config.device_id = devices.id
+        ORDER BY name
+            """
+    ).fetchall()
+    return jsonify(devices)
+
+
 @bp.route("/get_devices", methods=("GET",))
 def get_devices():
     db = get_db_dicts()
@@ -90,6 +108,66 @@ def get_devices():
     return jsonify(devices)
 
 
+@bp.route("/get_device/<deviceId>", methods=("GET",))
+def get_device(deviceId):
+    assert deviceId == request.view_args["deviceId"]
+    db = get_db_dicts()
+    error = None
+    devices = db.execute(
+        """
+        SELECT
+            devices.*,
+            device_config.*,
+            device_status.*,
+            mac,
+            latest_soil_readings.value AS soil,
+            latest_volt_readings.value AS volt,
+            calibration.min,
+            calibration.max,
+            CAST(latest_soil_readings.value - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS calibrated_value
+        FROM
+            devices
+        LEFT JOIN (
+            SELECT
+                MAX(timestamp) AS timestamp,
+                value,
+                device_id
+            FROM readings
+            WHERE name="soil"
+            AND zscore < 2
+            GROUP BY device_id
+            ) AS latest_soil_readings ON latest_soil_readings.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MAX(timestamp),
+                value,
+                device_id
+            FROM readings
+            WHERE name="volt"
+            GROUP BY device_id
+            ) AS latest_volt_readings ON latest_volt_readings.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MAX(value) AS max,
+                MIN(value) AS min,
+                device_id
+            FROM
+                readings
+            WHERE
+                name = "soil" AND
+                zscore < 2 AND
+                timestamp > ?
+            GROUP BY device_id
+            ) AS calibration ON calibration.device_id = devices.id
+        LEFT JOIN device_config ON device_config.device_id = devices.id
+        LEFT JOIN device_status ON device_status.device_id = devices.id
+        WHERE devices.id = ?
+            """,
+        (int(time()) - calibration_time_window * 24 * 60 * 60, deviceId),
+    ).fetchone()
+    return jsonify(devices)
+
+
 @bp.route("/submit_config", methods=("POST",))
 def submit_config():
     db = get_db()
@@ -123,6 +201,32 @@ def submit_config():
             request.json["location_x"],
             request.json["location_y"],
             request.json["id"],
+        ),
+    )
+    db.commit()
+    return request.json
+
+
+@bp.route("/submit_location/<deviceId>", methods=("POST",))
+def submit_location(deviceId):
+    assert deviceId == request.view_args["deviceId"]
+    db = get_db()
+    error = None
+
+    db.execute(
+        """
+        UPDATE
+            device_config
+        SET
+            location_zone = ?,
+            location_x = ?,
+            location_y = ?
+        WHERE device_id = ?""",
+        (
+            request.json["location_zone"],
+            request.json["location_x"],
+            request.json["location_y"],
+            deviceId,
         ),
     )
     db.commit()

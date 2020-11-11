@@ -50,7 +50,7 @@ function Dropper() {
       <Icon
         icon="color-picker"
         accessibilityLabel="color-picker"
-        color="black"
+        color="darkGray"
         size="28"
       />
     </g>

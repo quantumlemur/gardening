@@ -4,65 +4,51 @@ import "gestalt/dist/gestalt.css";
 import { Box, Button, Heading, Layer, Modal } from "gestalt";
 
 import Map from "../HouseMap/Map";
-import InputField from "./InputField";
 import SettingsModal from "./SettingsModal";
 
-function SubmitConfig(data) {
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  };
-  fetch("/api/submit_config", requestOptions);
-}
-
-function ManagementPane({ device, alldevices }) {
-  const [zones, setZones] = useState([]);
+function ManagementRow({ deviceId, deviceName }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showMap, setShowMap] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/get_zones")
-      .then((res) => res.json())
-      .then((data) => {
-        setZones(data);
-      });
-  }, []);
+  const [x, setX] = useState();
+  const [y, setY] = useState();
+  const [zone, setZone] = useState();
+  const [canSubmit, setCanSubmit] = useState(false);
 
   function setLocation(event) {
-    device.location_x =
+    setX(
       (event.nativeEvent.offsetX /
         event.nativeEvent.target.width.baseVal.value) *
-      1000;
-    device.location_y =
+        1000
+    );
+    setY(
       (event.nativeEvent.offsetY /
         event.nativeEvent.target.height.baseVal.value) *
-      1000;
-    device.location_zone = event.nativeEvent.target.id;
-    console.log(
-      event.nativeEvent.offsetX,
-      event.nativeEvent.target.width.baseVal.value
+        1000
     );
+    setZone(event.nativeEvent.target.id);
+    setCanSubmit(true);
   }
 
-  function handleDismiss() {
-    setShowSettings(!showSettings);
-  }
-
-  function handleSubmit(data) {
+  function submitLocation() {
+    const data = {
+      location_x: x,
+      location_y: y,
+      location_zone: zone,
+    };
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     };
-    fetch("/api/submit_config", requestOptions);
+    fetch(`/api/submit_location/${deviceId}`, requestOptions);
   }
 
   return (
     <Box display="flex" paddingX={3} paddingY={3}>
       <Box display="flex" paddingX={3} paddingY={3}>
-        <Heading>{device.name}</Heading>
+        <Heading>{deviceName}</Heading>
       </Box>
+
       <Box display="flex" paddingX={3} paddingY={3}>
         <Box marginLeft={-1} marginRight={-1}>
           <Box padding={1}>
@@ -78,12 +64,13 @@ function ManagementPane({ device, alldevices }) {
       </Box>
       {showSettings && (
         <SettingsModal
-          currDevice={device}
-          onDismiss={handleDismiss}
-          // updateValue={updateValue}
-          onSubmit={handleSubmit}
+          deviceId={deviceId}
+          onDismiss={() => {
+            setShowSettings(!showSettings);
+          }}
         />
       )}
+
       <Box display="flex" paddingX={3} paddingY={3}>
         <Box marginLeft={-1} marginRight={-1}>
           <Box padding={1}>
@@ -99,28 +86,27 @@ function ManagementPane({ device, alldevices }) {
         {showMap && (
           <Layer>
             <Modal
-              heading={device.name}
-              accessibilityModalLabel={device.name}
+              heading={deviceName}
+              accessibilityModalLabel={deviceName}
               onDismiss={() => {
                 setShowMap(!showMap);
               }}
               size="lg"
             >
-              <Box display="flex" wrap direction="column">
-                <Box display="flex" direction="row" wrap>
+              <Box display="flex" direction="column">
+                <Box display="flex" direction="column">
                   <Map
-                    devices={alldevices}
-                    zones={zones}
-                    initialActiveDevice={device}
+                    initialActiveDeviceId={deviceId}
                     setLocation={setLocation}
                   />
                 </Box>
                 <Box display="flex">
                   <Button
-                    onClick={() => SubmitConfig(device)}
+                    onClick={submitLocation}
                     paddingX={3}
                     paddingY={3}
                     text="Submit"
+                    disabled={!canSubmit}
                   />
                 </Box>
               </Box>
@@ -132,4 +118,4 @@ function ManagementPane({ device, alldevices }) {
   );
 }
 
-export default ManagementPane;
+export default ManagementRow;
