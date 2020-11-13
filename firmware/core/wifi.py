@@ -13,7 +13,9 @@ from uos import urandom
 wifi = WLAN(STA_IF)
 
 
+@micropython.native
 def connect_wifi():
+    startTime = ticks_ms()
     ifconfig = config.get("ifconfig")
     if ifconfig:
         print("Previous wifi config found.  Loading: {}".format(ifconfig))
@@ -46,6 +48,7 @@ def connect_wifi():
         config.put(
             "ifconfig", wifi.ifconfig()
         )  # Store successful wifi config for next time
+        print("wifi time: {}".format(ticks_diff(ticks_ms(), startTime)))
         return True
     except OSError:
         print("NTP sync failed")
@@ -56,6 +59,7 @@ def connect_wifi():
     return False
 
 
+@micropython.native
 def monitor_connection():
     if wifi.isconnected():
         # cloud.set_asset_state("counter", counter)

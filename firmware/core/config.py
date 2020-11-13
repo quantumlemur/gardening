@@ -31,6 +31,7 @@ class Config:
             self._db = btree.open(self._f)
             self.reinitialize()
 
+    @micropython.native
     def reinitialize(self):
         """Recreates the default values in the database"""
         defaults = {
@@ -62,11 +63,13 @@ class Config:
             self.put(key, value)
         self.flush()
 
+    @micropython.native
     def flush(self):
         """Flushes the database to disk"""
         self._db.flush()
         self._f.flush()
 
+    @micropython.native
     def get(self, key, raw=False):
         """Gets a value from the database, optionally skipping json decoding"""
         if key in self._db:
@@ -77,6 +80,7 @@ class Config:
         else:
             return None
 
+    @micropython.native
     def put(self, key, value):
         """Puts a value into the database.
         Returns: bool whether anything changed"""
@@ -92,6 +96,7 @@ class Config:
             return True
         return False
 
+    @micropython.native
     def updateFromServer(self):
         """Fetches a new config from the server and updates the database with it.  Returns whether anything changed."""
         print(
@@ -141,17 +146,20 @@ class Config:
             print("Error: server update fetch unsuccessful")
         return dbChanged
 
+    @micropython.native
     def wipe(self):
         """Complete erase and reset of config"""
         self.close()
         remove(DBFILE)
         self.__init__()
 
+    @micropython.native
     def close(self):
         self.flush()
         self._db.close()
         self._f.close()
 
+    @micropython.native
     def __del__(self):
         self.close()
 

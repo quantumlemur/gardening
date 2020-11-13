@@ -25,6 +25,7 @@ pinPulls = {
 }
 
 
+@micropython.native
 def setPins():
     print("Setting pins...")
 
@@ -67,6 +68,7 @@ def setPins():
     # print("volt reading: {} x5: {}".format(reading, reading * 5))
 
 
+@micropython.native
 def holdPins():
     """Hold the pins before sleep to prevent current leakage"""
     print("Holding pins...")
@@ -87,6 +89,7 @@ def holdPins():
         Pin(pin, mode=Pin.IN, pull=Pin.PULL_HOLD)
 
 
+@micropython.native
 def goToSleep(quickSleep=False):
     sleep_duration = max(
         min(

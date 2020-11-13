@@ -22,6 +22,7 @@ canaryFile = "__canary.py"
 bootError = False
 
 
+@micropython.native
 def main():
     global bootError
     try:
@@ -80,6 +81,7 @@ def main():
                 part.mark_app_valid_cancel_rollback()
 
 
+@micropython.native
 def printBootInfo():
     global bootError
     try:
@@ -113,6 +115,7 @@ def printBootInfo():
         print("Error in boot.printBootInfo(): ", e)
 
 
+@micropython.native
 def setLED():
     global bootError
     try:
@@ -134,6 +137,7 @@ def setLED():
         print("Error in boot.setLED():", e)
 
 
+@micropython.native
 def shouldConnectWifi():
     global bootError
     try:
@@ -163,7 +167,6 @@ def shouldConnectWifi():
                 [[reason] for reason, value in wifiReasons if value],
                 header="Connecting to wifi because...",
             )
-
         return shouldConnect
     except Exception as e:
         bootError = True
@@ -177,7 +180,9 @@ if __name__ == "__main__":
 # set defaults
 #
 
-
+self._db
+self._db
+self._db
 ### Boot directory
 # wifi connection
 # config

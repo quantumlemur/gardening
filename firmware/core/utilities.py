@@ -20,17 +20,17 @@ class colors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
 
-
+@micropython.native
 def now():
     """Returns unix timestamp, correcting for esp32 epoch"""
     return time() + 946684800
 
-
+@micropython.native
 def isWifi():
     """Is wifi connected?"""
     return WLAN(STA_IF).isconnected()
 
-
+@micropython.native
 def nextInitExpected():
     """Calculates the next time we expect that the device will boot and connect to wifi."""
     nextInitByTime = core.config.config.get("NEXT_INIT_TIME")
@@ -40,7 +40,7 @@ def nextInitExpected():
     ) * core.config.config.get("SLEEP_DURATION")
     return min(nextInitByTime, nextInitByCount)
 
-
+@micropython.native
 def printTable(rows, header="", columnHeaders=[], color=""):
     """Formats, justifies, and prints a table of items."""
     # find widths
@@ -100,7 +100,7 @@ def printTable(rows, header="", columnHeaders=[], color=""):
         )
     )
 
-
+@micropython.native
 def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):
     """urequests wrapper.  Adds default headers to each request, and sets default
     server if not specified."""
@@ -128,10 +128,10 @@ def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):
         print("Error: invalid request type")
         return None
 
-
+@micropython.native
 def get(**kwargs):
     return _requestWrapper(method="GET", **kwargs)
 
-
+@micropython.native
 def post(**kwargs):
     return _requestWrapper(method="POST", **kwargs)
