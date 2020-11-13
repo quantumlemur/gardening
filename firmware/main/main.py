@@ -92,42 +92,13 @@ def goToSleep(quickSleep=False):
         min(
             config.get("SLEEP_DURATION"),
             config.get("NEXT_INIT_TIME") - now(),
+            60 * 60 * 24,  # hardcoded 24-hour max sleep
         ),
         1,
     )
-    print(
-        "Boot number {} of {}".format(
-            config.get("bootNum"), config.get("MAX_ENTRYS_WITHOUT_INIT")
-        )
-    )
-    print(
-        "Boot time {} of {}.  {} seconds until connection".format(
-            now(),
-            config.get("NEXT_INIT_TIME"),
-            config.get("NEXT_INIT_TIME") - now(),
-        )
-    )
-
-    # bootNum == 0 signifies to connect to wifi next boot
-    if time() == 0:
-        print("*** Connecting to wifi next boot, and not sleeping.  Reason: clock at 0")
-        sleep_duration = 1
-    elif now() + config.get("SLEEP_DURATION") >= config.get("NEXT_INIT_TIME"):
-        print(
-            "*** Connecting to wifi next boot.  Reason: next sleep would pass the next connection time."
-        )
-        config.put("bootNum", 0)
-    elif config.get("bootNum") >= config.get("MAX_ENTRYS_WITHOUT_INIT"):
-        print(
-            "*** Connecting to wifi next boot.  Reason: max num of non-connection boots reached."
-        )
-        config.put("bootNum", 0)
-    else:
-        print("*** Sleeping and booting like normal, not connecting to wifi next boot.")
-        config.put("bootNum", config.get("bootNum") + 1)
 
     # Turn LED off
-    Signal(config.get("ledPin"), Pin.OUT, invert=True).off()
+    # Signal(config.get("ledPin"), Pin.OUT, invert=True).off()
 
     holdPins()
 

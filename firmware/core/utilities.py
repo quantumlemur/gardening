@@ -38,8 +38,67 @@ def nextInitExpected():
         core.config.config.get("MAX_ENTRYS_WITHOUT_INIT")
         - core.config.config.get("bootNum")
     ) * core.config.config.get("SLEEP_DURATION")
-    nextInitExpected = min(nextInitByTime, nextInitByCount)
-    return nextInitExpected
+    return min(nextInitByTime, nextInitByCount)
+
+
+def printTable(rows, header="", columnHeaders=[], color=""):
+    """Formats, justifies, and prints a table of items."""
+    # find widths
+    contentWidths = [0] * len(rows[0])
+    if columnHeaders:
+        contentWidths = [len(header) for header in columnHeaders]
+    for row in rows:
+        contentWidths = [max(w, len(str(text))) for w, text in zip(contentWidths, row)]
+
+    # Print header
+    print(
+        "{color} {bold}{underline} {header: <{width}}{endc}".format(
+            color=color,
+            bold=colors.BOLD,
+            underline=colors.UNDERLINE,
+            header=header,
+            width=sum(contentWidths) + 2 * len(contentWidths),
+            endc=colors.ENDC,
+        )
+    )
+
+    # Print column headers
+    if columnHeaders:
+        for text, width in zip(columnHeaders, contentWidths):
+            print(
+                "{color}| {underline}{text: <{width}}{endc} ".format(
+                    color=color,
+                    underline=colors.UNDERLINE,
+                    text=text,
+                    width=width,
+                    endc=colors.ENDC,
+                ),
+                end="",
+            )
+        print("{color}|{endc}".format(color=color, endc=colors.ENDC))
+
+    # Print rows
+    for row in rows:
+        for text, width in zip(row, contentWidths):
+            print(
+                "{color}| {text: <{width}} ".format(
+                    color=color,
+                    text=str(text),
+                    width=width,
+                ),
+                end="",
+            )
+        print("|{}".format(colors.ENDC))
+
+    # Print bottom border
+    print(
+        "{color}{fill:{fill}<{width}}---{endc}".format(
+            color=color,
+            fill="-",
+            width=(sum(contentWidths) + (2 * len(contentWidths))),
+            endc=colors.ENDC,
+        )
+    )
 
 
 def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):

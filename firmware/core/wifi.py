@@ -1,58 +1,59 @@
 from ntptime import settime
-from utime import sleep, time
+from utime import sleep, time, ticks_ms, ticks_diff
 from ubinascii import hexlify
 
 from machine import reset
 from network import STA_IF, WLAN
 
 from core.config import config
+from core.utilities import colors
 
+from uos import urandom
 
 wifi = WLAN(STA_IF)
-# Try to store the mac if the config module is working
-# print("mac address: " + hexlify(self.wifi.config('mac'), ':'))
-
-# try:
-#     from config import Config
-#     config = Config()
-#     print("mac address: " + hexlify(self.wifi.config('mac'), ':'))
-#     config.put('mac', ubinascii.hexlify(machine.unique_id(), ':').decode()))
-# except:
-#     pass
-
-# self.url = "https://api.allthingstalk.io/device/{}/state".format(
-#     device_id)
-# self.headers = {"Authorization": "Bearer {}".format(device_token),
-#                 "Content-type": "application/json", }
 
 
 def connect_wifi():
+    ifconfig = config.get("ifconfig")
+    if ifconfig:
+        print("Previous wifi config found.  Loading: {}".format(ifconfig))
+        wifi.ifconfig(ifconfig)
+
+    config.put("ifconfig", None)  # Erase stored config so it's reset on error
+    config.flush()
+
     wifi.active(True)
     if not wifi.isconnected():
         print("Connecting to wifi...")
         wifi.connect(config.get("wifi_ssid"), config.get("wifi_password"))
-        wifiConnectStartTime = time()
-        while not wifi.isconnected():
+        wifiConnectStartTicks = ticks_ms()
+        while (ticks_diff(ticks_ms(), wifiConnectStartTicks) < 20000) and (
+            not wifi.isconnected()
+        ):
             sleep(0.1)
-            if time() > wifiConnectStartTime + 20:
-                print("Wifi connect timed out.")
-                return False
-
-        try:
-            # if led:
-            #     led.set_rgb_cycle(
-            #         [
-            #             (1, 0, 1, 0),
-            #             (1, 0, 1, 1),
-            #             (1, 0, 0, 1),
-            #             (1, 0, 1, 1),
-            #             (1, 0, 0, 0),
-            #         ]
-            #     )
-            settime()
-        except OSError:
-            print("NTP sync failed")
-    return True
+    try:
+        # if led:
+        #     led.set_rgb_cycle(
+        #         [
+        #             (1, 0, 1, 0),
+        #             (1, 0, 1, 1),
+        #             (1, 0, 0, 1),
+        #             (1, 0, 1, 1),
+        #             (1, 0, 0, 0),
+        #         ]
+        #     )
+        settime()
+        config.put(
+            "ifconfig", wifi.ifconfig()
+        )  # Store successful wifi config for next time
+        return True
+    except OSError:
+        print("NTP sync failed")
+        wifi.active(False)
+        return False
+    print("Shouldn't be able to end up here.  Wifi problem?")
+    wifi.active(False)
+    return False
 
 
 def monitor_connection():

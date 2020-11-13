@@ -1,22 +1,34 @@
+from machine import WDT
+
+wdt = WDT(timeout=120000)  # milliseconds
+
+
 from ubinascii import hexlify
 from uos import listdir, remove
-from utime import time
+from utime import localtime, time
 
 from esp32 import Partition
 from machine import DEEPSLEEP_RESET, reset, reset_cause, Pin, Signal, unique_id
 
 from core.config import config
 from currentVersionInfo import currentVersionHash, currentVersionTag
-from core.utilities import colors, now
+from core.utilities import colors, nextInitExpected, now, printTable
 
 ######
 ## Anything non-essential to OTA updates should be enclosed in try...except blocks
 ######
 
 canaryFile = "__canary.py"
+bootError = False
 
 
 def main():
+    global bootError
+    try:
+        config.put("bootsSinceWifi", config.get("bootsSinceWifi") + 1)
+    except Exception as e:
+        bootError = True
+        print("Error setting bootnum")
     printBootInfo()
     setLED()
 
@@ -24,10 +36,12 @@ def main():
         from core import otaUpdater, updater, wifi
 
         if not wifi.connect_wifi():
-            print("Wifi connection failed.  Restarting...")
-            config.close()
-            reset()
+            print("Wifi connection failed.  Moving on without wifi...")
+            return
+            # config.close()
+            # reset()
         try:
+            config.put("bootsSinceWifi", 0)
             config.put("LAST_INIT_TIME", now())
             config.put(
                 "NEXT_INIT_TIME",
@@ -52,9 +66,9 @@ def main():
             )
             if ota.updateFirmware(version=desiredVersion):
                 if ota.verifyHash():
-                    ota.setNextBoot()
                     if canaryFile in listdir():
                         remove(canaryFile)
+                    ota.setNextBoot()
                     print("Firmware download successful.  Rebooting...")
                     config.close()
                     reset()
@@ -67,6 +81,7 @@ def main():
 
 
 def printBootInfo():
+    global bootError
     try:
         items = [
             ["Name", config.get("name")],
@@ -76,41 +91,30 @@ def printBootInfo():
             ["Firmware", currentVersionTag],
             ["Partition", str(Partition(Partition.RUNNING).info()[4])],
             ["Server", config.get("server_url")],
+            [
+                "Boots since last connection",
+                "{} of {}".format(
+                    config.get("bootsSinceWifi"), config.get("MAX_ENTRYS_WITHOUT_INIT")
+                ),
+            ],
+            [
+                "Current time",
+                "{}-{}-{} {}:{}:{}".format(*localtime(time() - 60 * 60 * 8)),
+            ],
         ]
-        # find widths
-        colWidths = [0, 0]
-        for item in items:
-            for i in range(len(colWidths)):
-                colWidths[i] = max(colWidths[i], len(item[i]))
+        printTable(
+            items,
+            header="Boot Info",
+            color=colors.HEADER,
+        )
 
-        print(
-            "{color}{fill:{fill}<{width}}".format(
-                color=colors.HEADER,
-                fill="-",
-                width=(2 + colWidths[0] + 3 + colWidths[1] + 2),
-            )
-        )
-        for item in items:
-            print(
-                "| {label: <{width0}}   {value: <{width1}} |".format(
-                    label=item[0],
-                    value=item[1],
-                    width0=colWidths[0],
-                    width1=colWidths[1],
-                )
-            )
-        print(
-            "{fill:{fill}<{width}}{color}".format(
-                color=colors.ENDC,
-                fill="-",
-                width=(2 + colWidths[0] + 3 + colWidths[1] + 2),
-            )
-        )
     except Exception as e:
+        bootError = True
         print("Error in boot.printBootInfo(): ", e)
 
 
 def setLED():
+    global bootError
     try:
         ledPin = config.get("BOARD_LED_PIN")
         if ledPin and ledPin > 0:
@@ -126,30 +130,43 @@ def setLED():
                 print("turning off LED, pin {}, invert {}".format(ledPin, invert))
                 board_led.off()
     except Exception as e:
+        bootError = True
         print("Error in boot.setLED():", e)
 
 
 def shouldConnectWifi():
+    global bootError
     try:
-        wifiReasons = {
-            "reset_cause != DEEPSLEEP_RESET": reset_cause() != DEEPSLEEP_RESET,
-            'config.get("bootNum") == 0': config.get("bootNum") == 0,
-            'now() >= config.get("NEXT_INIT_TIME")': now()
-            >= config.get("NEXT_INIT_TIME"),
-            'config.get("firmware_update_in_progress")': config.get(
-                "firmware_update_in_progress"
-            ),
-            'not config.get("runningWithoutError")': not config.get(
-                "runningWithoutError"
-            ),
-        }
+        wifiReasons = [
+            ["Clock at 0", time() == 0],
+            ["Non-sleep boot", reset_cause() != DEEPSLEEP_RESET],
+            [
+                "Boot count",
+                config.get("bootsSinceWifi") >= config.get("MAX_ENTRYS_WITHOUT_INIT"),
+            ],
+            ["Boot time", now() >= config.get("NEXT_INIT_TIME")],
+            [
+                "Firmware_update_in_progress",
+                config.get("firmware_update_in_progress"),
+            ],
+            ["Config: Not runningWithoutError", not config.get("runningWithoutError")],
+            ["canaryFile missing", canaryFile not in listdir()],
+            ["bootError", bootError],
+            ["Wifi config empty", config.get("ifconfig") is None],
+        ]
         shouldConnect = False
-        for reason, value in wifiReasons.items():
+        for reason, value in wifiReasons:
             if value:
                 shouldConnect = True
-                print("Wifi reason: {}".format(reason))
+        if shouldConnect:
+            printTable(
+                [[reason] for reason, value in wifiReasons if value],
+                header="Connecting to wifi because...",
+            )
+
         return shouldConnect
     except Exception as e:
+        bootError = True
         print("Error in boot.shouldConnectWifi():", e)
         return True
 

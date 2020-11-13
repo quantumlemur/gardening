@@ -4,9 +4,9 @@ from ujson import loads, dumps
 from uos import listdir, remove
 
 # from urequests import get
-from utime import time
+from utime import time, ticks_ms
 
-from machine import unique_id, WDT
+from machine import unique_id
 import core.utilities
 
 DBFILE = "btree.db"
@@ -16,8 +16,6 @@ from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 class Config:
-    wdt = WDT(timeout=120000)  # milliseconds
-
     def __init__(self):
         """Opens the database, recreating it if necessary."""
         self._f = None
@@ -27,7 +25,6 @@ class Config:
             self._db = btree.open(self._f)
             if b"wifi_ssid" not in self._db:
                 self.reinitialize()
-
         except Exception as err:
             print("Database load error: {}.  Reinitializing database.".format(err))
             self._f = open(DBFILE, "w+b")
@@ -46,7 +43,7 @@ class Config:
             "SLEEP_DURATION": 1,
             "LIGHT": 1,
             "DHT_PIN": 0,
-            "bootNum": 0,
+            "bootsSinceWifi": 0,
             "ledPin": 16,
             "runningWithoutError": False,
             "firmware_update_in_progress": False,
