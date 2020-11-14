@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import "gestalt/dist/gestalt.css";
-import { useSpring, animated } from "react-spring";
-import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
-import { schemeCategory10, extent, line } from "d3";
+import { scaleLinear, scaleTime } from "d3-scale";
+import { line } from "d3";
 import AxisLeft from "./AxisLeft";
 import AxisBottom from "./AxisBottom";
-
-import { Box, Heading, Text } from "gestalt";
 
 // data input format: array of arrays of x/y pairs
 // data will be colored according to the array index
@@ -26,19 +23,19 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [tooltipText, setTooltipText] = useState([]);
-  const [tooltipTransform, setTooltipTransform] = useState("translate(0,0)");
-  const [tooltipProps, setTooltipProps, stopTooltipProps] = useSpring(() => ({
-    opacity: 0,
-  }));
+  // const [tooltipVisible, setTooltipVisible] = useState(false);
+  // const [tooltipText, setTooltipText] = useState([]);
+  // const [tooltipTransform, setTooltipTransform] = useState("translate(0,0)");
+  // const [tooltipProps, setTooltipProps, stopTooltipProps] = useSpring(() => ({
+  //   opacity: 0,
+  // }));
 
   const ref = useRef(null);
 
   useEffect(() => {
     setHeight(ref.current.clientHeight);
     setWidth(ref.current.clientWidth);
-  });
+  }, [setHeight, setWidth, ref]);
 
   //   div.transition()
   //       .duration(200)
@@ -144,7 +141,7 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
         key={graphSeries.key}
         d={pathLine}
         stroke={colorScale(graphSeries.key)}
-        strokeWidth={graphSeries.highlight ? "10" : "2"}
+        strokeWidth={graphSeries.highlight ? "20" : "2"}
         className="line"
         fill="none"
       />
@@ -156,7 +153,7 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
       <AxisBottom xScale={xScale} yScale={yScale} />
       <AxisLeft xScale={xScale} yScale={yScale} />
       {lines}
-      <text transform={tooltipTransform}>
+      {/* <text transform={tooltipTransform}>
         <tspan x="10" y="45">
           {tooltipText[0]}
         </tspan>
@@ -166,7 +163,7 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
         <tspan x="10" y="95">
           {tooltipText[2]}
         </tspan>
-      </text>
+      </text> */}
     </svg>
   );
 }

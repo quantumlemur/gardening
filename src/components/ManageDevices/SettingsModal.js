@@ -6,7 +6,7 @@ import InputField from "./InputField";
 function SettingsModal({ deviceId, onDismiss }) {
   const [device, setDevice] = useState({});
   const [requestedVersionTag, setRequestedVersionTag] = useState("");
-  const [boardType, setboardType] = useState("");
+  const [boardType, setBoardType] = useState("");
   const [errorMessages, setErrorMessages] = useState({
     nameError: "",
     requestedVersionError: "",
@@ -23,25 +23,28 @@ function SettingsModal({ deviceId, onDismiss }) {
   const [boardTypesAvailable, setBoardTypesAvailable] = useState([]);
 
   useEffect(() => {
+    console.log("fetch devices");
     fetch(`/api/get_device/${deviceId}`)
       .then((response) => response.json())
       .then((data) => {
         setDevice(data);
         setRequestedVersionTag(data.requested_version_tag);
-        setboardType(String(data.board_type));
+        setBoardType(String(data.board_type));
       });
-  }, []);
+  }, [setRequestedVersionTag, setBoardType, deviceId]);
 
   useEffect(() => {
+    console.log("fetch firmware");
     fetch("/api/get_firmware_versions")
       .then((response) => response.json())
       .then((data) => {
         data.unshift({ label: "None (always stay updated)", value: "" });
         setFirmwareVersionsAvailable(data);
       });
-  }, []);
+  }, [setFirmwareVersionsAvailable]);
 
   useEffect(() => {
+    console.log("fetch boards");
     fetch("/api/get_board_types")
       .then((response) => response.json())
       .then((data) => {
@@ -51,7 +54,7 @@ function SettingsModal({ deviceId, onDismiss }) {
         }));
         setBoardTypesAvailable(stringifiedData);
       });
-  }, []);
+  }, [setBoardTypesAvailable]);
 
   function checkFieldExists(value, errorName) {
     let message = "";
@@ -76,6 +79,7 @@ function SettingsModal({ deviceId, onDismiss }) {
   }
 
   function handleNameChange(value) {
+    console.log("name change");
     checkFieldExists(value, "nameError");
     setDevice((device) => Object.assign(device, { name: value }));
   }
@@ -91,7 +95,7 @@ function SettingsModal({ deviceId, onDismiss }) {
     setDevice((device) =>
       Object.assign(device, { board_type: parseInt(value) })
     );
-    setboardType(String(value));
+    setBoardType(String(value));
   }
 
   function handleInitIntervalChange(value) {
@@ -124,6 +128,7 @@ function SettingsModal({ deviceId, onDismiss }) {
     fetch("/api/submit_config", requestOptions);
     onDismiss();
   }
+  console.log("rerendering settings modal");
 
   return (
     <Layer>

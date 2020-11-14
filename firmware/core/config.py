@@ -99,6 +99,7 @@ class Config:
     @micropython.native
     def updateFromServer(self):
         """Fetches a new config from the server and updates the database with it.  Returns whether anything changed."""
+        print('start of update')
         print(
             "Checking for server config updates from {}".format(self.get("server_url"))
         )

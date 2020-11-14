@@ -176,18 +176,3 @@ def shouldConnectWifi():
 
 if __name__ == "__main__":
     main()
-
-# set defaults
-#
-
-self._db
-self._db
-self._db
-### Boot directory
-# wifi connection
-# config
-# OTA updater
-# default credentials
-# file updater
-
-# main takes the contents of MasterActions.

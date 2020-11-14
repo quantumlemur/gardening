@@ -107,9 +107,21 @@ items = [
         "{}-{}-{} {}:{}:{}".format(*localtime(time() - 60 * 60 * 8)),
     ],
 ]
-printTable(
-    items,
-    header="Boot Info",
-    # columnHeaders=["text", "value"],
-    # color=colors.HEADER,
-)
+# printTable(
+#     items,
+#     header="Boot Info",
+#     # columnHeaders=["text", "value"],
+#     # color=colors.HEADER,
+# )
+
+
+# config.updateFromServer()
+print(config.get("server_url"))
+
+for key, value in config._db.items():
+    print(key, value)
+
+
+import core.utilities as utilities
+
+print(utilities.nextInitExpected())

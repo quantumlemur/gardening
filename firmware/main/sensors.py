@@ -1,6 +1,4 @@
-from ujson import loads
-from uos import listdir, remove
-from utime import sleep
+from uos import remove
 
 import btree
 from machine import ADC, Pin

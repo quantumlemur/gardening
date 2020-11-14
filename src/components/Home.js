@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "gestalt/dist/gestalt.css";
 
 import Map from "./HouseMap/Map";
 
-import { Box, Heading, Text } from "gestalt";
+import { Box } from "gestalt";
 
 function Home() {
   return (

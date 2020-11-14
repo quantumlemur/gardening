@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "gestalt/dist/gestalt.css";
-import { Box, Heading, Image } from "gestalt";
+import { Box, Image } from "gestalt";
 import { scaleLinear } from "d3-scale";
 
 import PlantShadow from "./PlantShadow";
@@ -22,7 +22,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
       .then((data) => {
         setZones(data);
       });
-  }, []);
+  }, [setZones]);
 
   useEffect(() => {
     fetch("/api/get_devices")
@@ -30,7 +30,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
       .then((data) => {
         setDevices(data);
       });
-  }, []);
+  }, [setDevices]);
 
   useEffect(() => {
     setWidth(ref.current.clientWidth);
@@ -43,6 +43,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
   };
 
   function handleDismiss() {
+    console.log("handledismiss in map");
     setShowStatus(false);
     // setShowSettings(false);
   }
@@ -115,6 +116,8 @@ function Map({ initialActiveDeviceId, setLocation }) {
       </Box>
     );
   });
+
+  console.log("rerendering map");
 
   return (
     <Box

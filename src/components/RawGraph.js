@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "gestalt/dist/gestalt.css";
-import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { scaleOrdinal } from "d3-scale";
 import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "./Graph/LineGraph";
 import Legend from "./Graph/Legend";
 
-import { Box, Heading, Text } from "gestalt";
+import { Box } from "gestalt";
 
 // Format data for graph display.
 // Input: List of points from get_sensor_data
@@ -123,6 +123,7 @@ function RawGraph() {
           );
           return true;
         }
+        return false;
       });
     }
   };

@@ -20,25 +20,32 @@ class colors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
 
+
 @micropython.native
 def now():
     """Returns unix timestamp, correcting for esp32 epoch"""
     return time() + 946684800
+
 
 @micropython.native
 def isWifi():
     """Is wifi connected?"""
     return WLAN(STA_IF).isconnected()
 
+
 @micropython.native
 def nextInitExpected():
     """Calculates the next time we expect that the device will boot and connect to wifi."""
-    nextInitByTime = core.config.config.get("NEXT_INIT_TIME")
-    nextInitByCount = now() + (
-        core.config.config.get("MAX_ENTRYS_WITHOUT_INIT")
-        - core.config.config.get("bootNum")
-    ) * core.config.config.get("SLEEP_DURATION")
-    return min(nextInitByTime, nextInitByCount)
+    try:
+        nextInitByTime = core.config.config.get("NEXT_INIT_TIME")
+        nextInitByCount = now() + (
+            core.config.config.get("MAX_ENTRYS_WITHOUT_INIT")
+            - core.config.config.get("bootsSinceWifi")
+        ) * core.config.config.get("SLEEP_DURATION")
+        return min(nextInitByTime, nextInitByCount)
+    except:
+        return 0
+
 
 @micropython.native
 def printTable(rows, header="", columnHeaders=[], color=""):
@@ -69,7 +76,7 @@ def printTable(rows, header="", columnHeaders=[], color=""):
                 "{color}| {underline}{text: <{width}}{endc} ".format(
                     color=color,
                     underline=colors.UNDERLINE,
-                    text=text,
+                    text=str(text),
                     width=width,
                     endc=colors.ENDC,
                 ),
@@ -99,6 +106,7 @@ def printTable(rows, header="", columnHeaders=[], color=""):
             endc=colors.ENDC,
         )
     )
+
 
 @micropython.native
 def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):

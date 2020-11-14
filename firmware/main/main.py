@@ -1,11 +1,7 @@
 #
-from utime import sleep, time
-from esp32 import Partition
-from ujson import loads
 
 # 3rd party imports
-from machine import ADC, deepsleep, Pin, RTC, Signal
-from network import WLAN, STA_IF
+from machine import deepsleep, Pin
 
 # Local file imports
 from core.config import config

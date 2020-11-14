@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { scaleOrdinal } from "d3-scale";
 import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "../Graph/LineGraph";
@@ -42,7 +42,7 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
       .then((data) => {
         setDevice(data);
       });
-  }, [deviceId]);
+  }, [setDevice, deviceId]);
 
   useEffect(() => {
     fetch(`/api/get_sensor_data/${deviceId}/soil`)
@@ -59,7 +59,7 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
-  }, [deviceId]);
+  }, [setxExtent, setyExtent, setGraphData, deviceId]);
 
   useEffect(() => {
     fetch(`/api/get_sensor_data/${deviceId}/volt`)
@@ -76,18 +76,21 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
-  }, [deviceId]);
+  }, [setvoltxExtent, setvoltyExtent, setvoltGraphData, deviceId]);
 
   function handleSettingsButtonClick() {
     setShowSettings(!showSettings);
   }
 
   function handleDismiss() {
+    console.log("handle dismiss in status modal dismiss");
     setShowSettings(false);
     // setShowSettings(false);
   }
 
   var colorScale = scaleOrdinal(schemeCategory10);
+
+  console.log("rerendering status modal");
 
   return (
     <Layer>
