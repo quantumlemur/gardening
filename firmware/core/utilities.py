@@ -119,26 +119,30 @@ def _requestWrapper(method="GET", url=None, path=None, headers={}, **kwargs):
         url = "{}/{}".format(url, path)
     # Build up default headers using live values
     fullHeaders = {
-        "mac": hexlify(unique_id(), ":").decode(),
-        "device-next-init": str(nextInitExpected()),
-        "current-version-tag": currentVersionTag,
-        "current-version-hash": currentVersionHash,
-        "device-time": str(now()),
+        "Mac": hexlify(unique_id(), ":").decode(),
+        "Device-Next-Init": str(nextInitExpected()),
+        "Current-Version-Tag": currentVersionTag,
+        "Current-Version-Hash": currentVersionHash,
+        "Device-Time": str(now()),
         "Content-Type": "application/json",
     }
+
     fullHeaders.update(headers)
+    print(url, fullHeaders)
 
     if method == "GET":
         return urequests.get(url=url, headers=fullHeaders, **kwargs)
     elif method == "POST":
-        return urequests.get(url=url, headers=fullHeaders, **kwargs)
+        return urequests.post(url=url, headers=fullHeaders, **kwargs)
     else:
         print("Error: invalid request type")
         return None
 
+
 @micropython.native
 def get(**kwargs):
     return _requestWrapper(method="GET", **kwargs)
+
 
 @micropython.native
 def post(**kwargs):
