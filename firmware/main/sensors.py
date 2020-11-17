@@ -58,21 +58,24 @@ class Sensors:
         db = self._db
         try:
             numReadings = int(db[b"nextSlot"])
-            data = ""
-            for i in range(numReadings):
-                if i == 0:
-                    data = "[{}]".format(db[str(i)].decode())
-                else:
-                    data = "{},[{}]".format(data, db[str(i)].decode())
-            data = "[{}]".format(data)
-            request = post(path="readings", data=data)
-            if request.status_code == 200:
-                print("Sensor upload successful")
-                for i in range(numReadings):
+            start = 0
+            while start < numReadings:
+                data = ""
+                for i in range(start, min(start + 10, numReadings)):
+                    if i == start:
+                        data = "[{}]".format(db[str(i)].decode())
+                    else:
+                        data = "{},[{}]".format(data, db[str(i)].decode())
                     del db[str(i).encode()]
-                db[b"nextSlot"] = b"0"
-            else:
-                print("Sensor upload unsuccessful.")
+                data = "[{}]".format(data)
+                request = post(path="readings", data=data)
+                if request.status_code == 200:
+                    print("Sensor upload successful")
+
+                    db[b"nextSlot"] = b"0"
+                else:
+                    print("Sensor upload unsuccessful.")
+                start = start + 10
         except KeyError as e:
             print("Sensor database error.  Resetting data...")
             db[b"nextSlot"] = b"0"
