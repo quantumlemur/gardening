@@ -24,6 +24,28 @@ function processData(data) {
   return { data: mappedData, xExtent: xExtent, yExtent: yExtent };
 }
 
+function calcBatteryStats(voltageData) {
+  const endReading = voltageData[voltageData.length - 1];
+  const targetTimestamp = endReading.timestamp - 60 * 60 * 24 * 3; // 3 days
+  var startReading = {};
+  voltageData.some((d) => {
+    // get the first reading after the target timestamp
+    if (d.timestamp > targetTimestamp) {
+      startReading = d;
+      return true;
+    } else {
+      return false;
+    }
+  });
+  const tDelta =
+    (endReading.timestamp - startReading.timestamp) / (60 * 60 * 24);
+  const vDelta = startReading.value - endReading.value;
+
+  const mvPerDay = vDelta / tDelta;
+  const daysPerBattery = 800 / mvPerDay;
+  return { mvPerDay: mvPerDay, daysPerBattery: daysPerBattery };
+}
+
 function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -35,6 +57,9 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   const [voltgraphData, setvoltGraphData] = useState([]);
   const [voltxExtent, setvoltxExtent] = useState([]);
   const [voltyExtent, setvoltyExtent] = useState([]);
+
+  const [mvPerDay, setMvPerDay] = useState(0);
+  const [daysPerBattery, setDaysPerBattery] = useState(0);
 
   useEffect(() => {
     fetch(`/api/get_device/${deviceId}`)
@@ -65,6 +90,10 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
     fetch(`/api/get_sensor_data/${deviceId}/volt`)
       .then((response) => response.json())
       .then((device_data) => {
+        const batteryStats = calcBatteryStats(device_data);
+        setMvPerDay(batteryStats.mvPerDay);
+        setDaysPerBattery(batteryStats.daysPerBattery);
+
         const mappedData = processData(device_data);
 
         setvoltxExtent(mappedData.xExtent);
@@ -100,7 +129,10 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
         onDismiss={onDismiss}
         size="sm"
       >
-        <Text align="center">Voltage: {device.volt}</Text>
+        <Text align="center">
+          Voltage: {device.volt}. mV per day: {Math.floor(mvPerDay)}. Days per
+          battery: {Math.floor(daysPerBattery)}
+        </Text>
         <Box
           display="flex"
           wrap
