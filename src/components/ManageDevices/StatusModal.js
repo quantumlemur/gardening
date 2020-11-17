@@ -61,6 +61,8 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   const [mvPerDay, setMvPerDay] = useState(0);
   const [daysPerBattery, setDaysPerBattery] = useState(0);
 
+  const [annotations, setAnnotations] = useState([]);
+
   useEffect(() => {
     fetch(`/api/get_device/${deviceId}`)
       .then((response) => response.json())
@@ -87,6 +89,15 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   }, [setxExtent, setyExtent, setGraphData, deviceId]);
 
   useEffect(() => {
+    fetch(`/api/get_raw_sensor_data/${deviceId}/watering`)
+      .then((response) => response.json())
+      .then((device_data) => {
+        const mappedData = processData(device_data);
+        setAnnotations(mappedData.data);
+      });
+  }, [deviceId]);
+
+  useEffect(() => {
     fetch(`/api/get_sensor_data/${deviceId}/volt`)
       .then((response) => response.json())
       .then((device_data) => {
@@ -106,6 +117,10 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
         ]);
       });
   }, [setvoltxExtent, setvoltyExtent, setvoltGraphData, deviceId]);
+
+  function handleWaterButtonClick() {
+    fetch(`/api/do_watering/${deviceId}`);
+  }
 
   function handleSettingsButtonClick() {
     setShowSettings(!showSettings);
@@ -148,6 +163,7 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
               xExtent={xExtent}
               yExtent={yExtent}
               invert={true}
+              annotations={annotations}
             />
           </Box>
           <Box flex="grow" width="100%" padding={3}>
@@ -159,6 +175,13 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
               invert={false}
             />
           </Box>
+          <Button
+            onClick={handleWaterButtonClick}
+            color="blue"
+            paddingX={3}
+            paddingY={3}
+            text="Water plant!"
+          />
           <Button
             onClick={handleSettingsButtonClick}
             color="blue"

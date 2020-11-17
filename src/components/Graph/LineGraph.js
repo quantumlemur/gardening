@@ -19,7 +19,14 @@ import AxisBottom from "./AxisBottom";
 //   ],
 // ];
 
-function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
+function LineGraph({
+  graphData,
+  colorScale,
+  xExtent,
+  yExtent,
+  invert,
+  annotations,
+}) {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
@@ -127,6 +134,27 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
 
   const d3line = line();
 
+  var annotationLines = [];
+  if (annotations != null) {
+    annotationLines = annotations.map((annotation, i) => {
+      const scaledPoints = [
+        [xScale(annotation.x), yScale.range()[0]],
+        [xScale(annotation.x), yScale.range()[1]],
+      ];
+      const pathLine = d3line(scaledPoints);
+      return (
+        <path
+          key={i}
+          d={pathLine}
+          stroke={"green"}
+          strokeWidth={"1"}
+          className="line"
+          fill="none"
+        />
+      );
+    });
+  }
+
   const lines = graphData.map((graphSeries, i) => {
     // const yScale = scaleLinear()
     //   .domain(extent(points, (d) => d.y))
@@ -152,6 +180,7 @@ function LineGraph({ graphData, colorScale, xExtent, yExtent, invert }) {
     <svg width="100%" height="auto" ref={ref}>
       <AxisBottom xScale={xScale} yScale={yScale} />
       <AxisLeft xScale={xScale} yScale={yScale} />
+      {annotations && annotationLines}
       {lines}
       {/* <text transform={tooltipTransform}>
         <tspan x="10" y="45">

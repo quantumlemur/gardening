@@ -324,7 +324,6 @@ def get_raw_sensor_data(deviceId, sensorName):
         WHERE
             device_id = ? AND
             name = ? AND
-            zscore < 2 AND
             timestamp > ?
         ORDER BY timestamp ASC
         """,
@@ -390,6 +389,38 @@ def get_board_types():
     #     {"label": item["board_name"], "value": item["board_type"]} for item in data
     # ]
     return jsonify(data)
+
+
+@bp.route("/do_watering/<deviceId>")
+def do_watering(deviceId):
+    assert deviceId == request.view_args["deviceId"]
+    db = get_db_dicts()
+    error = None
+    db.execute(
+        """
+        INSERT INTO readings
+            (
+                timestamp,
+                value,
+                device_id,
+                name,
+                offset,
+                zscore
+            )
+        VALUES
+            (
+                ?,
+                1,
+                ?,
+                "watering",
+                0,
+                0
+            )
+        """,
+        (int(time()), deviceId),
+    )
+    db.commit()
+    return {"success": True}
 
 
 @bp.route("/time")
