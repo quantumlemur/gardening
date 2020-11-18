@@ -107,7 +107,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
                     color={colorScale(d.calibrated_value)}
                     needWater={d.calibrated_value > 0.8}
                     needCharge={d.board_type !== 1 && d.volt < 3600}
-                    alert={new Date() > d.device_next_init * 1000}
+                    alert={new Date() > (d.device_next_init + 60 * 30) * 1000} // half hour grace period
                   />
                 ))}
             </svg>
