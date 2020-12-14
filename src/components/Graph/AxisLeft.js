@@ -1,5 +1,3 @@
-import { scaleLinear } from "d3-scale";
-
 import React from "react";
 
 function AxisLeft({ xScale, yScale }) {

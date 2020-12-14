@@ -14,6 +14,7 @@ from core.utilities import get
 #     return hash_md5.hexdigest()
 
 
+@micropython.native
 def sha256_file(fname):
     hash_sha256 = sha256()
     with open(fname, "rb") as f:
@@ -24,6 +25,7 @@ def sha256_file(fname):
     return hexlify(hash_sha256.digest()).decode("utf-8")
 
 
+@micropython.native
 def update_all_files():
     filelist = get_filelist()
     newFilesAvailable = False
@@ -35,6 +37,7 @@ def update_all_files():
     return newFilesAvailable
 
 
+@micropython.native
 def get_file(fname):
     print("Updating file {}".format(fname))
     path = "getfile_python_v2/{}".format(fname)
@@ -45,6 +48,7 @@ def get_file(fname):
         print("Download successful: {}".format(fname))
 
 
+@micropython.native
 def get_filelist():
     path = "listfiles_python_v2"
     request = get(path=path)

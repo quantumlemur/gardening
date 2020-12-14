@@ -60,6 +60,7 @@ class OTAUpdater:
     #     }
     #     return headers
 
+    @micropython.native
     def getAvailableVersions(self):
         url = "{}/list_versions".format(config.get("server_url"))
         headers = {"mac": str(config.get("mac"))}
@@ -68,6 +69,7 @@ class OTAUpdater:
         request.close()
         return versions
 
+    @micropython.native
     def getDesiredVersion(self):
         firmwareVersions = self.getAvailableVersions()
         firmwareRequest = config.get("requested_version_tag")
@@ -100,6 +102,7 @@ class OTAUpdater:
             chosenVersion = None
         return chosenVersion
 
+    @micropython.native
     def updateFirmware(self, version=None):
         if not version:
             version = self.getAvailableVersions()[0]
@@ -186,6 +189,7 @@ class OTAUpdater:
         request.close()
         return True
 
+    @micropython.native
     def verifyHash(self):
         # firstHash = sha256()
         # buf = bytearray(self.blockSize)
@@ -237,6 +241,7 @@ class OTAUpdater:
             print("Hashes don't match.")
         return success
 
+    @micropython.native
     def setNextBoot(self):
         self.nextPartition.set_boot()
 

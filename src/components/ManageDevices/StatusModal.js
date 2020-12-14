@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { scaleOrdinal } from "d3-scale";
 import { extent, schemeCategory10 } from "d3";
 
 import LineGraph from "../Graph/LineGraph";
@@ -24,6 +24,28 @@ function processData(data) {
   return { data: mappedData, xExtent: xExtent, yExtent: yExtent };
 }
 
+function calcBatteryStats(voltageData) {
+  const endReading = voltageData[voltageData.length - 1];
+  const targetTimestamp = endReading.timestamp - 60 * 60 * 24 * 3; // 3 days
+  var startReading = {};
+  voltageData.some((d) => {
+    // get the first reading after the target timestamp
+    if (d.timestamp > targetTimestamp) {
+      startReading = d;
+      return true;
+    } else {
+      return false;
+    }
+  });
+  const tDelta =
+    (endReading.timestamp - startReading.timestamp) / (60 * 60 * 24);
+  const vDelta = startReading.value - endReading.value;
+
+  const mvPerDay = vDelta / tDelta;
+  const daysPerBattery = 800 / mvPerDay;
+  return { mvPerDay: mvPerDay, daysPerBattery: daysPerBattery };
+}
+
 function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -36,13 +58,18 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
   const [voltxExtent, setvoltxExtent] = useState([]);
   const [voltyExtent, setvoltyExtent] = useState([]);
 
+  const [mvPerDay, setMvPerDay] = useState(0);
+  const [daysPerBattery, setDaysPerBattery] = useState(0);
+
+  const [annotations, setAnnotations] = useState([]);
+
   useEffect(() => {
     fetch(`/api/get_device/${deviceId}`)
       .then((response) => response.json())
       .then((data) => {
         setDevice(data);
       });
-  }, [deviceId]);
+  }, [setDevice, deviceId]);
 
   useEffect(() => {
     fetch(`/api/get_sensor_data/${deviceId}/soil`)
@@ -59,12 +86,25 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
+  }, [setxExtent, setyExtent, setGraphData, deviceId]);
+
+  useEffect(() => {
+    fetch(`/api/get_raw_sensor_data/${deviceId}/watering`)
+      .then((response) => response.json())
+      .then((device_data) => {
+        const mappedData = processData(device_data);
+        setAnnotations(mappedData.data);
+      });
   }, [deviceId]);
 
   useEffect(() => {
     fetch(`/api/get_sensor_data/${deviceId}/volt`)
       .then((response) => response.json())
       .then((device_data) => {
+        const batteryStats = calcBatteryStats(device_data);
+        setMvPerDay(batteryStats.mvPerDay);
+        setDaysPerBattery(batteryStats.daysPerBattery);
+
         const mappedData = processData(device_data);
 
         setvoltxExtent(mappedData.xExtent);
@@ -76,18 +116,25 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
           },
         ]);
       });
-  }, [deviceId]);
+  }, [setvoltxExtent, setvoltyExtent, setvoltGraphData, deviceId]);
+
+  function handleWaterButtonClick() {
+    fetch(`/api/do_watering/${deviceId}`);
+  }
 
   function handleSettingsButtonClick() {
     setShowSettings(!showSettings);
   }
 
   function handleDismiss() {
+    console.log("handle dismiss in status modal dismiss");
     setShowSettings(false);
     // setShowSettings(false);
   }
 
   var colorScale = scaleOrdinal(schemeCategory10);
+
+  console.log("rerendering status modal");
 
   return (
     <Layer>
@@ -97,7 +144,10 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
         onDismiss={onDismiss}
         size="sm"
       >
-        <Text align="center">Voltage: {device.volt}</Text>
+        <Text align="center">
+          Voltage: {device.volt}. mV per day: {Math.floor(mvPerDay)}. Days per
+          battery: {Math.floor(daysPerBattery)}
+        </Text>
         <Box
           display="flex"
           wrap
@@ -113,6 +163,7 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
               xExtent={xExtent}
               yExtent={yExtent}
               invert={true}
+              annotations={annotations}
             />
           </Box>
           <Box flex="grow" width="100%" padding={3}>
@@ -124,6 +175,13 @@ function StatusModal({ deviceId, onSettingsButtonClick, onDismiss }) {
               invert={false}
             />
           </Box>
+          <Button
+            onClick={handleWaterButtonClick}
+            color="blue"
+            paddingX={3}
+            paddingY={3}
+            text="Water plant!"
+          />
           <Button
             onClick={handleSettingsButtonClick}
             color="blue"

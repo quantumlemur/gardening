@@ -1,11 +1,7 @@
 #
-from utime import sleep, time
-from esp32 import Partition
-from ujson import loads
 
 # 3rd party imports
-from machine import ADC, deepsleep, Pin, RTC, Signal
-from network import WLAN, STA_IF
+from machine import deepsleep, Pin
 
 # Local file imports
 from core.config import config
@@ -25,6 +21,7 @@ pinPulls = {
 }
 
 
+@micropython.native
 def setPins():
     print("Setting pins...")
 
@@ -67,6 +64,7 @@ def setPins():
     # print("volt reading: {} x5: {}".format(reading, reading * 5))
 
 
+@micropython.native
 def holdPins():
     """Hold the pins before sleep to prevent current leakage"""
     print("Holding pins...")
@@ -87,47 +85,19 @@ def holdPins():
         Pin(pin, mode=Pin.IN, pull=Pin.PULL_HOLD)
 
 
+@micropython.native
 def goToSleep(quickSleep=False):
     sleep_duration = max(
         min(
             config.get("SLEEP_DURATION"),
             config.get("NEXT_INIT_TIME") - now(),
+            60 * 60 * 24,  # hardcoded 24-hour max sleep
         ),
         1,
     )
-    print(
-        "Boot number {} of {}".format(
-            config.get("bootNum"), config.get("MAX_ENTRYS_WITHOUT_INIT")
-        )
-    )
-    print(
-        "Boot time {} of {}.  {} seconds until connection".format(
-            now(),
-            config.get("NEXT_INIT_TIME"),
-            config.get("NEXT_INIT_TIME") - now(),
-        )
-    )
-
-    # bootNum == 0 signifies to connect to wifi next boot
-    if time() == 0:
-        print("*** Connecting to wifi next boot, and not sleeping.  Reason: clock at 0")
-        sleep_duration = 1
-    elif now() + config.get("SLEEP_DURATION") >= config.get("NEXT_INIT_TIME"):
-        print(
-            "*** Connecting to wifi next boot.  Reason: next sleep would pass the next connection time."
-        )
-        config.put("bootNum", 0)
-    elif config.get("bootNum") >= config.get("MAX_ENTRYS_WITHOUT_INIT"):
-        print(
-            "*** Connecting to wifi next boot.  Reason: max num of non-connection boots reached."
-        )
-        config.put("bootNum", 0)
-    else:
-        print("*** Sleeping and booting like normal, not connecting to wifi next boot.")
-        config.put("bootNum", config.get("bootNum") + 1)
 
     # Turn LED off
-    Signal(config.get("ledPin"), Pin.OUT, invert=True).off()
+    # Signal(config.get("ledPin"), Pin.OUT, invert=True).off()
 
     holdPins()
 

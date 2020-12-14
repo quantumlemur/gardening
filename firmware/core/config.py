@@ -4,9 +4,9 @@ from ujson import loads, dumps
 from uos import listdir, remove
 
 # from urequests import get
-from utime import time
+from utime import time, ticks_ms
 
-from machine import unique_id, WDT
+from machine import unique_id
 import core.utilities
 
 DBFILE = "btree.db"
@@ -16,8 +16,6 @@ from currentVersionInfo import currentVersionHash, currentVersionTag
 
 
 class Config:
-    wdt = WDT(timeout=120000)  # milliseconds
-
     def __init__(self):
         """Opens the database, recreating it if necessary."""
         self._f = None
@@ -27,13 +25,13 @@ class Config:
             self._db = btree.open(self._f)
             if b"wifi_ssid" not in self._db:
                 self.reinitialize()
-
         except Exception as err:
             print("Database load error: {}.  Reinitializing database.".format(err))
             self._f = open(DBFILE, "w+b")
             self._db = btree.open(self._f)
             self.reinitialize()
 
+    @micropython.native
     def reinitialize(self):
         """Recreates the default values in the database"""
         defaults = {
@@ -46,7 +44,7 @@ class Config:
             "SLEEP_DURATION": 1,
             "LIGHT": 1,
             "DHT_PIN": 0,
-            "bootNum": 0,
+            "bootsSinceWifi": 0,
             "ledPin": 16,
             "runningWithoutError": False,
             "firmware_update_in_progress": False,
@@ -65,11 +63,13 @@ class Config:
             self.put(key, value)
         self.flush()
 
+    @micropython.native
     def flush(self):
         """Flushes the database to disk"""
         self._db.flush()
         self._f.flush()
 
+    @micropython.native
     def get(self, key, raw=False):
         """Gets a value from the database, optionally skipping json decoding"""
         if key in self._db:
@@ -80,6 +80,7 @@ class Config:
         else:
             return None
 
+    @micropython.native
     def put(self, key, value):
         """Puts a value into the database.
         Returns: bool whether anything changed"""
@@ -95,8 +96,10 @@ class Config:
             return True
         return False
 
+    @micropython.native
     def updateFromServer(self):
         """Fetches a new config from the server and updates the database with it.  Returns whether anything changed."""
+        print('start of update')
         print(
             "Checking for server config updates from {}".format(self.get("server_url"))
         )
@@ -144,17 +147,20 @@ class Config:
             print("Error: server update fetch unsuccessful")
         return dbChanged
 
+    @micropython.native
     def wipe(self):
         """Complete erase and reset of config"""
         self.close()
         remove(DBFILE)
         self.__init__()
 
+    @micropython.native
     def close(self):
         self.flush()
         self._db.close()
         self._f.close()
 
+    @micropython.native
     def __del__(self):
         self.close()
 

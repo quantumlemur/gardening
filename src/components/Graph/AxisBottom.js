@@ -4,7 +4,6 @@ import { timeDay, timeWeek, timeFormat } from "d3";
 
 function AxisBottom({ xScale, yScale }) {
   var dayFormat = timeFormat("%a %m/%d");
-  var dateFormat = timeFormat("%a");
 
   const minorAxis = xScale.ticks(timeDay).map((d, i) => (
     <g className="x-tick" key={i}>

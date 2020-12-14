@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import "gestalt/dist/gestalt.css";
 import { Box, Button, Heading, Layer, Modal } from "gestalt";

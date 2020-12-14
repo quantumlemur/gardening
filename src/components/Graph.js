@@ -6,7 +6,7 @@ import { extent, schemeCategory10 } from "d3";
 import LineGraph from "./Graph/LineGraph";
 import Legend from "./Graph/Legend";
 
-import { Box, Heading, Text } from "gestalt";
+import { Box } from "gestalt";
 
 // Format data for graph display.
 // Input: List of points from get_sensor_data

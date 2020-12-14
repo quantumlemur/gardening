@@ -1,6 +1,6 @@
 [MASTER]
 # Loaded Stubs: 
-init-hook='import sys;sys.path.insert(1, "micropython/.micropy/micropython");'
+init-hook='import sys;sys.path.insert(1, ".micropy/BradenM-micropy-stubs-3cc928b/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-3cc928b/stubs");sys.path.insert(1, ".micropy/gardening");'
 
 [MESSAGES CONTROL]
 # Only show warnings with the listed confidence levels. Leave empty to show

@@ -249,26 +249,30 @@ def list_versions():
 
 
 @bp.route("/get_firmware/<path:filename>", methods=("GET", "POST"))
-# @registration_required
-# @update_checkin
+@registration_required
+@update_checkin
 def get_firmware(filename):
+    print(request.headers["mac"])
+    print(request.headers)
     if "mac" in request.headers:
         db = get_db()
         device_id = db.execute(
             "SELECT id FROM devices WHERE mac = ?", (request.headers["mac"],)
-        ).fetchone()[0]
-        db.execute(
-            """
-            UPDATE
-                device_status
-            SET
-                last_update_attempt_time=?,
-                last_update_attempt_tag=?
-            WHERE
-                device_id=?""",
-            (int(time()), filename[:-4], device_id),
-        )
-        db.commit()
+        ).fetchone()
+        if device_id:
+            device_id = device_id[0]
+            db.execute(
+                """
+                UPDATE
+                    device_status
+                SET
+                    last_update_attempt_time=?,
+                    last_update_attempt_tag=?
+                WHERE
+                    device_id=?""",
+                (int(time()), filename[:-4], device_id),
+            )
+            db.commit()
     return send_from_directory("../firmware/versions", filename)
 
 

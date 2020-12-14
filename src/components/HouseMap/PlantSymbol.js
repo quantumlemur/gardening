@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Icon } from "gestalt";
 import { animated } from "react-spring";
 import { Keyframes } from "react-spring/renderprops";

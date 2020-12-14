@@ -28,7 +28,7 @@ from api.db import get_db, get_db_dicts
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-calibration_time_window = 28  # days
+calibration_time_window = 56  # days
 
 
 @bp.route("/get_device_list", methods=("GET",))
@@ -253,7 +253,7 @@ def get_all_sensor_data():
             timestamp > ?
         ORDER BY timestamp ASC
         """,
-        (int(time()) - 14 * 24 * 60 * 60,),
+        (int(time()) - calibration_time_window * 24 * 60 * 60,),
     ).fetchall()
     return jsonify(data)
 
@@ -282,7 +282,7 @@ def get_sensor_data(deviceId, sensorName):
         (
             deviceId,
             sensorName,
-            int(time()) - 28 * 24 * 60 * 60,
+            int(time()) - calibration_time_window * 24 * 60 * 60,
         ),
     ).fetchall()
     if len(data) == 0:
@@ -294,7 +294,7 @@ def get_sensor_data(deviceId, sensorName):
     df = df.set_index("timestamp")
 
     # exponential smoothing and resampling
-    newdf = df.ewm(halflife="4 hours", times=df.index).mean()
+    newdf = df.ewm(halflife="12 hours", times=df.index).mean()
     newdf = newdf.resample("1H").mean().bfill()
 
     newdf = newdf.reset_index()
@@ -324,14 +324,13 @@ def get_raw_sensor_data(deviceId, sensorName):
         WHERE
             device_id = ? AND
             name = ? AND
-            zscore < 2 AND
             timestamp > ?
         ORDER BY timestamp ASC
         """,
         (
             deviceId,
             sensorName,
-            int(time()) - 28 * 24 * 60 * 60,
+            int(time()) - calibration_time_window * 24 * 60 * 60,
         ),
     ).fetchall()
     return jsonify(data)
@@ -390,6 +389,38 @@ def get_board_types():
     #     {"label": item["board_name"], "value": item["board_type"]} for item in data
     # ]
     return jsonify(data)
+
+
+@bp.route("/do_watering/<deviceId>")
+def do_watering(deviceId):
+    assert deviceId == request.view_args["deviceId"]
+    db = get_db_dicts()
+    error = None
+    db.execute(
+        """
+        INSERT INTO readings
+            (
+                timestamp,
+                value,
+                device_id,
+                name,
+                offset,
+                zscore
+            )
+        VALUES
+            (
+                ?,
+                1,
+                ?,
+                "watering",
+                0,
+                0
+            )
+        """,
+        (int(time()), deviceId),
+    )
+    db.commit()
+    return {"success": True}
 
 
 @bp.route("/time")

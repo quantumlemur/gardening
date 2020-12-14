@@ -22,7 +22,7 @@ function Legend({ legendData, handleClick, colorScale }) {
   useEffect(() => {
     setHeight(ref.current.clientHeight);
     setWidth(ref.current.clientWidth);
-  });
+  }, [ref]);
 
   const margin = {
     top: 0.05,

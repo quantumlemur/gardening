@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "gestalt/dist/gestalt.css";
-import { Box, Heading, Image } from "gestalt";
+import { Box, Image } from "gestalt";
 import { scaleLinear } from "d3-scale";
 
 import PlantShadow from "./PlantShadow";
@@ -22,7 +22,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
       .then((data) => {
         setZones(data);
       });
-  }, []);
+  }, [setZones]);
 
   useEffect(() => {
     fetch("/api/get_devices")
@@ -30,7 +30,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
       .then((data) => {
         setDevices(data);
       });
-  }, []);
+  }, [setDevices]);
 
   useEffect(() => {
     setWidth(ref.current.clientWidth);
@@ -43,6 +43,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
   };
 
   function handleDismiss() {
+    console.log("handledismiss in map");
     setShowStatus(false);
     // setShowSettings(false);
   }
@@ -106,7 +107,7 @@ function Map({ initialActiveDeviceId, setLocation }) {
                     color={colorScale(d.calibrated_value)}
                     needWater={d.calibrated_value > 0.8}
                     needCharge={d.board_type !== 1 && d.volt < 3600}
-                    alert={new Date() > d.device_next_init * 1000}
+                    alert={new Date() > (d.device_next_init + 60 * 30) * 1000} // half hour grace period
                   />
                 ))}
             </svg>
@@ -115,6 +116,8 @@ function Map({ initialActiveDeviceId, setLocation }) {
       </Box>
     );
   });
+
+  console.log("rerendering map");
 
   return (
     <Box
