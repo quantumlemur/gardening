@@ -58,30 +58,15 @@ curl --header 'Authorization: token fec0ca29254694a0496317d96710a560f178c847' --
 
 ## Device side
 
-## nodemcu files
+Build, erase, and do initial flash of the firmware
 
-- nodemcu/private contains files that aren't exposed to the autoupdater and must be manually copied.
-  This includes a CREDENTIALS.lua file which should be created to store the wifi credentials
-- nodemcu/public contains all the files which are exposed through the webserver and are subject to auto-updating on the device
-
-## nodemcu setup
-
-1. Set your wifi network and server URL in `nodemcu/private/CREDENTIALS.lua`:
-
-   ```lua
-   SERVER_URL = "http://nuc/device"
-   SSID = "ssid"
-   PASSWORD = "password"
-   ```
-
-1. Flash the firmware, `nodemcu/nodemcu-master-19-modules-2020-08-12-00-38-52-integer.bin`
-1. Upload `nodemcu/private/CREDENTIALS.lua`
-1. Upload `nodemcu/private/fifo.lua`
-1. Upload `nodemcu/private/init.lua`
-
-## Serial console, if you have a device plugged in
-
-`sudo chmod -R 777 /dev/ttyUSB0 ; stty -F /dev/ttyUSB0 115200 ; tail -f /dev/ttyUSB0`
+```bash
+git tag 0
+./update-firmware
+cd firmware/micropython/ports/esp32/
+make erase
+make flash
+```
 
 # Development
 
@@ -94,7 +79,7 @@ yarn start-api
 yarn start
 ```
 
-API is accessible on http://localhost:5000.
+API is accessible on http://localhost:5000
 
 Frontend is accessible on http://localhost:3000
 
@@ -275,16 +260,6 @@ make
 cd ../ports/unix
 make axtls
 make
-```
-
-## Device
-
-Flash device:
-
-```bash
-cd micropython
-esptool.py --port /dev/ttyUSB0 erase_flash
-esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash -z 0x1000 esp32-idf3-20200902-v1.13.bin
 ```
 
 # Tutorial sources
