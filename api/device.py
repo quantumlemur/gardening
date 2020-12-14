@@ -26,7 +26,7 @@ from api.db import get_db, get_db_dicts
 
 bp = Blueprint("device", __name__, url_prefix="/device")
 
-calibration_time_window = 28  # days
+calibration_time_window = 56  # days
 
 
 def registration_required(view):
@@ -106,7 +106,7 @@ def registration_required(view):
                             int(time())
                             - (calibration_time_window - 7) * 60 * 60 * 24
                             + 1,
-                            650,
+                            500,
                             0,
                             "soil",
                             1,
@@ -176,21 +176,6 @@ def sha256_file(fname):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
-
-
-@bp.route("/listfiles", methods=("GET", "POST"))
-def listfiles():
-    file_list = []
-    with scandir("nodemcu/public") as files:
-        for f in files:
-            if f.is_file() and (f.name[-4:] == ".lua" or f.name[-4:] == ".cfg"):
-                file_list.append([f.name, md5_file("nodemcu/public/" + f.name)])
-    return jsonify(file_list)
-
-
-@bp.route("/getfile/<path:filename>", methods=("GET", "POST"))
-def getfile(filename):
-    return send_from_directory(current_app.config["NODEMCU_FILE_PATH"], filename)
 
 
 @bp.route("/getfile_python/<path:filename>", methods=("GET", "POST"))
