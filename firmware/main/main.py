@@ -1,4 +1,5 @@
-#
+# Standard imports
+from time import sleep
 
 # 3rd party imports
 from machine import deepsleep, Pin
@@ -116,6 +117,7 @@ if __name__ == "__main__":
     setPins()
 
     with Sensors() as sensors:
+        sleep(1)
         sensors.readSensors()
 
         if isWifi():
