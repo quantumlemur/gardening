@@ -8,7 +8,7 @@ from twilio.rest import Client
 
 
 try:
-    response = requests.get("http://localhost:5000/api/get_devices")
+    response = requests.get("http://nuc/api/get_devices")
     response.raise_for_status()
     # access JSOn content
     devices = response.json()
@@ -25,7 +25,7 @@ try:
     thirsty_plants = [
         device["name"]
         for device in devices
-        if device["calibrated_value"] and device["calibrated_value"] > 0.1
+        if device["calibrated_value"] and device["calibrated_value"] > 0.8
     ]
     if len(thirsty_plants) > 0:
         body = "\r\n".join(thirsty_plants)
