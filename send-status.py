@@ -25,7 +25,7 @@ try:
     thirsty_plants = [
         device["name"]
         for device in devices
-        if device["calibrated_value"] and device["calibrated_value"] > 0.8
+        if device["needs_water"] and device["needs_water"] == 1
     ]
     if len(thirsty_plants) > 0:
         body = "\r\n".join(thirsty_plants)

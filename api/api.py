@@ -64,7 +64,8 @@ def get_devices():
             latest_volt_readings.value AS volt,
             calibration.min,
             calibration.max,
-            CAST(latest_soil_readings.value - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS calibrated_value
+            CAST(latest_soil_readings.value - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS calibrated_value,
+            .8 < CAST (recent_min - calibration.min AS FLOAT) / (calibration.max - calibration.min) AS needs_water
         FROM
             devices
         LEFT JOIN (
@@ -99,11 +100,26 @@ def get_devices():
                 timestamp > ?
             GROUP BY device_id
             ) AS calibration ON calibration.device_id = devices.id
+        LEFT JOIN (
+            SELECT
+                MIN(value) AS recent_min,
+                device_id
+            FROM
+                readings
+            WHERE
+                name = "soil" AND
+                zscore < 2 AND
+                timestamp > ?
+            GROUP BY device_id
+            ) AS recent ON recent.device_id = devices.id
         LEFT JOIN device_config ON device_config.device_id = devices.id
         LEFT JOIN device_status ON device_status.device_id = devices.id
         ORDER BY devices.id
             """,
-        (int(time()) - calibration_time_window * 24 * 60 * 60,),
+        (
+            int(time()) - calibration_time_window * 24 * 60 * 60,
+            int(time()) - 3 * 24 * 60 * 60,
+        ),
     ).fetchall()
     return jsonify(devices)
 
