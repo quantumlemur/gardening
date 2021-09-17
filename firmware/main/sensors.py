@@ -79,6 +79,9 @@ class Sensors:
         except KeyError as e:
             print("Sensor database error.  Resetting data...")
             db[b"nextSlot"] = b"0"
+        except OSError:
+            print("OSError from sensor database.  Wiping database...")
+            self.wipe()
 
     @micropython.native
     def wipe(self):
